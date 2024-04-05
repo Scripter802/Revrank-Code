@@ -1,0 +1,274 @@
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+    import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
+        authDomain: "revrank-d889f.firebaseapp.com",
+        databaseURL: "https://revrank-d889f-default-rtdb.europe-west1.firebasedatabase.app/",
+        projectId: "revrank-d889f",
+        storageBucket: "revrank-d889f.appspot.com",
+        messagingSenderId: "715615705364",
+        appId: "1:715615705364:web:523f3f60f1e83b2cb90a01",
+        measurementId: "G-TW6MMTZTD2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase();
+
+    var nameInput = document.querySelector('#nameInput');
+    var lastNameInput = document.querySelector('#lastNameInput');
+    var emailInput = document.querySelector('#emailInput');
+    var signUpButton = document.querySelector('#signUpButton');
+    var firstStepBtn = document.querySelector('#firstStepBtn');
+    var shopifySetupBtn = document.querySelector('#shopifySetupBtn');
+    var emailForm = document.querySelector('#email-form-2');
+    var storeForm = document.querySelector('#storeInput');
+
+    var passInput = document.querySelector('#passInput');
+    var passInputC = document.querySelector('#passInputConfirm');
+    
+    document.querySelector('#firstDiv').style.display = 'flex';
+    document.querySelector('#finalStep').style.display = 'none';
+    document.querySelector('#secondStep').style.display = 'none';
+    
+    nameInput.value = '';
+    lastNameInput.value = '';
+    emailInput.value = '';
+    passInput.value = '';
+    passInputC.value = '';
+    storeForm.value = '';
+
+
+
+    emailForm.addEventListener('submit', handlerCallback, true);
+    function handlerCallback(event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    storeForm.addEventListener('submit', handlerCallbackNew, true);
+    function handlerCallbackNew(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      initiateShopifyAuth();
+    }
+
+
+    firstStepBtn.addEventListener('click', function() {
+        document.querySelector('#nameSpan').innerText = nameInput.value + '!';
+    });
+
+
+    signUpButton.addEventListener('click', function() {
+    var email = emailInput.value.toLowerCase();
+    var pass = passInput.value;
+
+    signUpButton.classList.add('button-pop');
+
+    setTimeout(() => {
+        signUpButton.classList.remove('button-pop');
+    }, 200); 
+
+    if(passInput.value != passInputC.value){
+        document.querySelector('#errTxt').style.display = 'block';
+        document.querySelector('#errTxt').innerText = "Passwords don't match";
+        
+        return;
+    }
+
+    var sanatizedEmail = email.replace(/\./g, ',');
+
+    createUserWithEmailAndPassword(auth, email, pass)
+        .then((userCredential) => {
+            var user = userCredential.user;
+            console.log('User registered:', user);
+
+            const userRef = ref(db, 'users/' + sanatizedEmail);
+            set(userRef, {
+                firstName: nameInput.value,
+                lastName: lastNameInput.value,
+                email: sanatizedEmail
+            });
+
+            document.querySelector('#secondStep').style.display = 'none'
+            document.querySelector('#finalStep').style.display = 'flex'
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+
+            // Mapping Firebase error codes to custom messages
+            const errorMessages = {
+                'auth/invalid-email': 'Invalid Email Address',
+                'auth/weak-password': 'Weak Password',
+                'auth/email-already-in-use': 'Email Already In Use',
+                'auth/missing-password': 'Password Missing'
+            };
+
+            // Display a custom error message or the original Firebase error message
+            const customErrorMessage = errorMessages[errorCode] || errorMessage;
+
+            // Check if the error is due to an existing email
+            if (errorCode === 'auth/email-already-in-use') {
+                const userRef = ref(db, 'users/' + sanatizedEmail);
+                get(userRef).then((snapshot) => {
+                    if (snapshot.exists() && snapshot.val().totalRevenue === undefined) {
+                        // User exists but totalRevenue is not set
+                        // Delete the user from the authentication system
+                        const userToDelete = auth.currentUser;
+                        deleteUser(userToDelete).then(() => {
+                            console.log('User deleted from auth system');
+                            // Delete the user from the database
+                            remove(userRef).then(() => {
+                                console.log('User deleted from database');
+                                // Create a new user with the new data
+                                createUserWithEmailAndPassword(auth, email, pass)
+                                    .then((userCredential) => {
+                                        var newUser = userCredential.user;
+                                        console.log('New user registered:', newUser);
+
+                                        const newUserRef = ref(db, 'users/' + sanatizedEmail);
+                                        set(newUserRef, {
+                                            firstName: nameInput.value,
+                                            lastName: lastNameInput.value,
+                                            email: sanatizedEmail
+                                        });
+
+                                        document.querySelector('#secondStep').style.display = 'none'
+                                        document.querySelector('#finalStep').style.display = 'flex'
+                                    })
+                                    .catch((newError) => {
+                                        console.error('Error creating new user:', newError);
+                                    });
+                            }).catch((removeError) => {
+                                console.error('Error deleting user from database:', removeError);
+                            });
+                        }).catch((deleteError) => {
+                            console.error('Error deleting user from auth system:', deleteError);
+                        });
+                    } else {
+                        // Display the error message
+                        document.querySelector('#errTxt').style.display = 'block';
+                        var cleanedMessage = customErrorMessage.replace('Firebase: ', '');
+                        console.error('Error logging in:', errorCode, errorMessage);
+                        document.querySelector('#errTxt').innerText = cleanedMessage;
+                    }
+                });
+            } else {
+                // Display the error message for other errors
+                document.querySelector('#errTxt').style.display = 'block';
+                var cleanedMessage = customErrorMessage.replace('Firebase: ', '');
+                console.error('Error logging in:', errorCode, errorMessage);
+                document.querySelector('#errTxt').innerText = cleanedMessage;
+            }
+        });
+});
+
+
+    const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
+    const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
+    const SHOPIFY_SCOPES = 'read_orders';
+    
+    function initiateShopifyAuth() {
+    var shopName = document.querySelector('#shopnameInput').value.trim().toLowerCase();
+    if (!shopName) return;
+
+    if (shopName.includes(' ')) {
+        document.querySelector('#errorText').style.display = 'block';
+        document.querySelector('#errorText').innerText = "Shop name cannot contain spaces";
+        return;
+    }
+    
+    shopName = shopName.replace(/\.myshopify\.com$/, '');
+
+    const usersRef = ref(db, 'users');
+    const usedShopName = query(usersRef, orderByChild('shopName'), equalTo(shopName));
+
+    // Create a promise to handle the asynchronous Firebase query
+    const checkExistingStore = new Promise((resolve) => {
+        onValue(usedShopName, (snapshot) => {
+            let existingUserData = null;
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    if (childSnapshot.val().totalRevenue === undefined) {
+                        existingUserData = { key: childSnapshot.key, ...childSnapshot.val() };
+                    }
+                });
+                if (existingUserData === null) {
+                    // There is an existing user with totalRevenue set
+                    resolve('shopInUse');
+                } else {
+                    // There is an existing user without totalRevenue set
+                    resolve(existingUserData);
+                }
+            } else {
+                // No user with the shop name exists
+                resolve(null);
+            }
+        });
+    });
+
+    // Check if the shop already exists and handle the case where totalRevenue is undefined
+    checkExistingStore.then((existingUserData) => {
+    if (existingUserData && existingUserData !== 'shopInUse') {
+        const userRefToUpdate = ref(db, 'users/' + existingUserData.email);
+        const updatedShopName = existingUserData.shopName + ' - removed';
+        update(userRefToUpdate, { shopName: updatedShopName }).then(() => {
+            console.log('User\'s shopName updated in database');
+            updateShopNameForCurrentUser(shopName);
+        }).catch((error) => {
+            console.error('Error updating user\'s shopName in database:', error);
+        });
+    } else if (existingUserData === null) {
+        // No user with the shop name exists, continue with registration
+        updateShopNameForCurrentUser(shopName);
+    } else {
+        // Shop name is already in use and has totalRevenue set
+        document.querySelector('#errorText').style.display = 'block';
+        document.querySelector('#errorText').innerText = "Shop Already In Use";
+    }
+});
+
+}
+
+
+function updateShopNameForCurrentUser(shopName) {
+    const user = auth.currentUser;
+    if (user) {
+        var sanatizedEmail = user.email.replace(/\./g, ',');
+        const userRef = ref(db, 'users/' + sanatizedEmail);
+
+        // Update the shopName in the database for the current user
+        update(userRef, {
+            shopName: shopName
+        }).then(() => {
+            // Once the shop name is saved, continue with Shopify authentication.
+            const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
+            window.location.href = authURL;
+        }).catch((error) => {
+            console.error('Error updating shop name:', error);
+        });
+    } else {
+        console.error('No user is logged in.');
+    }
+}
+
+
+    shopifySetupBtn.addEventListener('click', function() {
+        
+        shopifySetupBtn.classList.add('button-pop');
+
+        setTimeout(() => {
+            shopifySetupBtn.classList.remove('button-pop');
+        }, 200); 
+
+        initiateShopifyAuth();
+    });
+
+
+</script>
+

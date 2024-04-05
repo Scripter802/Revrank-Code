@@ -1,0 +1,75 @@
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
+        authDomain: "revrank-d889f.firebaseapp.com",
+        databaseURL: "https://revrank-d889f-default-rtdb.europe-west1.firebasedatabase.app/",
+        projectId: "revrank-d889f",
+        storageBucket: "revrank-d889f.appspot.com",
+        messagingSenderId: "715615705364",
+        appId: "1:715615705364:web:523f3f60f1e83b2cb90a01",
+        measurementId: "G-TW6MMTZTD2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase();
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const fadeBtn = document.getElementById('fadeBtn');
+        const fadeImg = document.getElementById('fadeImg');
+    
+        // Store the original margin top value of the fadeImg
+        const originalMarginTop = fadeImg.style.marginTop;
+    
+        // Flag to track the sliding state
+        let isSlidOut = false;
+    
+        fadeBtn.addEventListener('click', function() {
+            if (!isSlidOut) {
+                // Slide out
+                fadeBtn.style.marginTop = '10vh';
+                fadeImg.style.marginTop = '50vh';
+                isSlidOut = true;
+            } else {
+                // Slide back in
+                fadeBtn.style.marginTop = '-5vh';
+                fadeImg.style.marginTop = originalMarginTop; // Use the stored original margin top value
+                isSlidOut = false;
+            }
+        });
+
+        createLeaderboard();
+
+    });
+
+
+    const createLeaderboard = async () => {
+    const usersRef = ref(db, '/users');
+    const snapshot = await get(usersRef);
+    const users = [];
+
+    snapshot.forEach(childSnapshot => {
+        const user = childSnapshot.val();
+        if (user.totalRevenue !== undefined) {
+            users.push(user);
+        }
+    });
+
+    const leaderboard = users.sort((a, b) => parseFloat(b.totalRevenue) - parseFloat(a.totalRevenue));
+
+    console.log('Leaderboard:', leaderboard);
+};
+
+
+
+
+
+
+    </script>
+    

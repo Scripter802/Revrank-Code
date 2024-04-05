@@ -1,0 +1,165 @@
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+    import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
+      authDomain: "revrank-d889f.firebaseapp.com",
+      databaseURL: "https://revrank-d889f-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "revrank-d889f",
+      storageBucket: "revrank-d889f.appspot.com",
+      messagingSenderId: "715615705364",
+      appId: "1:715615705364:web:523f3f60f1e83b2cb90a01",
+      measurementId: "G-TW6MMTZTD2"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase();
+  
+    var loginEmail = document.querySelector('#loginEmail');
+    var loginPass = document.querySelector('#loginPass');
+    var loginBtn = document.querySelector('#loginBtn');
+    var emailForm = document.querySelector('#email-form');
+    var loadingAnim = document.querySelector('#loginLoading');
+    
+    loginEmail.value = '';
+    loginPass.value = '';
+
+    emailForm.addEventListener('submit', handlerCallback, true);
+    function handlerCallback(event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  
+    var realLoginPassword = "";
+
+    fetch('https://revrank-image-gen.onrender.com/generate-image', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ rank: 'Pawn', firstName: 'dummy' }),
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            
+            console.log("Dummy image arrived");
+
+        }).catch(error => console.error('Error:', error));
+
+  
+    loginBtn.addEventListener('click', function() {
+        var email = loginEmail.value.toLowerCase();
+    var password = loginPass.value;
+
+    loginBtn.style.display = 'none'
+    loadingAnim.style.display = 'block'
+
+    loginBtn.classList.add('button-pop');
+
+    setTimeout(() => {
+        loginBtn.classList.remove('button-pop');
+    }, 200);
+
+    console.log(email)
+
+    signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
+        // Login successful.
+        var user = userCredential.user;
+        console.log('User logged in:', user);
+
+        // Fetch user data based on email
+        const userRef = ref(db, `users/${email.replace(/\./g, ',')}`);
+
+        onValue(userRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val(); // Directly use the snapshot value
+                console.log('User data:', userData);
+
+                if(userData.shopName == undefined || userData.shopName == null || userData.totalRevenue === undefined || userData.totalRevenue == 'undefined'){
+
+                    remove(ref(db, 'users/' + email.replace(/\./g, ',')));
+
+                    // Remove user from authentication system
+                    const user = auth.currentUser;
+                    user.delete().then(() => {
+                        console.log('User deleted from authentication system.');
+                    }).catch((error) => {
+                        console.error('Error deleting user from authentication system:', error);
+                    });
+
+                    document.querySelector('#errTxt').style.display = 'block';
+                    document.querySelector('#errTxt').innerText = "Account Not Complete. Please Register Again";
+                }else{
+                    // Redirect to "/results" with totalRevenue parameter
+                    window.location.href = "/results?totalRevenue=" + userData.totalRevenue + '&shopName=' + userData.shopName;
+                }
+            } else {
+                console.log('No user found with the specified email.');
+                document.querySelector('#errTxt').innerText = "No account with that email";
+
+                loginBtn.style.display = 'block'
+                loadingAnim.style.display = 'none'
+            }
+        });
+
+
+
+
+        }).catch((error) => {
+    var errorCode = error.code;
+    var errorMessage = error.message;
+
+    // Mapping Firebase error codes to custom messages
+    const errorMessages = {
+        'auth/invalid-email': 'Invalid Email Address',
+        'auth/weak-password': 'Weak Password',
+        'auth/user-not-found': 'User Not Found',
+        'auth/wrong-password': 'Wrong Password'
+    };
+
+    // Display a custom error message or the original Firebase error message
+    const customErrorMessage = errorMessages[errorCode] || errorMessage;
+
+    document.querySelector('#errTxt').style.display = 'block';
+    let cleanedMessage = customErrorMessage.replace('Firebase: ', '');
+    console.error('Error logging in:', errorCode, errorMessage);
+
+  setTimeout(() => {
+  // Function to check if the condition is met
+  function isConditionMet() {
+    return document.getElementById('loginForm').children[1].style.display !== 'none';
+  }
+
+  // Function to execute the code
+  function executeCode() {
+    document.getElementById('loginForm').children[0].style.display = 'flex';
+    document.getElementById('loginForm').children[1].style.display = 'none';
+  }
+
+  const intervalId = setInterval(() => {
+    if (isConditionMet()) {
+      executeCode();
+      clearInterval(intervalId);
+    }
+  }, 200); 
+
+  document.querySelector('#errTxt').innerText = cleanedMessage;
+  
+}, 1000); 
+
+
+loginBtn.style.display = 'block'
+loadingAnim.style.display = 'none'
+
+
+});
+
+});
+
+
+</script>
+  
