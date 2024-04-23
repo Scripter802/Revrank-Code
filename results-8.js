@@ -301,6 +301,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 console.log("sending IG: " + igHandleParam)
 
+                if(totalRevenueParam == null)
+                return
 
                 fetch('https://revrank-image-gen.onrender.com/generate-image', {
                         method: 'POST',
