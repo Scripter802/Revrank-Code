@@ -1,4 +1,7 @@
 $(document).ready(function () {
+
+    console.log("rank-visual");
+
     const urlParams = new URLSearchParams(window.location.search);
     const totalRevenue = parseFloat(urlParams.get('totalRevenue'));
     const animDiv = $('#animDiv');
