@@ -269,7 +269,28 @@ document.addEventListener("DOMContentLoaded", function () {
                                 console.error("Error updating Instagram handle:", error);
                             });
                     }
-                });                
+                });   
+                
+                $('.share-profile-class').click(function() {
+                    var sharingUrl = "https://www.revrank.io/sharing?email=" + encodeURIComponent(emailValue);
+                
+                    navigator.clipboard.writeText(sharingUrl).then(() => {
+                        console.log('Copying to clipboard was successful!');
+                        alert('URL copied to clipboard: ' + sharingUrl);
+                
+                        // Change button appearance and text on successful copy
+                        $(this).css({
+                            'background-color': '#7ab861',
+                            'border-color': 'white',
+                            'color': 'white'  // Optional: change text color if needed
+                        }).text('Link copied!');
+                    }, (err) => {
+                        console.error('Could not copy text: ', err);
+                        alert('Failed to copy URL. Please try again.');
+                    });
+                
+                });
+                
     
                 var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
 
