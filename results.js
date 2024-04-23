@@ -32,10 +32,6 @@ $(document).ready(function () {
         $('#profile-section').toggle();
     });
 
-    $(document).click(function() {
-        $('#profile-section').hide();
-    });
-
     $('#close-settings').click(function() {
         $('#profile-settings').css('display', 'none');
         $('#close-settings').css('display', 'none');
