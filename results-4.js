@@ -229,13 +229,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 if(userData.instagram == 'none')
                 $('#username-block').hide();
                 else
-                $('#username-profile').text(userData.instagram)
+                $('#username-profile').text('@' + userData.instagram)
 
-                $('#email-and-shop').text(userData.email + ' | ' + userData.shopName)
+                $('#email-and-shop').text(userData.email.replace(/,/g, '.') + ' | ' + userData.shopName)
 
-                $('#email-settings').val(userData.email);
+                $('#email-settings').val(userData.email.replace(/,/g, '.'));
                 $('#email-settings').prop('disabled', true);
-                $('#ig-settings').val(userData.instagram);
+                $('#ig-settings').val('@' + userData.instagram);
                 $('#shop-settings').val(userData.shopName);
                 $('#shop-settings').prop('disabled', true);
     
