@@ -192,7 +192,7 @@ return rankTextMap;
 
 
 
-
+//Backend connecting--------------------
 
 document.addEventListener("DOMContentLoaded", function () {
     var urlParamsShopName = new URLSearchParams(window.location.search);
@@ -224,6 +224,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 const userDataObject = snapshot.val();
                 const userId = Object.keys(userDataObject)[0];
                 const userData = userDataObject[userId];
+
+                //Profile section
+                if(userData.instagram == 'none')
+                $('#username-block').hide();
+                else
+                $('#username-profile').text(userData.instagram)
+
+                $('#email-and-shop').text(userData.email + ' | ' + userData.shopName)
+
+                $('#email-settings').val(userData.email);
+                $('#email-settings').prop('disabled', true);
+                $('#ig-settings').val(userData.instagram);
+                $('#shop-settings').val(userData.shopName);
+                $('#shop-settings').prop('disabled', true);
     
                 var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
 
