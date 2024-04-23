@@ -272,24 +272,37 @@ document.addEventListener("DOMContentLoaded", function () {
                 });   
                 
                 $('.share-profile-class').click(function() {
-                    var sharingUrl = "https://www.revrank.io/sharing?email=" + encodeURIComponent(userData.email);
+                    var sharingUrl = "https://www.revrank.io/sharing/" + encodeURIComponent(userData.shopName);
                 
                     navigator.clipboard.writeText(sharingUrl).then(() => {
                         console.log('Copying to clipboard was successful!');
-                        alert('URL copied to clipboard: ' + sharingUrl);
                 
-                        // Change button appearance and text on successful copy
+                        var originalColor = $(this).css('color');
+                        var originalBackgroundColor = $(this).css('background-color');
+                        var originalBorderColor = $(this).css('border-color');
+                
                         $(this).css({
                             'background-color': '#7ab861',
                             'border-color': 'white',
-                            'color': 'white'  // Optional: change text color if needed
+                            'color': 'white'
                         }).text('Link copied!');
+                
+ 
+                        setTimeout(() => {
+                            $(this).css({
+                                'color': originalColor,
+                                'background-color': originalBackgroundColor,
+                                'border-color': originalBorderColor
+                            }).text('Share Profile');  
+                        }, 2000);
+                
                     }, (err) => {
                         console.error('Could not copy text: ', err);
                         alert('Failed to copy URL. Please try again.');
                     });
                 
                 });
+                
                 
     
                 var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
