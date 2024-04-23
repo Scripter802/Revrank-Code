@@ -1,3 +1,22 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
+    authDomain: "revrank-d889f.firebaseapp.com",
+    databaseURL: "https://revrank-d889f-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "revrank-d889f",
+    storageBucket: "revrank-d889f.appspot.com",
+    messagingSenderId: "715615705364",
+    appId: "1:715615705364:web:523f3f60f1e83b2cb90a01",
+    measurementId: "G-TW6MMTZTD2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getDatabase();
+
 
 $(document).ready(function () {
     const urlParams = new URLSearchParams(window.location.search);
@@ -6,6 +25,7 @@ $(document).ready(function () {
     const profileSection = $('#profile-section');
     const profilePicNav = $('#profile-pic-nav'); 
     profileSection.css('display', 'none');
+    $('#mobilePopup').css('display', 'none');
 
     profilePicNav.click(function() {
         event.stopPropagation();
@@ -17,17 +37,17 @@ $(document).ready(function () {
     });
 
     $('#close-settings').click(function() {
-        $('#profile-settings').hide();
-        $('#close-settings').hide();
+        $('#profile-settings').css('display', 'none');
+        $('#close-settings').css('display', 'none');
 
-        $('#profile-private').show();
+        $('#profile-private').css('display', 'flex');
     });
 
     $('#open-settings').click(function() {
-        $('#profile-settings').show();
-        $('#close-settings').show();
+        $('#profile-settings').css('display', 'flex');
+        $('#close-settings').css('display', 'block');
 
-        $('#profile-private').hide();
+        $('#profile-private').css('display', 'none');
     });
 
 
@@ -108,89 +128,10 @@ $(document).ready(function () {
             $('#smallTxt').html(rankTextMap[rank]);
         }
     }
-});
-
-setTimeout(function() {
-    $('#animDiv').css('opacity', '0').on('transitionend', function() {
-        $(this).css('display', 'none');
-    });
-}, 3500);
-
-function calculateRankTextMap(totalRevenue, thresholds) {
-    let rankTextMap = {};
-    thresholds.forEach((threshold, index) => {
-        let percentage = 0;
-        if (index === 0) {
-            if (totalRevenue <= 0) {
-                percentage = "Sub 99%";
-            } else {
-                let positionInRange = totalRevenue / threshold.value;
-                let percentageRange = 50;
-                percentage = `Sub ${(99 - (positionInRange * percentageRange)).toFixed(1)}%`;
-            }
-        } else if (index === thresholds.length - 1) {
-            let lowerBound = thresholds[index - 1].value;
-            let upperBound = 2000000; 
-            let range = upperBound - lowerBound;
-            let positionInRange = (totalRevenue - lowerBound) / range;
-
-            let percentageRange = 0.9;
-            percentage = `Top ${(1 - (positionInRange * percentageRange)).toFixed(1)}%`;
-
-            if (totalRevenue > 2000000) {
-                percentage = "Top 0.1%";
-            }
-        } else {
-            let lowerBound = thresholds[index - 1].value;
-            let upperBound = threshold.value;
-            let range = upperBound - lowerBound;
-            let positionInRange = (totalRevenue - lowerBound) / range;
-
-            let percentageRanges = [
-                { rank: 'Bishop', range: [25, 50] },
-                { rank: 'Knight', range: [10, 24.99] },
-                { rank: 'Rook', range: [5, 9.99] },
-                { rank: 'Queen', range: [1, 4.99] }
-            ];
-
-            let currentRange = percentageRanges[index - 1].range;
-            let percentageRange = currentRange[1] - currentRange[0];
-            percentage = currentRange[1] - (positionInRange * percentageRange);
-
-            if (percentage % 1 === 0) {
-                percentage = `Top ${percentage}%`;
-            } else {
-                percentage = `Top ${percentage.toFixed(1)}%`;
-            }
-        }
-        rankTextMap[threshold.rank] = `You Are In The ${percentage} Of RevRank`;
-    });
-    return rankTextMap;
-}
 
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-    import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+    //Rank stuff------------------------------
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
-        authDomain: "revrank-d889f.firebaseapp.com",
-        databaseURL: "https://revrank-d889f-default-rtdb.europe-west1.firebasedatabase.app/",
-        projectId: "revrank-d889f",
-        storageBucket: "revrank-d889f.appspot.com",
-        messagingSenderId: "715615705364",
-        appId: "1:715615705364:web:523f3f60f1e83b2cb90a01",
-        measurementId: "G-TW6MMTZTD2"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getDatabase();
-
-    $('#mobilePopup').css('display', 'none');
-
-    document.addEventListener("DOMContentLoaded", function () {
     var urlParamsShopName = new URLSearchParams(window.location.search);
     var shopNameUsed = urlParamsShopName.get('shopName');
 
@@ -199,15 +140,6 @@ function calculateRankTextMap(totalRevenue, thresholds) {
     }
 
     shopNameUsed = shopNameUsed.replace(',myshopify,com','')
-
-    const thresholds = [
-    { rank: 'Pawn', value: 25000 },
-    { rank: 'Bishop', value: 50000 },
-    { rank: 'Knight', value: 100000 },
-    { rank: 'Rook', value: 250000 },
-    { rank: 'Queen', value: 500000 },
-    { rank: 'King', value: 1000000 }
-    ];
 
     if (shopNameUsed) {
         console.log("got shop")
@@ -470,7 +402,68 @@ function calculateRankTextMap(totalRevenue, thresholds) {
     } else {
         console.log('No email in storage.');
     }
+
+
+    //Rank stuff------------------------------
 });
+
+setTimeout(function() {
+    $('#animDiv').css('opacity', '0').on('transitionend', function() {
+        $(this).css('display', 'none');
+    });
+}, 3500);
+
+function calculateRankTextMap(totalRevenue, thresholds) {
+    let rankTextMap = {};
+    thresholds.forEach((threshold, index) => {
+        let percentage = 0;
+        if (index === 0) {
+            if (totalRevenue <= 0) {
+                percentage = "Sub 99%";
+            } else {
+                let positionInRange = totalRevenue / threshold.value;
+                let percentageRange = 50;
+                percentage = `Sub ${(99 - (positionInRange * percentageRange)).toFixed(1)}%`;
+            }
+        } else if (index === thresholds.length - 1) {
+            let lowerBound = thresholds[index - 1].value;
+            let upperBound = 2000000; 
+            let range = upperBound - lowerBound;
+            let positionInRange = (totalRevenue - lowerBound) / range;
+
+            let percentageRange = 0.9;
+            percentage = `Top ${(1 - (positionInRange * percentageRange)).toFixed(1)}%`;
+
+            if (totalRevenue > 2000000) {
+                percentage = "Top 0.1%";
+            }
+        } else {
+            let lowerBound = thresholds[index - 1].value;
+            let upperBound = threshold.value;
+            let range = upperBound - lowerBound;
+            let positionInRange = (totalRevenue - lowerBound) / range;
+
+            let percentageRanges = [
+                { rank: 'Bishop', range: [25, 50] },
+                { rank: 'Knight', range: [10, 24.99] },
+                { rank: 'Rook', range: [5, 9.99] },
+                { rank: 'Queen', range: [1, 4.99] }
+            ];
+
+            let currentRange = percentageRanges[index - 1].range;
+            let percentageRange = currentRange[1] - currentRange[0];
+            percentage = currentRange[1] - (positionInRange * percentageRange);
+
+            if (percentage % 1 === 0) {
+                percentage = `Top ${percentage}%`;
+            } else {
+                percentage = `Top ${percentage.toFixed(1)}%`;
+            }
+        }
+        rankTextMap[threshold.rank] = `You Are In The ${percentage} Of RevRank`;
+    });
+    return rankTextMap;
+}
 
 
 function SharingBtn_load(buttonC){
@@ -493,8 +486,6 @@ function SharingBtn_unload(buttonC){
     }
 }
 
-
-
 function findUserRank(shopNameUsed, callback) {
     const usersRef = ref(db, 'users');
     onValue(usersRef, (snapshot) => {
@@ -511,7 +502,6 @@ function findUserRank(shopNameUsed, callback) {
         }
     });
 }
-
 
 
 
