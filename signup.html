@@ -22,6 +22,8 @@
     var lastNameInput = document.querySelector('#lastNameInput');
     var emailInput = document.querySelector('#emailInput');
     var signUpButton = document.querySelector('#signUpButton');
+    var IGSubmitBtn = document.querySelector('#igSubmitBtn');
+    var IGskipBtn = document.querySelector('#igSkipBtn');
     var firstStepBtn = document.querySelector('#firstStepBtn');
     var shopifySetupBtn = document.querySelector('#shopifySetupBtn');
     var emailForm = document.querySelector('#email-form-2');
@@ -33,6 +35,7 @@
     document.querySelector('#firstDiv').style.display = 'flex';
     document.querySelector('#finalStep').style.display = 'none';
     document.querySelector('#secondStep').style.display = 'none';
+    document.querySelector('#igStep').style.display = 'none';
     
     nameInput.value = '';
     lastNameInput.value = '';
@@ -59,6 +62,19 @@
 
 
     firstStepBtn.addEventListener('click', function() {
+
+        console.log("step 1 click")
+        console.log(document.querySelector('#nameInput').value )
+
+        if(document.querySelector('#nameInput').value == false || document.querySelector('#lastNameInput').value == false)
+        return;
+
+        console.log("step 1 ENTER")
+
+
+        document.querySelector('#firstDiv').style.display = 'none'
+        document.querySelector('#secondStep').style.display = 'flex'
+
         document.querySelector('#nameSpan').innerText = nameInput.value + '!';
     });
 
@@ -95,7 +111,8 @@
             });
 
             document.querySelector('#secondStep').style.display = 'none'
-            document.querySelector('#finalStep').style.display = 'flex'
+            document.querySelector('#igStep').style.display = 'flex'
+            //document.querySelector('#finalStep').style.display = 'flex'
         })
         .catch((error) => {
             var errorCode = error.code;
@@ -139,7 +156,8 @@
                                         });
 
                                         document.querySelector('#secondStep').style.display = 'none'
-                                        document.querySelector('#finalStep').style.display = 'flex'
+                                        document.querySelector('#igStep').style.display = 'flex'
+                                        //document.querySelector('#finalStep').style.display = 'flex'
                                     })
                                     .catch((newError) => {
                                         console.error('Error creating new user:', newError);
@@ -167,6 +185,42 @@
             }
         });
 });
+
+
+IGSubmitBtn.addEventListener('click', function() {
+    var instagramHandle = instagramInput.value.trim().replace('@', '');
+
+    if (instagramHandle.includes(' ')) {
+        document.querySelector('#errorTextIG').style.display = 'block';
+        document.querySelector('#errorTextIG').innerText = "No spaces allowed in the handle";
+    } else {
+        document.querySelector('#errorTextIG').style.display = 'none';
+        var sanatizedEmail = emailInput.value.toLowerCase().replace(/\./g, ',');
+        const userRef = ref(db, 'users/' + sanatizedEmail);
+        update(userRef, {
+            instagram: instagramHandle
+        }).then(() => {
+            document.querySelector('#igStep').style.display = 'none';
+            document.querySelector('#finalStep').style.display = 'flex';
+        }).catch((error) => {
+            console.error('Error updating user:', error);
+        });
+    }
+});
+
+igSkipBtn.addEventListener('click', function() {
+    var sanatizedEmail = emailInput.value.toLowerCase().replace(/\./g, ',');
+    const userRef = ref(db, 'users/' + sanatizedEmail);
+    update(userRef, {
+        instagram: 'none'
+    }).then(() => {
+        document.querySelector('#igStep').style.display = 'none';
+        document.querySelector('#finalStep').style.display = 'flex';
+    }).catch((error) => {
+        console.error('Error updating user:', error);
+    });
+});
+
 
 
     const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
@@ -236,7 +290,7 @@
 }
 
 
-function updateShopNameForCurrentUser(shopName) {
+    function updateShopNameForCurrentUser(shopName) {
     const user = auth.currentUser;
     if (user) {
         var sanatizedEmail = user.email.replace(/\./g, ',');

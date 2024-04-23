@@ -1,11 +1,35 @@
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-<script>
 $(document).ready(function () {
     const urlParams = new URLSearchParams(window.location.search);
     const totalRevenue = parseFloat(urlParams.get('totalRevenue'));
     const animDiv = $('#animDiv');
+    const profileSection = $('#profile-section');
+    const profilePicNav = $('#profile-pic-nav'); 
+    profileSection.css('display', 'none');
+
+    profilePicNav.click(function() {
+        event.stopPropagation();
+        $('#profile-section').toggle();
+    });
+
+    $(document).click(function() {
+        $('#profile-section').hide();
+    });
+
+    $('#close-settings').click(function() {
+        $('#profile-settings').hide();
+        $('#close-settings').hide();
+
+        $('#profile-private').show();
+    });
+
+    $('#open-settings').click(function() {
+        $('#profile-settings').show();
+        $('#close-settings').show();
+
+        $('#profile-private').hide();
+    });
+
 
     const thresholds = [
         { rank: 'Pawn', value: 25000 },
@@ -145,9 +169,6 @@ function calculateRankTextMap(totalRevenue, thresholds) {
 }
 
 
-</script>
-   
-<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
     import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
     import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
@@ -200,7 +221,7 @@ function calculateRankTextMap(totalRevenue, thresholds) {
                 const userId = Object.keys(userDataObject)[0];
                 const userData = userDataObject[userId];
     
-                var rankParam,imageURL, firstNameParam, gotImageFromServer = false;
+                var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const totalRevenueParam = urlParams.get('totalRevenue');
@@ -226,6 +247,10 @@ function calculateRankTextMap(totalRevenue, thresholds) {
                     }
                 }
                 firstNameParam = userData.firstName;
+                igHandleParam = userData.instagram;
+
+                console.log("sending IG: " + igHandleParam)
+
 
                 fetch('https://revrank-image-gen.onrender.com/generate-image', {
                         method: 'POST',
@@ -233,7 +258,7 @@ function calculateRankTextMap(totalRevenue, thresholds) {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ rank: rankParam, firstName: firstNameParam, revenue: totalRevenueParam}),
+                        body: JSON.stringify({ rank: rankParam, firstName: firstNameParam, igHandle: igHandleParam, revenue: totalRevenueParam}),
                     })
                     .then(response => response.blob())
                     .then(blob => {
@@ -412,11 +437,10 @@ function calculateRankTextMap(totalRevenue, thresholds) {
             })
 
             document.getElementById('share_x').addEventListener('click', function() {      
-                var url = 'https://www.revrank.io';
-                const text = "Just got my rank on RevRank. I am a " + rankParam + ". Visit revrank.io to get your rank!";
-                const hashtags = "revrank"; 
-                const via = "revrank"; 
-                const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}&hashtags=${encodeURIComponent(hashtags)}&via=${encodeURIComponent(via)}`;
+                const text = "I’m a verified " + rankParam + ". Numbers don't lie";
+               // const text = "Just got my rank on RevRank. I am a " + rankParam + ". Visit revrank.io to get your rank!";
+                const hashtags = "rankreveal"; 
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&hashtags=${encodeURIComponent(hashtags)}`;
                 window.open(twitterUrl, '_blank');         
             })
 
@@ -489,12 +513,5 @@ function findUserRank(shopNameUsed, callback) {
 }
 
 
-</script>
 
-<style>
-    .confetti_canvas {
-        position: absolute;
-        width: 100vw;
-        height: 100vh;
-    }
-</style>
+
