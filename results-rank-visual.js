@@ -2,6 +2,30 @@ $(document).ready(function () {
     const urlParams = new URLSearchParams(window.location.search);
     const totalRevenue = parseFloat(urlParams.get('totalRevenue'));
     const animDiv = $('#animDiv');
+    const profileSection = $('#profile-section');
+    const profilePicNav = $('#profile-pic-nav'); 
+    profileSection.css('display', 'none');
+    $('#mobilePopup').css('display', 'none');
+
+    profilePicNav.click(function() {
+        event.stopPropagation();
+        $('#profile-section').toggle();
+    });
+
+    $('#close-settings').click(function() {
+        $('#profile-settings').css('display', 'none');
+        $('#close-settings').css('display', 'none');
+
+        $('#profile-private').css('display', 'flex');
+    });
+
+    $('#open-settings').click(function() {
+        $('#profile-settings').css('display', 'flex');
+        $('#close-settings').css('display', 'block');
+
+        $('#profile-private').css('display', 'none');
+    });
+
 
     const thresholds = [
         { rank: 'Pawn', value: 25000 },
