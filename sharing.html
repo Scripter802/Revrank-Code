@@ -27,7 +27,7 @@ $(document).ready(function() {
     var shopName = urlObject.searchParams.get("shopName");
     urlObject.searchParams.delete("shopName");
 
-    $('#loading').show();
+    $('#loading').css('display', 'flex');
     $('#profile-section').hide();
 
     $('#signUpButton').click(function() {
@@ -141,6 +141,8 @@ if (rank) {
     }, {
         onlyOnce: true // This ensures the listener is invoked only once
     });
+
+    
 
 });
 
