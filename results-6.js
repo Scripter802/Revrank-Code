@@ -255,11 +255,21 @@ document.addEventListener("DOMContentLoaded", function () {
             
                 $('#save-changes').click(function() {
                     if ($(this).hasClass('enabled')) {
-                        console.log('New Value:', $('#ig-settings').val());
-                        originalValue = $('#ig-settings').val(); // Update original value after saving
+                        var newInstagramValue = $('#ig-settings').val().replace(/^@/, '');
+                        originalValue = $('#ig-settings').val(); 
                         $(this).removeClass('enabled').addClass('disabled');
+                
+                        // Updating the .instagram value in the database
+                        const usersRef = ref(db, 'users/' + userId); 
+                        update(usersRef, { instagram: newInstagramValue })
+                            .then(() => {
+                                console.log("Instagram handle updated successfully.");
+                            })
+                            .catch((error) => {
+                                console.error("Error updating Instagram handle:", error);
+                            });
                     }
-                });
+                });                
     
                 var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
 
