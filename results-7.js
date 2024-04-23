@@ -334,6 +334,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 update(ref(db, 'shopifyTokens/' + fullShopName), { owner: userData.email }).then(() => {
                 })
 
+                console.log('updating revenu on Firebase:' + totalRevenueParam)
+
                 update(ref(db, 'users/' + userId), { totalRevenue: totalRevenueParam }).then(() => {
                     urlParams.delete('totalRevenue');
                     const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
