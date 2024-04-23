@@ -272,12 +272,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 });   
                 
                 $('.share-profile-class').click(function() {
-                    var sharingUrl = "https://www.revrank.io/sharing/" + encodeURIComponent(userData.shopName);
+                    var sharingUrl = "https://www.revrank.io/sharing?shopName=" + encodeURIComponent(userData.shopName);
                 
                     navigator.clipboard.writeText(sharingUrl).then(() => {
                         console.log('Copying to clipboard was successful!');
                 
-                        var originalColor = $(this).css('color');
                         var originalBackgroundColor = $(this).css('background-color');
                         var originalBorderColor = $(this).css('border-color');
                 
@@ -290,7 +289,7 @@ document.addEventListener("DOMContentLoaded", function () {
  
                         setTimeout(() => {
                             $(this).css({
-                                'color': originalColor,
+                                'color': 'white',
                                 'background-color': originalBackgroundColor,
                                 'border-color': originalBorderColor
                             }).text('Share Profile');  
