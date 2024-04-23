@@ -238,6 +238,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 $('#ig-settings').val('@' + userData.instagram);
                 $('#shop-settings').val(userData.shopName);
                 $('#shop-settings').prop('disabled', true);
+
+                $('#email-settings').css('background-color', '#21272c');
+                $('#shop-settings').css('background-color', '#21272c');
+
+                var originalValue = $('#ig-settings').val();
+
+                $('#ig-settings').on('input', function() {
+                    var currentValue = $(this).val();
+                    if (currentValue !== originalValue) {
+                        $('#save-changes').removeClass('disabled').addClass('enabled');
+                    } else {
+                        $('#save-changes').removeClass('enabled').addClass('disabled');
+                    }
+                });
+            
+                $('#save-changes').click(function() {
+                    if ($(this).hasClass('enabled')) {
+                        console.log('New Value:', $('#ig-settings').val());
+                        originalValue = $('#ig-settings').val(); // Update original value after saving
+                        $(this).removeClass('enabled').addClass('disabled');
+                    }
+                });
     
                 var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
 
