@@ -272,7 +272,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });   
                 
                 $('.share-profile-class').click(function() {
-                    var sharingUrl = "https://www.revrank.io/sharing?email=" + encodeURIComponent(emailValue);
+                    var sharingUrl = "https://www.revrank.io/sharing?email=" + encodeURIComponent(userData.email);
                 
                     navigator.clipboard.writeText(sharingUrl).then(() => {
                         console.log('Copying to clipboard was successful!');
