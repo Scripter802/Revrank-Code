@@ -7,6 +7,7 @@ $(document).ready(function () {
     const profilePicNav = $('#profile-pic-nav'); 
     profileSection.css('display', 'none');
     $('#mobilePopup').css('display', 'none');
+    urlParams.delete('totalRevenue');
 
     console.log("rank-visual");
     console.log("total revenue: " + totalRevenue);
