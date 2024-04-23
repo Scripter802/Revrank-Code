@@ -30,9 +30,6 @@ const profilePicNav = $('#profile-pic-nav');
 profileSection.css('display', 'none');
 $('#mobilePopup').css('display', 'none');
 
-console.log("rank-visual");
-console.log("total revenue: " + totalRevenue);
-
 profilePicNav.click(function() {
     event.stopPropagation();
     $('#profile-section').toggle();
@@ -116,10 +113,13 @@ if (totalRevenue >= thresholds[thresholds.length - 1].value) {
 }
 
 if (rank) {
-    $('#rankImgBig, #rankImgSmall', '#rankImgSmall-profile', '#rankImgBig-profile').attr('src', baseImgURL + splashImageList[rank]);
+
+    console.log("rank: " + rank)
+
+    $('#rankImgBig, #rankImgSmall, #rankImgSmall-profile, #rankImgBig-profile').attr('src', baseImgURL + splashImageList[rank]);
     $('#rankSystemImg').attr('src', baseImgURL + rankSystemImages[rank]);
     $('#rankSystemImg_Mobile').attr('src', baseImgURL + rankSystemImages_Mobile[rank]);
-    $('#rankTxt, #rankNameSmall', '#rankTxt-profile', '#rankNameSmall-profile').text(rank);
+    $('#rankTxt, #rankNameSmall, #rankTxt-profile, #rankNameSmall-profile').text(rank);
 
     if (rankAnimsMap[rank]) {
         animDiv.css('display', 'flex');
@@ -127,7 +127,7 @@ if (rank) {
     }
 
     if (rankTextMap[rank]) {
-        $('#smallTxt', '#smallTxt-profile').html(rankTextMap[rank]);
+        $('#smallTxt, #smallTxt-profile').html(rankTextMap[rank]);
     }
 }
 });
