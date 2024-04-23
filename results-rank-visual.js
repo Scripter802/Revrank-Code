@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-    console.log("rank-visual");
-
     const urlParams = new URLSearchParams(window.location.search);
     const totalRevenue = parseFloat(urlParams.get('totalRevenue'));
     const animDiv = $('#animDiv');
@@ -9,6 +7,9 @@ $(document).ready(function () {
     const profilePicNav = $('#profile-pic-nav'); 
     profileSection.css('display', 'none');
     $('#mobilePopup').css('display', 'none');
+
+    console.log("rank-visual");
+    console.log("total revenue: " + totalRevenue);
 
     profilePicNav.click(function() {
         event.stopPropagation();
