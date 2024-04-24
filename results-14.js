@@ -287,7 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         setTimeout(() => {
                             $(this).css({
                                 'color': 'white',
-                                'background-color': 'none',
+                                'background-color': 'transparent',
                                 'border-color': '#b829e3'
                             }).text('Share Profile');  
                         }, 2000);

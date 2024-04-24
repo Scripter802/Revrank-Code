@@ -25,7 +25,9 @@ $(document).ready(function() {
     var url = "https://www.revrank.io/sharing?shopName=begeminice";
     var urlObject = new URL(url);
     var shopName = urlObject.searchParams.get("shopName");
-    urlObject.searchParams.delete("shopName");
+
+    console.log("shopname: " + shopName)
+
 
     $('#loading').css('display', 'flex');
     $('#profile-section').hide();
@@ -132,6 +134,8 @@ if (rank) {
 
     $('#loading').hide();
     $('#profile-section').show();
+
+    urlObject.searchParams.delete("shopName");
 }
 
 
