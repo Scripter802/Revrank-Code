@@ -299,7 +299,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 });
                 
+                $('.share-profile-class-settings').click(function() {
+                    var sharingUrl = "https://www.revrank.io/sharing?shopName=" + encodeURIComponent(userData.shopName);
                 
+                    navigator.clipboard.writeText(sharingUrl).then(() => {
+                        console.log('Copying to clipboard was successful!');
+                                
+                        $(this).css({
+                            'background-color': '#7ab861',
+                            'border-color': 'white',
+                            'color': 'white'
+                        }).text('Link copied!');
+                
+ 
+                        setTimeout(() => {
+                            $(this).css({
+                                'color': 'white',
+                                'background-color': '#b829e3',
+                                'border-color': '#b829e3'
+                            }).text('Share Profile');  
+                        }, 2000);
+                
+                    }, (err) => {
+                        console.error('Could not copy text: ', err);
+                        alert('Failed to copy URL. Please try again.');
+                    });
+                
+                });
     
                 var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
 
