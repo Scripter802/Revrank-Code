@@ -309,7 +309,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 $('#email-settings').css('background-color', '#21272c');
                 $('#shop-settings').css('background-color', '#21272c');
 
+                if(userData.profilePic != undefined)
                 $('#profile-pic').attr('src', userData.profilePic);
+
+                if(userData.profilePic != undefined)
                 $('#profile-pic-nav').attr('src', userData.profilePic);
 
                 var originalValue = $('#ig-settings').val();
