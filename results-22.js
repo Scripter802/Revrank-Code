@@ -63,11 +63,8 @@ $('#fileUploader').on('change', function(event) {
             getDownloadURL(snapshot.ref).then((downloadURL) => {
                 console.log('File available at', downloadURL);
 
-                if(userData.profilePic != undefined)
-                {
-                    $('#profile-pic').css('background-image', 'url(' + userData.profilePic + ')');
-                    $('#profile-pic-nav').css('background-image', 'url(' + userData.profilePic + ')');
-                }
+                $('#profile-pic').css('background-image', 'url(' + downloadURL + ')');
+                $('#profile-pic-nav').css('background-image', 'url(' + downloadURL + ')');
 
                 console.log("auth.currentUser: " + auth.currentUser);
 
