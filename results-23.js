@@ -64,7 +64,8 @@ $('#fileUploader').on('change', function(event) {
                 console.log('File available at', downloadURL);
 
                 $('#profile-pic').css('background-image', 'url(' + downloadURL + ')');
-                $('#profile-pic-nav').css('background-image', 'url(' + downloadURL + ')');
+                $('#profile-pic-nav').children().first().css('background-image', 'url(' + downloadURL + ')');
+
 
                 console.log("auth.currentUser: " + auth.currentUser);
 
@@ -311,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if(userData.profilePic != undefined)
                 {
                     $('#profile-pic').css('background-image', 'url(' + userData.profilePic + ')');
-                    $('#profile-pic-nav').css('background-image', 'url(' + userData.profilePic + ')');
+                    $('#profile-pic-nav').children().first().css('background-image', 'url(' + userData.profilePic + ')');
                 }
 
                 var originalValue = $('#ig-settings').val();
