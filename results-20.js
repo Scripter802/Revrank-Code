@@ -63,9 +63,8 @@ $('#fileUploader').on('change', function(event) {
             getDownloadURL(snapshot.ref).then((downloadURL) => {
                 console.log('File available at', downloadURL);
 
-                // Update the profile picture on the page
                 $('#profile-pic').attr('src', downloadURL);
-                $('#profile-pic-nav').attr('src', userData.profilePic);
+                $('#profile-pic-nav').attr('src', downloadURL);
 
                 console.log("auth.currentUser: " + auth.currentUser);
 
