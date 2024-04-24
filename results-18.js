@@ -27,7 +27,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const totalRevenue = parseFloat(urlParams.get('totalRevenue'));
 const animDiv = $('#animDiv');
 const profileSection = $('#profile-section');
-const profilePicNav = $('#profile-pic'); 
+const profilePicNav = $('#profile-pic-nav'); 
 profileSection.css('display', 'none');
 $('#mobilePopup').css('display', 'none');
 
@@ -38,6 +38,15 @@ $('body').append('<input type="file" id="fileUploader" style="display: none;">')
 $('#profile-pic').click(function() {
     $('#fileUploader').click();
 });
+
+$('#profile-pic').hover(
+    function() {
+        $('#profile-pic-overlay').show();
+    }, 
+    function() {
+        $('#profile-pic-overlay').hide();
+    }
+);
 
 $('#fileUploader').on('change', function(event) {
     const file = event.target.files[0];
@@ -56,6 +65,7 @@ $('#fileUploader').on('change', function(event) {
 
                 // Update the profile picture on the page
                 $('#profile-pic').attr('src', downloadURL);
+                $('#profile-pic-nav').attr('src', userData.profilePic);
 
                 console.log("auth.currentUser: " + auth.currentUser);
 
@@ -298,6 +308,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 $('#email-settings').css('background-color', '#21272c');
                 $('#shop-settings').css('background-color', '#21272c');
+
+                $('#profile-pic').attr('src', userData.profilePic);
+                $('#profile-pic-nav').attr('src', userData.profilePic);
 
                 var originalValue = $('#ig-settings').val();
 
