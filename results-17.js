@@ -288,7 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 else
                 $('#username-profile').text('@' + userData.instagram)
 
-                $('#email-and-shop').text(userData.email.replace(/,/g, '.') + ' | ' + userData.shopName)
+                $('#email-and-shop').text(userData.firstName.replace(/,/g, '.') + ' ' + userData.lastName)
 
                 $('#email-settings').val(userData.email.replace(/,/g, '.'));
                 $('#email-settings').prop('disabled', true);
