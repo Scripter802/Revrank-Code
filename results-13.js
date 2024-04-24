@@ -276,10 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                     navigator.clipboard.writeText(sharingUrl).then(() => {
                         console.log('Copying to clipboard was successful!');
-                
-                        var originalBackgroundColor = $(this).css('background-color');
-                        var originalBorderColor = $(this).css('border-color');
-                
+                                
                         $(this).css({
                             'background-color': '#7ab861',
                             'border-color': 'white',
@@ -290,8 +287,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         setTimeout(() => {
                             $(this).css({
                                 'color': 'white',
-                                'background-color': originalBackgroundColor,
-                                'border-color': originalBorderColor
+                                'background-color': 'none',
+                                'border-color': '#b829e3'
                             }).text('Share Profile');  
                         }, 2000);
                 
