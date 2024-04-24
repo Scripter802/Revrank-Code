@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
 import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
@@ -26,9 +27,65 @@ const urlParams = new URLSearchParams(window.location.search);
 const totalRevenue = parseFloat(urlParams.get('totalRevenue'));
 const animDiv = $('#animDiv');
 const profileSection = $('#profile-section');
-const profilePicNav = $('#profile-pic-nav'); 
+const profilePicNav = $('#profile-pic'); 
 profileSection.css('display', 'none');
 $('#mobilePopup').css('display', 'none');
+
+//profile pic upload-------------------------
+
+$('body').append('<input type="file" id="fileUploader" style="display: none;">');
+
+$('#profile-pic').click(function() {
+    $('#fileUploader').click();
+});
+
+$('#fileUploader').on('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // Reference to the storage bucket location
+        const storage = getStorage(app);
+        const storageRef = sRef(storage, 'profile-pictures/' + file.name);
+
+        // Upload file to Firebase Storage
+        uploadBytes(storageRef, file).then((snapshot) => {
+            console.log('Uploaded a blob or file!');
+
+            // Get the download URL
+            getDownloadURL(snapshot.ref).then((downloadURL) => {
+                console.log('File available at', downloadURL);
+
+                // Update the profile picture on the page
+                $('#profile-pic').attr('src', downloadURL);
+
+                console.log("auth.currentUser: " + auth.currentUser);
+
+                // Assuming you have the user's email
+                const emailValue = auth.currentUser.email; // Modify as needed to match how you get the user email
+
+                // Safe path to use in Firebase keys
+                const safeEmail = emailValue.replace(/\./g, ','); // Firebase keys can't contain '.'
+
+                // Reference to the user's data in the database
+                const userRef = ref(db, 'users/' + safeEmail);
+
+                // Update the user's profile picture URL in the database
+                update(userRef, {
+                    profilePic: downloadURL
+                }).then(() => {
+                    console.log("Profile picture URL added to database successfully!");
+                }).catch((error) => {
+                    console.error("Error updating database: ", error);
+                });
+            });
+        }).catch((error) => {
+            console.error("Error uploading file: ", error);
+        });
+    }
+});
+
+//profile pic upload-------------------------
+
+
 
 profilePicNav.click(function() {
     event.stopPropagation();

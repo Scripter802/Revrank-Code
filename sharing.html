@@ -22,7 +22,7 @@
 
 
 $(document).ready(function() {
-    var url = "https://www.revrank.io/sharing?shopName=begeminice";
+    var url = window.location.href;
     var urlObject = new URL(url);
     var shopName = urlObject.searchParams.get("shopName");
 
@@ -54,7 +54,7 @@ $(document).ready(function() {
            else
             $('#username').text('@' + userData.instagram)
 
-            $('#email_and_shop').text(userData.email.replace(/,/g, '.') + ' | ' + userData.shopName)
+            $('#email_and_shop').text(userData.firstName.replace(/,/g, '.') + ' ' + userData.lastName)
 
             var totalRevenue = userData.totalRevenue;
 
