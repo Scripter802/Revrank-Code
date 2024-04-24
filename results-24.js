@@ -343,9 +343,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             });
                     }
                 });   
+
+
+                const key = "revrank"; 
+                const encrypted = toHexString(new TextEncoder().encode(xorEncrypt(userData.shopName, key)));
+
                 
                 $('.share-profile-class').click(function() {
-                    var sharingUrl = "https://www.revrank.io/sharing?shopName=" + encodeURIComponent(userData.shopName);
+                    var sharingUrl = "https://www.revrank.io/sharing?s=" + encodeURIComponent(encrypted);
                 
                     navigator.clipboard.writeText(sharingUrl).then(() => {
                         console.log('Copying to clipboard was successful!');
@@ -373,7 +378,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
                 
                 $('.share-profile-class-settings').click(function() {
-                    var sharingUrl = "https://www.revrank.io/sharing?shopName=" + encodeURIComponent(userData.shopName);
+                    var sharingUrl = "https://www.revrank.io/sharing?s=" + encodeURIComponent(encrypted);
                 
                     navigator.clipboard.writeText(sharingUrl).then(() => {
                         console.log('Copying to clipboard was successful!');
@@ -654,6 +659,34 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('No email in storage.');
     }
 });
+
+function xorEncrypt(text, key) {
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+}
+
+function xorDecrypt(cipher, key) {
+    return xorEncrypt(cipher, key); // XOR encryption is symmetric
+}
+
+function toHexString(byteArray) {
+    return Array.from(byteArray, function(byte) {
+        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    }).join('');
+}
+
+function fromHexString(hexString) {
+    var bytes = [];
+    for (let i = 0, strLen = hexString.length; i < strLen; i += 2) {
+        bytes.push(parseInt(hexString.substr(i, 2), 16));
+    }
+    return String.fromCharCode.apply(String, bytes);
+}
+
+
 
 function SharingBtn_load(buttonC){
     for (let child of buttonC) {
