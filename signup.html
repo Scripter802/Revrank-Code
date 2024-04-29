@@ -187,47 +187,48 @@
 });
 
 
-IGSubmitBtn.addEventListener('click', function() {
-    var instagramHandle = instagramInput.value.trim().replace('@', '');
+    IGSubmitBtn.addEventListener('click', function() {
+        var instagramHandle = instagramInput.value.trim().replace('@', '');
 
-    if (instagramHandle.includes(' ')) {
-        document.querySelector('#errorTextIG').style.display = 'block';
-        document.querySelector('#errorTextIG').innerText = "No spaces allowed in the handle";
-    } else {
-        document.querySelector('#errorTextIG').style.display = 'none';
+        if (instagramHandle.includes(' ')) {
+            document.querySelector('#errorTextIG').style.display = 'block';
+            document.querySelector('#errorTextIG').innerText = "No spaces allowed in the handle";
+        } else {
+            document.querySelector('#errorTextIG').style.display = 'none';
+            var sanatizedEmail = emailInput.value.toLowerCase().replace(/\./g, ',');
+            const userRef = ref(db, 'users/' + sanatizedEmail);
+            update(userRef, {
+                instagram: instagramHandle
+            }).then(() => {
+                document.querySelector('#igStep').style.display = 'none';
+                document.querySelector('#finalStep').style.display = 'flex';
+            }).catch((error) => {
+                console.error('Error updating user:', error);
+            });
+        }
+    });
+
+    igSkipBtn.addEventListener('click', function() {
         var sanatizedEmail = emailInput.value.toLowerCase().replace(/\./g, ',');
         const userRef = ref(db, 'users/' + sanatizedEmail);
         update(userRef, {
-            instagram: instagramHandle
+            instagram: 'none'
         }).then(() => {
             document.querySelector('#igStep').style.display = 'none';
             document.querySelector('#finalStep').style.display = 'flex';
         }).catch((error) => {
             console.error('Error updating user:', error);
         });
-    }
-});
-
-igSkipBtn.addEventListener('click', function() {
-    var sanatizedEmail = emailInput.value.toLowerCase().replace(/\./g, ',');
-    const userRef = ref(db, 'users/' + sanatizedEmail);
-    update(userRef, {
-        instagram: 'none'
-    }).then(() => {
-        document.querySelector('#igStep').style.display = 'none';
-        document.querySelector('#finalStep').style.display = 'flex';
-    }).catch((error) => {
-        console.error('Error updating user:', error);
     });
-});
 
 
 
     const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
     const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
     const SHOPIFY_SCOPES = 'read_orders';
-    
+
     function initiateShopifyAuth() {
+        
     var shopName = document.querySelector('#shopnameInput').value.trim().toLowerCase();
     if (!shopName) return;
 
@@ -236,7 +237,7 @@ igSkipBtn.addEventListener('click', function() {
         document.querySelector('#errorText').innerText = "Shop name cannot contain spaces";
         return;
     }
-    
+
     shopName = shopName.replace(/\.myshopify\.com$/, '');
 
     const usersRef = ref(db, 'users');
@@ -285,9 +286,9 @@ igSkipBtn.addEventListener('click', function() {
         document.querySelector('#errorText').style.display = 'block';
         document.querySelector('#errorText').innerText = "Shop Already In Use";
     }
-});
+    });
 
-}
+    }
 
 
     function updateShopNameForCurrentUser(shopName) {
@@ -309,7 +310,7 @@ igSkipBtn.addEventListener('click', function() {
     } else {
         console.error('No user is logged in.');
     }
-}
+    }
 
 
     shopifySetupBtn.addEventListener('click', function() {

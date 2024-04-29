@@ -95,7 +95,7 @@
                     document.querySelector('#errTxt').innerText = "Account Not Complete. Please Register Again";
                 }else{
                     // Redirect to "/results" with totalRevenue parameter
-                    window.location.href = "/results?totalRevenue=" + userData.totalRevenue + '&shopName=' + userData.shopName;
+                    window.location.href = "/results?u=" + userData.email;
                 }
             } else {
                 console.log('No user found with the specified email.');
