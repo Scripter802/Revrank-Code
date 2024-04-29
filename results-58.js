@@ -76,7 +76,7 @@ $(document).ready(function() {
 
         console.log("full shop name: ", fullShopName);
 
-        if(fullShopName != undefined)
+        if(shopNameUsed != undefined)
         update(ref(db, 'shopifyTokens/' + fullShopName), { owner: userData.email });
 
         document.querySelector('#firstNameTxt').innerText = userData.firstName;
