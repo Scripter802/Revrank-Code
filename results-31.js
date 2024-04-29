@@ -37,25 +37,27 @@ $(document).ready(function() {
     let promises = [];
 
     userEmail = urlParams.get('u');
+
+    console.log("userEmail: " + userEmail)
     if (userEmail) {
         console.log('Normal login');
         userEmail = userEmail.replace(/\./g, ',');
         promises.push(fetchUserDataByEmail(userEmail, db));
     } else {
+        console.log("no email")
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
         if (!userEmail && !shopNameUsed) {
             window.location.href = 'https://www.revrank.io/login';
         }
-        
-        if (!isNaN(shopRevenue) && shopNameUsed) {
-            console.log('#1 time user');
-            promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
-        }
+
+        console.log('#1 time user');
+        promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
     }
 
     Promise.all(promises).then(() => {
     //All good!!!!
+    console.log("all good!")
     if (shopNameUsed) {
 
         //Profile section
