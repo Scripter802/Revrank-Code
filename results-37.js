@@ -455,11 +455,12 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                 snapshot.forEach((childSnapshot) => {
                     let currentRevenue = childSnapshot.val().totalRevenue || 0;
                     let newTotalRevenue = currentRevenue + shopRevenue;
-                    let updatePromise = childSnapshot.ref.update({ totalRevenue: newTotalRevenue });
+                    let updatePath = childSnapshot.ref; // path to the child node
+                    let updatePromise = update(updatePath, { totalRevenue: newTotalRevenue });
                     updates.push(updatePromise);
                     console.log('Updated totalRevenue to:', newTotalRevenue);
                 });
-                Promise.all(updates).then(resolve);
+                Promise.all(updates).then(() => resolve()).catch(reject);
             } else {
                 console.log('No user found for this shop name:', shopName);
                 resolve();
@@ -472,7 +473,16 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     });
 }
 
-// handleUserData function remains the same
+function handleUserData(userDataP) {
+    return new Promise((resolve, reject) => {
+        // Assuming the handling could be asynchronous
+        // Handle user data
+        const userId = Object.keys(userDataP)[0];
+        userData = userDataP[userId];
+        console.log('Fetched User Data:', userData);
+        resolve(); // Resolve when handling is complete
+    });
+}
 
 
 
