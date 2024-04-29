@@ -176,7 +176,7 @@ $(document).ready(function() {
         var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
 
         const urlParams = new URLSearchParams(window.location.search);
-        const totalRevenueParam = urlParams.get('totalRevenue');
+        const totalRevenueParam = userData.totalRevenue;
 
         findUserRank(shopNameUsed, function(rankOfUser) {
             if (rankOfUser !== null) {
@@ -186,7 +186,6 @@ $(document).ready(function() {
             }
         });
 
-        userData.totalRevenue = totalRevenueParam;
         if (totalRevenueParam >= thresholds[thresholds.length - 1].value) {
         rankParam = thresholds[thresholds.length - 1].rank;
         } else {
