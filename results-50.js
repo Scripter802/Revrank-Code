@@ -69,7 +69,6 @@ $(document).ready(function() {
     Promise.all(promises).then(() => {
     //All good!!!!
     console.log("all good!")
-    if (shopNameUsed) {
 
         var fullShopName = shopNameUsed + ",myshopify,com";
         update(ref(db, 'shopifyTokens/' + fullShopName), { owner: userData.email });
@@ -575,7 +574,7 @@ $(document).ready(function() {
 
         //rank stuff--------------------------------
         
-    }
+    
     }).catch(error => {
         console.error("Failed to process user data or updates:", error);
     });
