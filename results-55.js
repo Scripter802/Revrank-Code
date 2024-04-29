@@ -367,31 +367,35 @@ $(document).ready(function() {
             var copyBtn = $('#copy_btn');
             const image = new Image();
             image.src = imageURL;
-
+        
             image.onload = () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = image.width;
                 canvas.height = image.height;
-
+        
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(image, 0, 0);
-
+        
                 canvas.toBlob(blob => {
-                navigator.clipboard.write([new ClipboardItem({'image/png': blob})])
-                .then(() => {
-                    copyBtn.style.backgroundColor = '#73a951';
-                    copyBtn.style.border = 'none'
-                    copyBtn.children[0].innerText = "Copied!"
-                })
-                .catch(err => {
-
-                    copyBtn.style.backgroundColor = 'red';
-                    copyBtn.style.border = 'none'
-                    copyBtn.innerText = "Error"
-                });
-            }, 'image/png');
+                    navigator.clipboard.write([new ClipboardItem({'image/png': blob})])
+                    .then(() => {
+                        copyBtn.css({
+                            backgroundColor: '#73a951',
+                            border: 'none'
+                        });
+                        copyBtn.children().text("Copied!");
+                    })
+                    .catch(err => {
+                        copyBtn.css({
+                            backgroundColor: 'red',
+                            border: 'none'
+                        });
+                        copyBtn.text("Error");
+                    });
+                }, 'image/png');
             };
-        })
+        });
+        
 
         $('#share_x').on('click', function() {      
             const text = "I’m a verified " + rankParam + ". Numbers don't lie";
