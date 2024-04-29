@@ -60,6 +60,7 @@ $(document).ready(function() {
 
             var totalRevenue = userData.totalRevenue;
 
+            if(userData.profilePic != undefined)
             $('#profile-pic').css('background-image', 'url(' + userData.profilePic + ')');
 
             const thresholds = [

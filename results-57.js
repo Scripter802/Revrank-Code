@@ -74,6 +74,8 @@ $(document).ready(function() {
 
         var fullShopName = shopNameUsed + ",myshopify,com";
 
+        console.log("full shop name: ", fullShopName);
+
         if(fullShopName != undefined)
         update(ref(db, 'shopifyTokens/' + fullShopName), { owner: userData.email });
 
