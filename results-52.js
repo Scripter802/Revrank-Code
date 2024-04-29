@@ -48,6 +48,8 @@ $(document).ready(function() {
         window.history.replaceState({}, document.title, newUrl);
 
         promises.push(fetchUserDataByEmail(userEmail, db));
+
+        //setup shopNameUsed + shopRevenue for login
     } else {
         console.log("no email")
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
@@ -195,6 +197,8 @@ $(document).ready(function() {
 
         var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
         const totalRevenueParam = userData.totalRevenue;
+
+        console.log('shopNameUsed: ' + shopNameUsed)
 
         findUserRank(shopNameUsed, function(rankOfUser) {
             if (rankOfUser !== null) {
@@ -542,12 +546,7 @@ $(document).ready(function() {
 
         let rank = rankParam;
 
-        console.log("RANK IS: " + rank);
-
         if (rank) {
-
-            console.log("[RENDER] rank: " + rank)
-
             $('#rankImgBig, #rankImgSmall, #rankImgSmall-profile, #rankImgBig-profile').attr('src', baseImgURL + splashImageList[rank]);
             $('#rankSystemImg').attr('src', baseImgURL + rankSystemImages[rank]);
             $('#rankSystemImg_Mobile').attr('src', baseImgURL + rankSystemImages_Mobile[rank]);
@@ -654,7 +653,7 @@ setTimeout(function() {
 $('#animDiv').css('opacity', '0').on('transitionend', function() {
     $(this).css('display', 'none');
 });
-}, 3500);
+}, 5000);
 
 function calculateRankTextMap(totalRevenue, thresholds) {
 let rankTextMap = {};
