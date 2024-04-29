@@ -76,6 +76,12 @@ $(document).ready(function() {
 
         document.querySelector('#firstNameTxt').innerText = userData.firstName;
 
+        const animDiv = $('#animDiv');
+        const profileSection = $('#profile-section');
+        const profilePicNav = $('#profile-pic-nav'); 
+        profileSection.css('display', 'none');
+        $('#mobilePopup').css('display', 'none');
+
         //Profile section
         if(userData.instagram == 'none')
         $('#username-block').hide();
@@ -214,6 +220,7 @@ $(document).ready(function() {
 
         console.log("sending IG: " + igHandleParam)
         console.log("totalRevenueParam: " + totalRevenueParam)
+        console.log("rank: " + rankParam)
 
         if(totalRevenueParam == null)
         return
@@ -349,13 +356,13 @@ $(document).ready(function() {
             });
         });
 
-        $('#realShareButton').addEventListener('click', function() {           
+        $('#realShareButton').on('click', function() {           
             setTimeout(function() {
                 window.location.href = 'instagram://story-camera';
             }, 1000);            
         })
 
-        $('#copy_btn').addEventListener('click', function() {  
+        $('#copy_btn').on('click', function() {  
             var copyBtn = $('#copy_btn');
             const image = new Image();
             image.src = imageURL;
@@ -385,7 +392,7 @@ $(document).ready(function() {
             };
         })
 
-        $('#share_x').addEventListener('click', function() {      
+        $('#share_x').on('click', function() {      
             const text = "I’m a verified " + rankParam + ". Numbers don't lie";
             // const text = "Just got my rank on RevRank. I am a " + rankParam + ". Visit revrank.io to get your rank!";
             const hashtags = "rankreveal"; 
@@ -393,7 +400,7 @@ $(document).ready(function() {
             window.open(twitterUrl, '_blank');         
         })
 
-        $('#closeButtonPopup').addEventListener('click', function() {
+        $('#closeButtonPopup').on('click', function() {
             $('#mobilePopup').style.display = 'none';
 
             document.querySelectorAll('.sharingbutton').forEach(function(sharingButton) {
@@ -410,6 +417,163 @@ $(document).ready(function() {
                 SharingBtn_unload(buttonChildren);
             });
         });
+
+        //profile pic upload-------------------------
+
+        $('body').append('<input type="file" id="fileUploader" style="display: none;">');
+
+        $('#profile-pic').click(function() {
+            $('#fileUploader').click();
+        });
+
+        $('#profile-pic').hover(
+            function() {
+                $('#profile-pic-overlay').show();
+            }, 
+            function() {
+                $('#profile-pic-overlay').hide();
+            }
+        );
+
+        $('#fileUploader').on('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Reference to the storage bucket location
+                const storage = getStorage(app);
+                const storageRef = sRef(storage, 'profile-pictures/' + file.name);
+
+                // Upload file to Firebase Storage
+                uploadBytes(storageRef, file).then((snapshot) => {
+                    console.log('Uploaded a blob or file!');
+
+                    // Get the download URL
+                    getDownloadURL(snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+
+                        $('#profile-pic').css('background-image', 'url(' + downloadURL + ')');
+                        $('#profile-pic-nav').children().first().css('background-image', 'url(' + downloadURL + ')');
+
+
+                        console.log("auth.currentUser: " + auth.currentUser);
+
+                        // Assuming you have the user's email
+                        const emailValue = auth.currentUser.email; // Modify as needed to match how you get the user email
+
+                        // Safe path to use in Firebase keys
+                        const safeEmail = emailValue.replace(/\./g, ','); // Firebase keys can't contain '.'
+
+                        // Reference to the user's data in the database
+                        const userRef = ref(db, 'users/' + safeEmail);
+
+                        // Update the user's profile picture URL in the database
+                        update(userRef, {
+                            profilePic: downloadURL
+                        }).then(() => {
+                            console.log("Profile picture URL added to database successfully!");
+                        }).catch((error) => {
+                            console.error("Error updating database: ", error);
+                        });
+                    });
+                }).catch((error) => {
+                    console.error("Error uploading file: ", error);
+                });
+            }
+        });
+
+        //profile pic upload-------------------------
+
+        profilePicNav.click(function() {
+            event.stopPropagation();
+            $('#profile-section').toggle();
+        });
+
+        $('#close-settings').click(function() {
+            $('#profile-settings').css('display', 'none');
+            $('#close-settings').css('display', 'none');
+
+            $('#profile-private').css('display', 'flex');
+        });
+
+        $('#open-settings').click(function() {
+            $('#profile-settings').css('display', 'flex');
+            $('#close-settings').css('display', 'block');
+
+            $('#profile-private').css('display', 'none');
+        });
+
+
+        //rank stuff--------------------------------
+        let splashImageList = {
+            'Pawn': "656de7d9a03fb6125883dc71_pawnL.svg",
+            'Bishop': "656de7d9b67e6c4f17042621_bishopL.svg",
+            'Knight': "656de7daf8c57453c773b901_knightL.svg",
+            'Rook': "656de7da1b93d2d75e18a7e7_rookL.svg",
+            'Queen': "656de7d99524075aed589539_kingL.svg",
+            'King': "656de7d94cee050583ee84ef_queenL.svg"
+        };
+
+        let rankSystemImages = {
+            'Pawn': "65d093d2712bfd103992ef14_pawnD%20(1).svg",
+            'Bishop': "65d093d23468e1a2dfef9f9d_bishopD%20(1).svg",
+            'Knight': "65d093d229bc0885105b049d_knightD%20(1).svg",
+            'Rook': "65d093d2e554edd9044dcd01_rookD%20(1).svg",
+            'Queen': "65d093d2021f6552557d8a6e_queenD%20(1).svg",
+            'King': "65d093d2021f6552557d8af1_kingD%20(1).svg"
+        };
+
+        let rankSystemImages_Mobile = {
+            'Pawn': "65d093d25ce7370b86582f09_pawnM%20(1).svg",
+            'Bishop': "65d093d23ef7afc28b3fc56f_bishopM%20(1).svg",
+            'Knight': "65d093d234864dcb0197da51_knightM%20(1).svg",
+            'Rook': "65d093d46a6ff9d90ba10139_rookM%20(1).svg",
+            'Queen': "65d093d2ee86ebaacc745bf5_queenM%20(1).svg",
+            'King': "65d093d9ff28f0e5abc436bb_kingM%20(1).svg"
+        };
+
+        let rankTextMap = calculateRankTextMap(totalRevenue, thresholds);
+
+        let rankAnimsMap = {
+            'Pawn': "658d855c2c0ec7b8fc9f7fd1_PawnV.gif",
+            'Bishop': "658d855c0fcc780457678512_BishopV.gif",
+            'Knight': "658d855d61f9907c2db1d34e_KnightV.gif",
+            'Rook': "658d855c38cd3aca0648a547_RookV.gif",
+            'Queen': "658d855ddd2cec5744ef0b6c_KingV.gif",
+            'King': "658d855dc2e6f5a94edb6ea0_QueenV.gif"
+        };
+
+        let rank;
+
+        if (totalRevenue >= thresholds[thresholds.length - 1].value) {
+            rank = thresholds[thresholds.length - 1].rank;
+        } else {
+            for (const threshold of thresholds) {
+                if (totalRevenue < threshold.value) {
+                    rank = threshold.rank;
+                    break;
+                }
+            }
+        }
+
+        if (rank) {
+
+            console.log("rank: " + rank)
+
+            $('#rankImgBig, #rankImgSmall, #rankImgSmall-profile, #rankImgBig-profile').attr('src', baseImgURL + splashImageList[rank]);
+            $('#rankSystemImg').attr('src', baseImgURL + rankSystemImages[rank]);
+            $('#rankSystemImg_Mobile').attr('src', baseImgURL + rankSystemImages_Mobile[rank]);
+            $('#rankTxt, #rankNameSmall, #rankTxt-profile, #rankNameSmall-profile').text(rank);
+
+            if (rankAnimsMap[rank]) {
+                animDiv.css('display', 'flex');
+                animDiv.find('img').attr('src', baseImgURL + rankAnimsMap[rank]);
+            }
+
+            if (rankTextMap[rank]) {
+                $('#smallTxt, #smallTxt-profile').html(rankTextMap[rank]);
+            }
+        }
+
+        //rank stuff--------------------------------
         
     }
     }).catch(error => {
@@ -495,171 +659,6 @@ function handleUserData(userDataP) {
 
 
 
-
-//Render results
-$(document).ready(function () {
-
-const animDiv = $('#animDiv');
-const profileSection = $('#profile-section');
-const profilePicNav = $('#profile-pic-nav'); 
-profileSection.css('display', 'none');
-$('#mobilePopup').css('display', 'none');
-
-//profile pic upload-------------------------
-
-$('body').append('<input type="file" id="fileUploader" style="display: none;">');
-
-$('#profile-pic').click(function() {
-    $('#fileUploader').click();
-});
-
-$('#profile-pic').hover(
-    function() {
-        $('#profile-pic-overlay').show();
-    }, 
-    function() {
-        $('#profile-pic-overlay').hide();
-    }
-);
-
-$('#fileUploader').on('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        // Reference to the storage bucket location
-        const storage = getStorage(app);
-        const storageRef = sRef(storage, 'profile-pictures/' + file.name);
-
-        // Upload file to Firebase Storage
-        uploadBytes(storageRef, file).then((snapshot) => {
-            console.log('Uploaded a blob or file!');
-
-            // Get the download URL
-            getDownloadURL(snapshot.ref).then((downloadURL) => {
-                console.log('File available at', downloadURL);
-
-                $('#profile-pic').css('background-image', 'url(' + downloadURL + ')');
-                $('#profile-pic-nav').children().first().css('background-image', 'url(' + downloadURL + ')');
-
-
-                console.log("auth.currentUser: " + auth.currentUser);
-
-                // Assuming you have the user's email
-                const emailValue = auth.currentUser.email; // Modify as needed to match how you get the user email
-
-                // Safe path to use in Firebase keys
-                const safeEmail = emailValue.replace(/\./g, ','); // Firebase keys can't contain '.'
-
-                // Reference to the user's data in the database
-                const userRef = ref(db, 'users/' + safeEmail);
-
-                // Update the user's profile picture URL in the database
-                update(userRef, {
-                    profilePic: downloadURL
-                }).then(() => {
-                    console.log("Profile picture URL added to database successfully!");
-                }).catch((error) => {
-                    console.error("Error updating database: ", error);
-                });
-            });
-        }).catch((error) => {
-            console.error("Error uploading file: ", error);
-        });
-    }
-});
-
-//profile pic upload-------------------------
-
-
-
-profilePicNav.click(function() {
-    event.stopPropagation();
-    $('#profile-section').toggle();
-});
-
-$('#close-settings').click(function() {
-    $('#profile-settings').css('display', 'none');
-    $('#close-settings').css('display', 'none');
-
-    $('#profile-private').css('display', 'flex');
-});
-
-$('#open-settings').click(function() {
-    $('#profile-settings').css('display', 'flex');
-    $('#close-settings').css('display', 'block');
-
-    $('#profile-private').css('display', 'none');
-});
-
-let splashImageList = {
-    'Pawn': "656de7d9a03fb6125883dc71_pawnL.svg",
-    'Bishop': "656de7d9b67e6c4f17042621_bishopL.svg",
-    'Knight': "656de7daf8c57453c773b901_knightL.svg",
-    'Rook': "656de7da1b93d2d75e18a7e7_rookL.svg",
-    'Queen': "656de7d99524075aed589539_kingL.svg",
-    'King': "656de7d94cee050583ee84ef_queenL.svg"
-};
-
-let rankSystemImages = {
-    'Pawn': "65d093d2712bfd103992ef14_pawnD%20(1).svg",
-    'Bishop': "65d093d23468e1a2dfef9f9d_bishopD%20(1).svg",
-    'Knight': "65d093d229bc0885105b049d_knightD%20(1).svg",
-    'Rook': "65d093d2e554edd9044dcd01_rookD%20(1).svg",
-    'Queen': "65d093d2021f6552557d8a6e_queenD%20(1).svg",
-    'King': "65d093d2021f6552557d8af1_kingD%20(1).svg"
-};
-
-let rankSystemImages_Mobile = {
-    'Pawn': "65d093d25ce7370b86582f09_pawnM%20(1).svg",
-    'Bishop': "65d093d23ef7afc28b3fc56f_bishopM%20(1).svg",
-    'Knight': "65d093d234864dcb0197da51_knightM%20(1).svg",
-    'Rook': "65d093d46a6ff9d90ba10139_rookM%20(1).svg",
-    'Queen': "65d093d2ee86ebaacc745bf5_queenM%20(1).svg",
-    'King': "65d093d9ff28f0e5abc436bb_kingM%20(1).svg"
-};
-
-let rankTextMap = calculateRankTextMap(totalRevenue, thresholds);
-
-let rankAnimsMap = {
-    'Pawn': "658d855c2c0ec7b8fc9f7fd1_PawnV.gif",
-    'Bishop': "658d855c0fcc780457678512_BishopV.gif",
-    'Knight': "658d855d61f9907c2db1d34e_KnightV.gif",
-    'Rook': "658d855c38cd3aca0648a547_RookV.gif",
-    'Queen': "658d855ddd2cec5744ef0b6c_KingV.gif",
-    'King': "658d855dc2e6f5a94edb6ea0_QueenV.gif"
-};
-
-let rank;
-
-if (totalRevenue >= thresholds[thresholds.length - 1].value) {
-    rank = thresholds[thresholds.length - 1].rank;
-} else {
-    for (const threshold of thresholds) {
-        if (totalRevenue < threshold.value) {
-            rank = threshold.rank;
-            break;
-        }
-    }
-}
-
-if (rank) {
-
-    console.log("rank: " + rank)
-
-    $('#rankImgBig, #rankImgSmall, #rankImgSmall-profile, #rankImgBig-profile').attr('src', baseImgURL + splashImageList[rank]);
-    $('#rankSystemImg').attr('src', baseImgURL + rankSystemImages[rank]);
-    $('#rankSystemImg_Mobile').attr('src', baseImgURL + rankSystemImages_Mobile[rank]);
-    $('#rankTxt, #rankNameSmall, #rankTxt-profile, #rankNameSmall-profile').text(rank);
-
-    if (rankAnimsMap[rank]) {
-        animDiv.css('display', 'flex');
-        animDiv.find('img').attr('src', baseImgURL + rankAnimsMap[rank]);
-    }
-
-    if (rankTextMap[rank]) {
-        $('#smallTxt, #smallTxt-profile').html(rankTextMap[rank]);
-    }
-}
-});
 
 setTimeout(function() {
 $('#animDiv').css('opacity', '0').on('transitionend', function() {
