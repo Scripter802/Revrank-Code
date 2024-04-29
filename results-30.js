@@ -44,14 +44,15 @@ $(document).ready(function() {
     } else {
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
-        if (!userEmail && !shopNameUsed) {window.location.href = 'https://www.revrank.io/login';}
+        if (!userEmail && !shopNameUsed) {
+            window.location.href = 'https://www.revrank.io/login';
+        }
         
         if (!isNaN(shopRevenue) && shopNameUsed) {
             console.log('#1 time user');
             promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
         }
     }
-
 
     Promise.all(promises).then(() => {
     //All good!!!!
@@ -422,14 +423,14 @@ function fetchUserDataByEmail(email, db) {
     return new Promise((resolve, reject) => {
         const usersRef = db.ref('users');
         const emailQuery = usersRef.orderByChild('email').equalTo(email);
-        emailQuery.once('value', snapshot => {
+        emailQuery.once('value', (snapshot) => {
             if (snapshot.exists()) {
                 console.log('User data fetched for email:', email);
-                handleUserData(snapshot.val());
+                handleUserData(snapshot.val()).then(() => resolve()); // Ensure handleUserData finishes if asynchronous
             } else {
                 console.log('No user found for this email:', email);
+                resolve();
             }
-            resolve();
         });
     });
 }
@@ -438,28 +439,35 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
         const usersRef = db.ref('users');
         const shopQuery = usersRef.orderByChild('shopName').equalTo(shopName);
-        shopQuery.once('value', snapshot => {
+        shopQuery.once('value', (snapshot) => {
             if (snapshot.exists()) {
                 console.log('User data fetched for shop name:', shopName);
-                snapshot.forEach(childSnapshot => {
+                let updates = [];
+                snapshot.forEach((childSnapshot) => {
                     let currentRevenue = childSnapshot.val().totalRevenue || 0;
                     let newTotalRevenue = currentRevenue + shopRevenue;
-                    childSnapshot.ref.update({ totalRevenue: newTotalRevenue });
+                    let updatePromise = childSnapshot.ref.update({ totalRevenue: newTotalRevenue });
+                    updates.push(updatePromise);
                     console.log('Updated totalRevenue to:', newTotalRevenue);
                 });
+                Promise.all(updates).then(() => resolve()); // Ensure all updates are completed
             } else {
                 console.log('No user found for this shop name:', shopName);
+                resolve();
             }
-            resolve();
         });
     });
 }
 
 function handleUserData(userDataP) {
-    // Handle user data
-    const userId = Object.keys(userDataP)[0];
-    userData = userDataP[userId];
-    console.log('Fetched User Data:', userData);
+    return new Promise((resolve, reject) => {
+        // Assuming the handling could be asynchronous
+        // Handle user data
+        const userId = Object.keys(userDataP)[0];
+        userData = userDataP[userId];
+        console.log('Fetched User Data:', userData);
+        resolve(); // Resolve when handling is complete
+    });
 }
 
 
