@@ -200,7 +200,7 @@ $(document).ready(function() {
 
         console.log('shopNameUsed: ' + shopNameUsed)
 
-        findUserRank(shopNameUsed, function(rankOfUser) {
+        findUserRank(userData.email, function(rankOfUser) {
             if (rankOfUser !== null) {
                 $('#rankTextBig').text('You are ranked #' + rankOfUser + ' in the Revrank Leaderboard');
             } else {
@@ -747,7 +747,7 @@ function SharingBtn_unload(buttonC){
     }
 }
 
-function findUserRank(shopNameUsedP, callback) {
+function findUserRank(usersEmail, callback) {
     const usersRef = ref(db, 'users');
     onValue(usersRef, (snapshot) => {
         if (snapshot.exists()) {
@@ -755,7 +755,7 @@ function findUserRank(shopNameUsedP, callback) {
             const sortedUsers = Object.values(usersData)
                 .filter(user => user.totalRevenue !== "undefined" && user.totalRevenue !== undefined)
                 .sort((a, b) => parseFloat(b.totalRevenue) - parseFloat(a.totalRevenue));
-            const userRank = sortedUsers.findIndex(user => user.shopName?.toLowerCase() === shopNameUsedP.toLowerCase()) + 1; 
+            const userRank = sortedUsers.findIndex(user => user.email?.toLowerCase() === usersEmail.toLowerCase()) + 1; 
             callback(userRank);
         } else {
             console.log('No users found.');
