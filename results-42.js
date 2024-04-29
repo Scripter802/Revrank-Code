@@ -455,14 +455,25 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                 let updates = [];
                 snapshot.forEach((childSnapshot) => {
                     let currentRevenue = childSnapshot.val().totalRevenue || 0;
-                    console.log("current: "+ currentRevenue + " + " + shopRevenue) 
+                    console.log("current: "+ currentRevenue + " + " + shopRevenue); 
                     let newTotalRevenue = currentRevenue + shopRevenue;
                     let updatePath = childSnapshot.ref; // path to the child node
                     updates.push(update(updatePath, { totalRevenue: newTotalRevenue }));
                 });
+
                 Promise.all(updates)
                     .then(() => {
-                        return handleUserData(snapshot.val()); 
+                        console.log('All revenue updates are completed');
+                        // Fetch updated user data again because the original snapshot data may be outdated
+                        return get(snapshot.ref);
+                    })
+                    .then(updatedSnapshot => {
+                        if (updatedSnapshot.exists()) {
+                            return handleUserData(updatedSnapshot.val());
+                        } else {
+                            console.log('No updated data found after revenue update.');
+                            resolve();
+                        }
                     })
                     .then(resolve)
                     .catch(reject);
@@ -477,6 +488,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
         });
     });
 }
+
 
 function handleUserData(userDataP) {
     return new Promise((resolve, reject) => {
