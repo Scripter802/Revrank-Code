@@ -42,6 +42,11 @@ $(document).ready(function() {
     if (userEmail) {
         console.log('Normal login');
         userEmail = userEmail.replace(/\./g, ',');
+
+        urlParams.delete('u');
+        const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
+        window.history.replaceState({}, document.title, newUrl);
+
         promises.push(fetchUserDataByEmail(userEmail, db));
     } else {
         console.log("no email")
@@ -52,6 +57,11 @@ $(document).ready(function() {
         }
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
 
+        urlParams.delete('shopRevenue');
+        urlParams.delete('shopName');
+        const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
+        window.history.replaceState({}, document.title, newUrl);
+
         console.log('#1 time user');
         promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
     }
@@ -60,6 +70,11 @@ $(document).ready(function() {
     //All good!!!!
     console.log("all good!")
     if (shopNameUsed) {
+
+        var fullShopName = shopNameUsed + ",myshopify,com";
+        update(ref(db, 'shopifyTokens/' + fullShopName), { owner: userData.email });
+
+        document.querySelector('#firstNameTxt').innerText = userData.firstName;
 
         //Profile section
         if(userData.instagram == 'none')
@@ -174,8 +189,6 @@ $(document).ready(function() {
         });
 
         var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
-
-        const urlParams = new URLSearchParams(window.location.search);
         const totalRevenueParam = userData.totalRevenue;
 
         findUserRank(shopNameUsed, function(rankOfUser) {
@@ -200,6 +213,7 @@ $(document).ready(function() {
         igHandleParam = userData.instagram;
 
         console.log("sending IG: " + igHandleParam)
+        console.log("totalRevenueParam: " + totalRevenueParam)
 
         if(totalRevenueParam == null)
         return
@@ -230,25 +244,6 @@ $(document).ready(function() {
                 }
 
         }).catch(error => console.error('Error:', error));
-
-        var fullShopName = shopNameUsed + ",myshopify,com";
-
-        update(ref(db, 'shopifyTokens/' + fullShopName), { owner: userData.email }).then(() => {
-        })
-
-        console.log('updating revenu on Firebase:' + totalRevenueParam)
-
-        update(ref(db, 'users/' + userId), { totalRevenue: totalRevenueParam }).then(() => {
-            urlParams.delete('totalRevenue');
-            const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
-            window.history.replaceState({}, document.title, newUrl);
-
-            urlParams.delete('shopName');
-            const newUrl2 = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
-            window.history.replaceState({}, document.title, newUrl2);
-        })
-
-        document.querySelector('#firstNameTxt').innerText = userData.firstName;
 
         setTimeout(function() {
             $('#loadingDiv').css('display', 'none');
