@@ -42,12 +42,10 @@ $(document).ready(function() {
         userEmail = userEmail.replace(/\./g, ',');
         promises.push(fetchUserDataByEmail(userEmail, db));
     } else {
-        if (!userEmail && !shopNameUsed) {
-            window.location.href = 'https://www.revrank.io/login';
-        }
-
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
+        if (!userEmail && !shopNameUsed) {window.location.href = 'https://www.revrank.io/login';}
+        
         if (!isNaN(shopRevenue) && shopNameUsed) {
             console.log('#1 time user');
             promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
