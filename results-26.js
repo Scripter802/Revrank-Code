@@ -34,7 +34,6 @@ const thresholds = [
 //Fetching user data
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const db = firebase.database();
 
     userEmail = urlParams.get('u');
     if (userEmail) {
