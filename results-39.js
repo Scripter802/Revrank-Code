@@ -35,6 +35,7 @@ const thresholds = [
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     let promises = [];
+    console.log('params', urlParams);
 
     userEmail = urlParams.get('u');
 
