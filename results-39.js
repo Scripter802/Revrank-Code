@@ -35,6 +35,7 @@ const thresholds = [
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     let promises = [];
+    console.log('params', urlParams);
 
     userEmail = urlParams.get('u');
 
@@ -460,12 +461,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                 });
                 Promise.all(updates)
                     .then(() => {
-                        console.log('All revenue updates completed.');
-                        // Fetch the latest user data after update
-                        return fetchLatestUserData(snapshot);
-                    })
-                    .then(updatedSnapshot => {
-                        return handleUserData(updatedSnapshot.val());
+                        return handleUserData(snapshot.val()); 
                     })
                     .then(resolve)
                     .catch(reject);
@@ -478,21 +474,6 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
             unsubscribe();
             reject(error);
         });
-    });
-}
-
-function fetchLatestUserData(shopName, db) {
-    return new Promise((resolve, reject) => {
-        const usersRef = ref(db, 'users');
-        const shopQuery = query(usersRef, orderByChild('shopName'), equalTo(shopName));
-        const unsubscribe = onValue(shopQuery, (snapshot) => {
-            unsubscribe(); // Detach listener immediately after receiving data
-            if (snapshot.exists()) {
-                resolve(snapshot);
-            } else {
-                reject('No updated data found.');
-            }
-        }, reject);
     });
 }
 
