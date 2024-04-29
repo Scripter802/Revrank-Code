@@ -46,7 +46,10 @@ $(document).ready(function() {
     } else {
         console.log("no email")
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
-        if (!userEmail && !shopRevenue) {window.location.href = 'https://www.revrank.io/login';}
+        if (!userEmail && !shopRevenue) {
+            console.log("redirect: userEmail: " + userEmail + " && " + shopRevenue )
+           // window.location.href = 'https://www.revrank.io/login';
+        }
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
 
         console.log('#1 time user');
