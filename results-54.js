@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
 const baseImgURL = 'https://uploads-ssl.webflow.com/64dcd192670d2073a8390761/';
-var userEmail, totalRevenue, shopRevenue, shopNameUsed;
+var userEmail, shopRevenue, shopNameUsed;
 var userData;
 
 const thresholds = [
@@ -197,8 +197,6 @@ $(document).ready(function() {
 
         var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
         const totalRevenueParam = userData.totalRevenue;
-
-        console.log('shopNameUsed: ' + shopNameUsed)
 
         findUserRank(userData.email, function(rankOfUser) {
             if (rankOfUser !== null) {
@@ -533,7 +531,7 @@ $(document).ready(function() {
             'King': "65d093d9ff28f0e5abc436bb_kingM%20(1).svg"
         };
 
-        let rankTextMap = calculateRankTextMap(totalRevenue, thresholds);
+        let rankTextMap = calculateRankTextMap(totalRevenueParam, thresholds);
 
         let rankAnimsMap = {
             'Pawn': "658d855c2c0ec7b8fc9f7fd1_PawnV.gif",
