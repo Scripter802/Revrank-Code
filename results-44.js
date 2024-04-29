@@ -35,7 +35,6 @@ const thresholds = [
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     let promises = [];
-    console.log('params', urlParams);
 
     userEmail = urlParams.get('u');
 
@@ -49,7 +48,7 @@ $(document).ready(function() {
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
         if (!userEmail && !shopRevenue) {
             console.log("redirect: userEmail: " + userEmail + " && " + shopRevenue )
-           // window.location.href = 'https://www.revrank.io/login';
+            window.location.href = 'https://www.revrank.io/login';
         }
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
 
@@ -419,6 +418,8 @@ $(document).ready(function() {
         });
         
     }
+    }).catch(error => {
+        console.error("Failed to process user data or updates:", error);
     });
 
 });
