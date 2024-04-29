@@ -455,6 +455,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                 let updates = [];
                 snapshot.forEach((childSnapshot) => {
                     let currentRevenue = childSnapshot.val().totalRevenue || 0;
+                    console.log("current: "+ currentRevenue + " + " + shopRevenue) 
                     let newTotalRevenue = currentRevenue + shopRevenue;
                     let updatePath = childSnapshot.ref; // path to the child node
                     updates.push(update(updatePath, { totalRevenue: newTotalRevenue }));
