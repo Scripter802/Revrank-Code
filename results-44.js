@@ -490,7 +490,6 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     });
 }
 
-
 function handleUserData(userDataP) {
     return new Promise((resolve, reject) => {
         const userId = Object.keys(userDataP)[0];
