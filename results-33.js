@@ -1,7 +1,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue, once } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -424,8 +424,9 @@ $(document).ready(function() {
 function fetchUserDataByEmail(email, db) {
     return new Promise((resolve, reject) => {
         const usersRef = ref(db, 'users');
-        const emailQuery = usersRef.orderByChild('email').equalTo(email);
-        emailQuery.once('value', (snapshot) => {
+        const emailQuery = orderByChild(usersRef, 'email');
+        const emailFilterQuery = equalTo(emailQuery, email);
+        once(emailFilterQuery, 'value', (snapshot) => {
             if (snapshot.exists()) {
                 console.log('User data fetched for email:', email);
                 handleUserData(snapshot.val()).then(() => resolve()); // Ensure handleUserData finishes if asynchronous
@@ -433,15 +434,16 @@ function fetchUserDataByEmail(email, db) {
                 console.log('No user found for this email:', email);
                 resolve();
             }
-        });
+        }, reject);
     });
 }
 
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
         const usersRef = ref(db, 'users');
-        const shopQuery = usersRef.orderByChild('shopName').equalTo(shopName);
-        shopQuery.once('value', (snapshot) => {
+        const shopQuery = orderByChild(usersRef, 'shopName');
+        const shopFilterQuery = equalTo(shopQuery, shopName);
+        once(shopFilterQuery, 'value', (snapshot) => {
             if (snapshot.exists()) {
                 console.log('User data fetched for shop name:', shopName);
                 let updates = [];
@@ -457,7 +459,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                 console.log('No user found for this shop name:', shopName);
                 resolve();
             }
-        });
+        }, reject);
     });
 }
 
