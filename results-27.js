@@ -34,33 +34,28 @@ const thresholds = [
 //Fetching user data
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
+    let promises = [];
 
     userEmail = urlParams.get('u');
     if (userEmail) {
-        //Normal login just pull data
         console.log('Normal login');
-
         userEmail = userEmail.replace(/\./g, ',');
-        fetchUserDataByEmail(userEmail, db);
-
+        promises.push(fetchUserDataByEmail(userEmail, db));
     } else {
-        //#1 time login -> shopRevenue + totalRevenue
-        shopRevenue = parseFloat(urlParams.get('shopRevenue'));
-        shopNameUsed = urlParams.get('shopName');
-        shopNameUsed = shopNameUsed.replace(',myshopify,com','');
-        if (!isNaN(shopRevenue) && shopName) {
-            console.log('#1 time user'); 
+        if (!userEmail && !shopNameUsed) {
+            window.location.href = 'https://www.revrank.io/login';
+        }
 
-            shopNameUsed = shopNameUsed.replace(',myshopify,com', ''); // Clean up shop name
-            fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db);
+        shopRevenue = parseFloat(urlParams.get('shopRevenue'));
+        shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
+        if (!isNaN(shopRevenue) && shopNameUsed) {
+            console.log('#1 time user');
+            promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
         }
     }
 
-    //Someone opened page without login
-    if(userEmail == null && shopNameUsed == null){
-        window.location.href = 'https://www.revrank.io/login';
-    }
 
+    Promise.all(promises).then(() => {
     //All good!!!!
     if (shopNameUsed) {
 
@@ -421,51 +416,54 @@ $(document).ready(function() {
         });
         
     }
-   
+    });
+
 });
 
 function fetchUserDataByEmail(email, db) {
-    const usersRef = db.ref('users');
-    const emailQuery = usersRef.orderByChild('email').equalTo(email);
-    
-    emailQuery.on('value', (snapshot) => {
-        if (snapshot.exists()) {
-            console.log('User data fetched for email:', email);
-            handleUserData(snapshot.val());
-        } else {
-            console.log('No user found for this email:', email);
-        }
+    return new Promise((resolve, reject) => {
+        const usersRef = db.ref('users');
+        const emailQuery = usersRef.orderByChild('email').equalTo(email);
+        emailQuery.once('value', snapshot => {
+            if (snapshot.exists()) {
+                console.log('User data fetched for email:', email);
+                handleUserData(snapshot.val());
+            } else {
+                console.log('No user found for this email:', email);
+            }
+            resolve();
+        });
     });
 }
 
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
-    const usersRef = db.ref('users');
-    const shopQuery = usersRef.orderByChild('shopName').equalTo(shopName);
-
-    shopQuery.on('value', (snapshot) => {
-        if (snapshot.exists()) {
-            console.log('User data fetched for shop name:', shopName);
-            snapshot.forEach((childSnapshot) => {
-                let currentRevenue = childSnapshot.val().totalRevenue || 0;
-                let newTotalRevenue = currentRevenue + shopRevenue;
-
-                // Update the totalRevenue for this user
-                childSnapshot.ref.update({ totalRevenue: newTotalRevenue });
-
-                console.log('Updated totalRevenue to:', newTotalRevenue);
-            });
-        } else {
-            console.log('No user found for this shop name:', shopName);
-        }
+    return new Promise((resolve, reject) => {
+        const usersRef = db.ref('users');
+        const shopQuery = usersRef.orderByChild('shopName').equalTo(shopName);
+        shopQuery.once('value', snapshot => {
+            if (snapshot.exists()) {
+                console.log('User data fetched for shop name:', shopName);
+                snapshot.forEach(childSnapshot => {
+                    let currentRevenue = childSnapshot.val().totalRevenue || 0;
+                    let newTotalRevenue = currentRevenue + shopRevenue;
+                    childSnapshot.ref.update({ totalRevenue: newTotalRevenue });
+                    console.log('Updated totalRevenue to:', newTotalRevenue);
+                });
+            } else {
+                console.log('No user found for this shop name:', shopName);
+            }
+            resolve();
+        });
     });
 }
 
 function handleUserData(userDataP) {
-    // Assuming userData is a dictionary with user IDs as keys
+    // Handle user data
     const userId = Object.keys(userDataP)[0];
     userData = userDataP[userId];
     console.log('Fetched User Data:', userData);
 }
+
 
 
 //Render results
