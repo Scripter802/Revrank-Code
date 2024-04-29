@@ -278,7 +278,7 @@ $(document).ready(function() {
                         const intervalId = setInterval(() => {
                             if (gotImageFromServer) {
                                 clearInterval(intervalId);
-                                $('#mobilePopup').style.display = 'flex';
+                                $('#mobilePopup').css('display', 'flex');
                             }
                         }, 150); 
 
@@ -290,8 +290,8 @@ $(document).ready(function() {
                 }else{
                     if(/Mac/.test(navigator.platform) || /Win/.test(navigator.platform)){
                         if(gotImageFromServer){
-
-                        $('#desktop_popup').style.display = 'flex';
+                        
+                        $('#desktop_popup').css('display', 'flex');
                         document.querySelectorAll('.sharingbutton').forEach(function(sharingButton) {
                             let buttonChildren = sharingButton.children;
                             SharingBtn_load(buttonChildren);
@@ -302,7 +302,7 @@ $(document).ready(function() {
                             const intervalId = setInterval(() => {
                             if (gotImageFromServer) {
                                 clearInterval(intervalId);
-                                $('#desktop_popup').style.display = 'flex';
+                                $('#desktop_popup').css('display', 'flex');
                             }
                             }, 150); 
 
@@ -540,22 +540,13 @@ $(document).ready(function() {
             'King': "658d855dc2e6f5a94edb6ea0_QueenV.gif"
         };
 
-        let rank;
+        let rank = rankParam;
 
-        if (totalRevenue >= thresholds[thresholds.length - 1].value) {
-            rank = thresholds[thresholds.length - 1].rank;
-        } else {
-            for (const threshold of thresholds) {
-                if (totalRevenue < threshold.value) {
-                    rank = threshold.rank;
-                    break;
-                }
-            }
-        }
+        console.log("RANK IS: " + rank);
 
         if (rank) {
 
-            console.log("rank: " + rank)
+            console.log("[RENDER] rank: " + rank)
 
             $('#rankImgBig, #rankImgSmall, #rankImgSmall-profile, #rankImgBig-profile').attr('src', baseImgURL + splashImageList[rank]);
             $('#rankSystemImg').attr('src', baseImgURL + rankSystemImages[rank]);
@@ -757,7 +748,7 @@ function SharingBtn_unload(buttonC){
     }
 }
 
-function findUserRank(shopNameUsed, callback) {
+function findUserRank(shopNameUsedP, callback) {
     const usersRef = ref(db, 'users');
     onValue(usersRef, (snapshot) => {
         if (snapshot.exists()) {
@@ -765,7 +756,7 @@ function findUserRank(shopNameUsed, callback) {
             const sortedUsers = Object.values(usersData)
                 .filter(user => user.totalRevenue !== "undefined" && user.totalRevenue !== undefined)
                 .sort((a, b) => parseFloat(b.totalRevenue) - parseFloat(a.totalRevenue));
-            const userRank = sortedUsers.findIndex(user => user.shopName?.toLowerCase() === shopNameUsed.toLowerCase()) + 1; 
+            const userRank = sortedUsers.findIndex(user => user.shopName?.toLowerCase() === shopNameUsedP.toLowerCase()) + 1; 
             callback(userRank);
         } else {
             console.log('No users found.');
