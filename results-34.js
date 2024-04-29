@@ -1,7 +1,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue, once } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -424,26 +424,30 @@ $(document).ready(function() {
 function fetchUserDataByEmail(email, db) {
     return new Promise((resolve, reject) => {
         const usersRef = ref(db, 'users');
-        const emailQuery = orderByChild(usersRef, 'email');
-        const emailFilterQuery = equalTo(emailQuery, email);
-        once(emailFilterQuery, 'value', (snapshot) => {
+        const emailQuery = query(usersRef, orderByChild('email'), equalTo(email));
+        const unsubscribe = onValue(emailQuery, (snapshot) => {
+            unsubscribe(); // Detach listener immediately after receiving data
             if (snapshot.exists()) {
                 console.log('User data fetched for email:', email);
-                handleUserData(snapshot.val()).then(() => resolve()); // Ensure handleUserData finishes if asynchronous
+                handleUserData(snapshot.val()).then(resolve);
             } else {
                 console.log('No user found for this email:', email);
                 resolve();
             }
-        }, reject);
+        }, (error) => {
+            console.log('Failed to fetch user data:', error);
+            unsubscribe();
+            reject(error);
+        });
     });
 }
 
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
         const usersRef = ref(db, 'users');
-        const shopQuery = orderByChild(usersRef, 'shopName');
-        const shopFilterQuery = equalTo(shopQuery, shopName);
-        once(shopFilterQuery, 'value', (snapshot) => {
+        const shopQuery = query(usersRef, orderByChild('shopName'), equalTo(shopName));
+        const unsubscribe = onValue(shopQuery, (snapshot) => {
+            unsubscribe(); // Detach listener immediately after receiving data
             if (snapshot.exists()) {
                 console.log('User data fetched for shop name:', shopName);
                 let updates = [];
@@ -454,25 +458,21 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                     updates.push(updatePromise);
                     console.log('Updated totalRevenue to:', newTotalRevenue);
                 });
-                Promise.all(updates).then(() => resolve()); // Ensure all updates are completed
+                Promise.all(updates).then(resolve);
             } else {
                 console.log('No user found for this shop name:', shopName);
                 resolve();
             }
-        }, reject);
+        }, (error) => {
+            console.log('Failed to fetch user data:', error);
+            unsubscribe();
+            reject(error);
+        });
     });
 }
 
-function handleUserData(userDataP) {
-    return new Promise((resolve, reject) => {
-        // Assuming the handling could be asynchronous
-        // Handle user data
-        const userId = Object.keys(userDataP)[0];
-        userData = userDataP[userId];
-        console.log('Fetched User Data:', userData);
-        resolve(); // Resolve when handling is complete
-    });
-}
+// handleUserData function remains the same
+
 
 
 
