@@ -423,7 +423,7 @@ $(document).ready(function() {
 
 function fetchUserDataByEmail(email, db) {
     return new Promise((resolve, reject) => {
-        const usersRef = db.ref('users');
+        const usersRef = ref(db, 'users');
         const emailQuery = usersRef.orderByChild('email').equalTo(email);
         emailQuery.once('value', (snapshot) => {
             if (snapshot.exists()) {
@@ -439,7 +439,7 @@ function fetchUserDataByEmail(email, db) {
 
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
-        const usersRef = db.ref('users');
+        const usersRef = ref(db, 'users');
         const shopQuery = usersRef.orderByChild('shopName').equalTo(shopName);
         shopQuery.once('value', (snapshot) => {
             if (snapshot.exists()) {
