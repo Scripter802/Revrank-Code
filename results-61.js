@@ -139,12 +139,8 @@ $(document).ready(function() {
             }
         });   
 
-
-        const key = "revrank"; 
-        const encrypted = toHexString(new TextEncoder().encode(xorEncrypt(userData.id, key)));
-
         $('.share-profile-class').click(function() {
-            var sharingUrl = "https://www.revrank.io/sharing?s=" + encodeURIComponent(encrypted);
+            var sharingUrl = "https://www.revrank.io/sharing?s=" + userData.id;
         
             navigator.clipboard.writeText(sharingUrl).then(() => {
                 console.log('Copying to clipboard was successful!');
@@ -172,7 +168,7 @@ $(document).ready(function() {
         });
         
         $('.share-profile-class-settings').click(function() {
-            var sharingUrl = "https://www.revrank.io/sharing?s=" + encodeURIComponent(encrypted);
+            var sharingUrl = "https://www.revrank.io/sharing?s=" + userData.id;
         
             navigator.clipboard.writeText(sharingUrl).then(() => {
                 console.log('Copying to clipboard was successful!');
@@ -716,21 +712,6 @@ return rankTextMap;
 
 
 //Functions------------------------
-
-function xorEncrypt(text, key) {
-    let result = '';
-    for (let i = 0; i < text.length; i++) {
-        result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-    return result;
-}
-
-function toHexString(byteArray) {
-    return Array.from(byteArray, function(byte) {
-        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-    }).join('');
-}
-
 
 
 function SharingBtn_load(buttonC){

@@ -26,11 +26,6 @@ $(document).ready(function() {
     var urlObject = new URL(url);
     var userID = urlObject.searchParams.get("s");
 
-    const key = "revrank"; 
-    const decrypted = xorDecrypt(fromHexString(userID), key);
-
-    userID = decrypted;
-
     $('#loading').css('display', 'flex');
     $('#profile-section').hide();
 
@@ -205,34 +200,6 @@ thresholds.forEach((threshold, index) => {
 });
 return rankTextMap;
 }
-
-function xorEncrypt(text, key) {
-    let result = '';
-    for (let i = 0; i < text.length; i++) {
-        result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-    return result;
-}
-
-function xorDecrypt(cipher, key) {
-    return xorEncrypt(cipher, key); // XOR encryption is symmetric
-}
-
-function toHexString(byteArray) {
-    return Array.from(byteArray, function(byte) {
-        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-    }).join('');
-}
-
-function fromHexString(hexString) {
-    var bytes = [];
-    for (let i = 0, strLen = hexString.length; i < strLen; i += 2) {
-        bytes.push(parseInt(hexString.substr(i, 2), 16));
-    }
-    return String.fromCharCode.apply(String, bytes);
-}
-
-
 
 
 
