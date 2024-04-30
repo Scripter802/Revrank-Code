@@ -99,12 +99,15 @@
     var sanatizedEmail = email.replace(/\./g, ',');
 
     createUserWithEmailAndPassword(auth, email, pass)
-        .then((userCredential) => {
-            var user = userCredential.user;
-            console.log('User registered:', user);
+    .then((userCredential) => {
+        var user = userCredential.user;
+        console.log('User registered:', user);
 
+            generateUniqueID(db).then(uniqueID => {
+            // Insert user with unique ID into database
             const userRef = ref(db, 'users/' + sanatizedEmail);
             set(userRef, {
+                id: uniqueID,
                 firstName: nameInput.value,
                 lastName: lastNameInput.value,
                 email: sanatizedEmail
@@ -113,6 +116,10 @@
             document.querySelector('#secondStep').style.display = 'none'
             document.querySelector('#igStep').style.display = 'flex'
             //document.querySelector('#finalStep').style.display = 'flex'
+        }).catch(error => {
+            console.error('Error registering user:', error);
+            // Handle error
+        });
         })
         .catch((error) => {
             var errorCode = error.code;
@@ -145,11 +152,14 @@
                                 // Create a new user with the new data
                                 createUserWithEmailAndPassword(auth, email, pass)
                                     .then((userCredential) => {
-                                        var newUser = userCredential.user;
-                                        console.log('New user registered:', newUser);
+                                        var user = userCredential.user;
+                                        console.log('New user registered:', user);
 
-                                        const newUserRef = ref(db, 'users/' + sanatizedEmail);
-                                        set(newUserRef, {
+                                        generateUniqueID(db).then(uniqueID => {
+                                        // Insert user with unique ID into database
+                                        const userRef = ref(db, 'users/' + sanatizedEmail);
+                                        set(userRef, {
+                                            id: uniqueID,
                                             firstName: nameInput.value,
                                             lastName: lastNameInput.value,
                                             email: sanatizedEmail
@@ -158,6 +168,12 @@
                                         document.querySelector('#secondStep').style.display = 'none'
                                         document.querySelector('#igStep').style.display = 'flex'
                                         //document.querySelector('#finalStep').style.display = 'flex'
+                                    }).catch(error => {
+                                        console.error('Error registering user:', error);
+                                        // Handle error
+                                    });
+
+                                        
                                     })
                                     .catch((newError) => {
                                         console.error('Error creating new user:', newError);
@@ -184,7 +200,52 @@
                 document.querySelector('#errTxt').innerText = cleanedMessage;
             }
         });
+
 });
+
+function generateRandomID() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
+function generateUniqueID(db) {
+    const generateAndCheck = () => {
+        const id = generateRandomID();
+        return checkIDUniqueness(db, id).then(isUnique => {
+            if (isUnique) {
+                return id; // Return the unique ID
+            } else {
+                console.warn('Generated ID is not unique. Regenerating...');
+                return generateAndCheck(); // Retry generation
+            }
+        });
+    };
+    return generateAndCheck();
+}
+
+function checkIDUniqueness(db, id) {
+    const userRef = ref(db, 'users');
+    return get(userRef).then(snapshot => {
+        if (snapshot.exists()) {
+            const users = snapshot.val();
+            for (const key in users) {
+                if (users.hasOwnProperty(key) && users[key].id === id) {
+                    return false; // ID already exists
+                }
+            }
+        }
+        return true; // ID is unique
+    }).catch(error => {
+        console.error('Error checking ID uniqueness:', error);
+        return false; // Assume non-unique to prevent data corruption
+    });
+}
+
 
 
     IGSubmitBtn.addEventListener('click', function() {

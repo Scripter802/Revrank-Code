@@ -141,7 +141,7 @@ $(document).ready(function() {
 
 
         const key = "revrank"; 
-        const encrypted = toHexString(new TextEncoder().encode(xorEncrypt(userData.email, key)));
+        const encrypted = toHexString(new TextEncoder().encode(xorEncrypt(userData.id, key)));
 
         $('.share-profile-class').click(function() {
             var sharingUrl = "https://www.revrank.io/sharing?s=" + encodeURIComponent(encrypted);
