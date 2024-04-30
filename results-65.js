@@ -595,7 +595,8 @@ function fetchUserDataByEmail(usersID, db) {
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
         const shopifyTokensRef = ref(db, 'shopifyTokens');
-        const shopQuery = query(shopifyTokensRef, orderByChild('shopName'), equalTo(shopName));
+        var shopNameR = shopName + '.myshopify.com'
+        const shopQuery = query(shopifyTokensRef, orderByChild('shopName'), equalTo(shopNameR));
 
         const unsubscribe = onValue(shopQuery, (shopSnapshot) => {
             unsubscribe(); // Detach listener after receiving data
