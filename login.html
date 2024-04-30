@@ -79,7 +79,7 @@
                 const userData = snapshot.val(); // Directly use the snapshot value
                 console.log('User data:', userData);
 
-                if(userData.shopName == undefined || userData.shopName == null || userData.totalRevenue === undefined || userData.totalRevenue == 'undefined'){
+                if(userData.totalRevenue === undefined || userData.totalRevenue == 'undefined'){
 
                     remove(ref(db, 'users/' + email.replace(/\./g, ',')));
 
