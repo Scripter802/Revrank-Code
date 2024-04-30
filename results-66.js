@@ -70,13 +70,6 @@ $(document).ready(function() {
     //All good!!!!
     console.log("all good!")
 
-        var fullShopName = shopNameUsed + ",myshopify,com";
-
-        console.log("full shop name: ", fullShopName);
-
-        if(shopNameUsed != undefined)
-        update(ref(db, 'shopifyTokens/' + fullShopName), { owner: userData.email });
-
         document.querySelector('#firstNameTxt').innerText = userData.firstName;
 
         const animDiv = $('#animDiv');

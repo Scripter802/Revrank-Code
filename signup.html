@@ -251,7 +251,7 @@
 
 
 
-    
+
     function initiateShopifyAuth() {
     var shopName = document.querySelector('#shopnameInput').value.trim().toLowerCase();
     if (!shopName) return;
@@ -293,16 +293,29 @@
     });
 }
 
-    function updateShopNameForCurrentUser(shopName) {
-        const user = auth.currentUser;
-        if (user) {
-            var sanitizedEmail = user.email.replace(/\./g, ',');
+function updateShopNameForCurrentUser(shopName) {
+    const user = auth.currentUser;
+    if (user) {
+        var sanitizedEmail = user.email.replace(/\./g, ',');
+        var shopNameR = shopName + ',myshopify,com'
+        const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
+
+        // Update the shopName in the database for the current user
+        update(userShopifyTokenRef, {
+            owner: sanitizedEmail  
+        }).then(() => {
+            // Once the shop name is saved, continue with Shopify authentication.
             const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
             window.location.href = authURL;
-        } else {
-            console.error('No user is logged in.');
-        }
+        }).catch((error) => {
+            console.error('Error updating shop name:', error);
+        });
+    } else {
+        console.error('No user is logged in.');
     }
+}
+
+
 
     //----------------------
     
