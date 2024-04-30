@@ -24,12 +24,12 @@
 $(document).ready(function() {
     var url = window.location.href;
     var urlObject = new URL(url);
-    var shopName = urlObject.searchParams.get("s");
+    var usersEmail = urlObject.searchParams.get("s");
 
     const key = "revrank"; 
-    const decrypted = xorDecrypt(fromHexString(shopName), key);
+    const decrypted = xorDecrypt(fromHexString(usersEmail), key);
 
-    shopName = decrypted;
+    usersEmail = decrypted;
 
     $('#loading').css('display', 'flex');
     $('#profile-section').hide();
@@ -43,7 +43,7 @@ $(document).ready(function() {
 
 
     const usersRef = ref(db, 'users');
-    const queryRef = query(usersRef, orderByChild('shopName'), equalTo(shopName));
+    const queryRef = query(usersRef, orderByChild('email'), equalTo(usersEmail));
 
     onValue(queryRef, (snapshot) => {
         if (snapshot.exists()) {
@@ -139,12 +139,12 @@ if (rank) {
     $('#loading').hide();
     $('#profile-section').show();
 
-    urlObject.searchParams.delete("shopName");
+    urlObject.searchParams.delete("usersEmail");
 }
 
 
         } else {
-            console.log("No user found with shopName:", shopName);
+            console.log("No user found with usersEmail");
         }
     }, {
         onlyOnce: true // This ensures the listener is invoked only once
