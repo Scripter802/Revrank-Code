@@ -66,8 +66,6 @@ $(document).ready(function() {
         promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
     }
 
-    console.log("current user !!!", auth.currentUser)
-
     Promise.all(promises).then(() => {
     //All good!!!!
     console.log("all good!")
@@ -596,49 +594,52 @@ function fetchUserDataByEmail(usersID, db) {
 
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
-        const usersRef = ref(db, 'users');
-        const shopQuery = query(usersRef, orderByChild('shopName'), equalTo(shopName));
+        const shopifyTokensRef = ref(db, 'shopifyTokens');
+        const shopQuery = query(shopifyTokensRef, orderByChild('shopName'), equalTo(shopName));
 
-        const unsubscribe = onValue(shopQuery, (snapshot) => {
-            unsubscribe(); // Detach listener immediately after receiving data
-            if (snapshot.exists()) {
-                console.log('User data fetched for shop name:', shopName);
-                let updates = [];
-                snapshot.forEach((childSnapshot) => {
-                    let currentRevenue = childSnapshot.val().totalRevenue || 0;
-                    console.log("current: "+ currentRevenue + " + " + shopRevenue); 
-                    let newTotalRevenue = currentRevenue + shopRevenue;
-                    let updatePath = childSnapshot.ref; // path to the child node
-                    updates.push(update(updatePath, { totalRevenue: newTotalRevenue }));
-                });
-
-                Promise.all(updates)
-                    .then(() => {
-                        console.log('All revenue updates are completed');
-                        // Fetch updated user data again because the original snapshot data may be outdated
-                        return get(snapshot.ref);
-                    })
-                    .then(updatedSnapshot => {
-                        if (updatedSnapshot.exists()) {
-                            return handleUserData(updatedSnapshot.val());
-                        } else {
-                            console.log('No updated data found after revenue update.');
+        const unsubscribe = onValue(shopQuery, (shopSnapshot) => {
+            unsubscribe(); // Detach listener after receiving data
+            if (shopSnapshot.exists()) {
+                shopSnapshot.forEach((shopChildSnapshot) => {
+                    const ownerId = shopChildSnapshot.val().owner;
+                    if (ownerId) {
+                        const usersRef = ref(db, `users/${ownerId}`);
+                        get(usersRef).then(userSnapshot => {
+                            if (userSnapshot.exists()) {
+                                let currentRevenue = userSnapshot.val().totalRevenue || 0;
+                                let newTotalRevenue = currentRevenue + shopRevenue;
+                                console.log("current: " + currentRevenue + " + " + shopRevenue); 
+                                return update(userSnapshot.ref, { totalRevenue: newTotalRevenue });
+                            } else {
+                                console.log('User not found for owner ID:', ownerId);
+                                resolve();
+                            }
+                        })
+                        .then(() => {
+                            console.log('Revenue update completed for owner ID:', ownerId);
                             resolve();
-                        }
-                    })
-                    .then(resolve)
-                    .catch(reject);
+                        })
+                        .catch(error => {
+                            console.log('Failed to update user data:', error);
+                            reject(error);
+                        });
+                    } else {
+                        console.log('Owner ID not found in shop token data:', shopChildSnapshot.key);
+                        resolve();
+                    }
+                });
             } else {
-                console.log('No user found for this shop name:', shopName);
+                console.log('No shop found with this name:', shopName);
                 resolve();
             }
         }, (error) => {
-            console.log('Failed to fetch user data:', error);
+            console.log('Failed to fetch shop data:', error);
             unsubscribe();
             reject(error);
         });
     });
 }
+
 
 function handleUserData(userDataP) {
     return new Promise((resolve, reject) => {
