@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
 const baseImgURL = 'https://uploads-ssl.webflow.com/64dcd192670d2073a8390761/';
-var userEmail, shopRevenue, shopNameUsed;
+var userID, shopRevenue, shopNameUsed;
 var userData;
 
 const thresholds = [
@@ -36,25 +36,23 @@ $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     let promises = [];
 
-    userEmail = urlParams.get('u');
+    userID = urlParams.get('u');
 
-    console.log("userEmail: " + userEmail)
-    if (userEmail) {
+    console.log("userID: " + userID)
+    if (userID) {
         console.log('Normal login');
-        userEmail = userEmail.replace(/\./g, ',');
-
         urlParams.delete('u');
         const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
         window.history.replaceState({}, document.title, newUrl);
 
-        promises.push(fetchUserDataByEmail(userEmail, db));
+        promises.push(fetchUserDataByEmail(userID, db));
 
         //setup shopNameUsed + shopRevenue for login
     } else {
         console.log("no email")
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
-        if (!userEmail && !shopRevenue) {
-            console.log("redirect: userEmail: " + userEmail + " && " + shopRevenue )
+        if (!userID && !shopRevenue) {
+            console.log("redirect: userID: " + userID + " && " + shopRevenue )
             window.location.href = 'https://www.revrank.io/login';
         }
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
@@ -573,17 +571,17 @@ $(document).ready(function() {
 
 });
 
-function fetchUserDataByEmail(email, db) {
+function fetchUserDataByEmail(usersID, db) {
     return new Promise((resolve, reject) => {
         const usersRef = ref(db, 'users');
-        const emailQuery = query(usersRef, orderByChild('email'), equalTo(email));
-        const unsubscribe = onValue(emailQuery, (snapshot) => {
+        const userIDQuery = query(usersRef, orderByChild('id'), equalTo(usersID));
+        const unsubscribe = onValue(userIDQuery, (snapshot) => {
             unsubscribe(); // Detach listener immediately after receiving data
             if (snapshot.exists()) {
-                console.log('User data fetched for email:', email);
+                console.log('User data fetched for usersID:', usersID);
                 handleUserData(snapshot.val()).then(resolve);
             } else {
-                console.log('No user found for this email:', email);
+                console.log('No user found for this usersID:', usersID);
                 resolve();
             }
         }, (error) => {
