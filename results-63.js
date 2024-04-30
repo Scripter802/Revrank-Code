@@ -66,6 +66,8 @@ $(document).ready(function() {
         promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
     }
 
+    console.log("current user !!!", auth.currentUser)
+
     Promise.all(promises).then(() => {
     //All good!!!!
     console.log("all good!")
@@ -596,6 +598,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
         const usersRef = ref(db, 'users');
         const shopQuery = query(usersRef, orderByChild('shopName'), equalTo(shopName));
+
         const unsubscribe = onValue(shopQuery, (snapshot) => {
             unsubscribe(); // Detach listener immediately after receiving data
             if (snapshot.exists()) {

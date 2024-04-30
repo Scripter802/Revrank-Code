@@ -3,6 +3,10 @@
     import { getAuth, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
     import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 
+    const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
+    const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
+    const SHOPIFY_SCOPES = 'read_orders';
+
     const firebaseConfig = {
         apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
         authDomain: "revrank-d889f.firebaseapp.com",
@@ -44,8 +48,6 @@
     passInputC.value = '';
     storeForm.value = '';
 
-
-
     emailForm.addEventListener('submit', handlerCallback, true);
     function handlerCallback(event) {
       event.preventDefault();
@@ -77,7 +79,6 @@
 
         document.querySelector('#nameSpan').innerText = nameInput.value + '!';
     });
-
 
     signUpButton.addEventListener('click', function() {
     var email = emailInput.value.toLowerCase();
@@ -203,51 +204,6 @@
 
 });
 
-function generateRandomID() {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    let result = '';
-    for (let i = 0; i < 8; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
-
-function generateUniqueID(db) {
-    const generateAndCheck = () => {
-        const id = generateRandomID();
-        return checkIDUniqueness(db, id).then(isUnique => {
-            if (isUnique) {
-                return id; // Return the unique ID
-            } else {
-                console.warn('Generated ID is not unique. Regenerating...');
-                return generateAndCheck(); // Retry generation
-            }
-        });
-    };
-    return generateAndCheck();
-}
-
-function checkIDUniqueness(db, id) {
-    const userRef = ref(db, 'users');
-    return get(userRef).then(snapshot => {
-        if (snapshot.exists()) {
-            const users = snapshot.val();
-            for (const key in users) {
-                if (users.hasOwnProperty(key) && users[key].id === id) {
-                    return false; // ID already exists
-                }
-            }
-        }
-        return true; // ID is unique
-    }).catch(error => {
-        console.error('Error checking ID uniqueness:', error);
-        return false; // Assume non-unique to prevent data corruption
-    });
-}
-
-
-
     IGSubmitBtn.addEventListener('click', function() {
         var instagramHandle = instagramInput.value.trim().replace('@', '');
 
@@ -282,14 +238,21 @@ function checkIDUniqueness(db, id) {
         });
     });
 
-
-
-    const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
-    const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
-    const SHOPIFY_SCOPES = 'read_orders';
-
-    function initiateShopifyAuth() {
+    shopifySetupBtn.addEventListener('click', function() {
         
+        shopifySetupBtn.classList.add('button-pop');
+
+        setTimeout(() => {
+            shopifySetupBtn.classList.remove('button-pop');
+        }, 200); 
+
+        initiateShopifyAuth();
+    });
+
+
+
+    
+    function initiateShopifyAuth() {
     var shopName = document.querySelector('#shopnameInput').value.trim().toLowerCase();
     if (!shopName) return;
 
@@ -301,89 +264,91 @@ function checkIDUniqueness(db, id) {
 
     shopName = shopName.replace(/\.myshopify\.com$/, '');
 
-    const usersRef = ref(db, 'users');
-    const usedShopName = query(usersRef, orderByChild('shopName'), equalTo(shopName));
+    const shopifyTokensRef = ref(db, 'shopifyTokens');
+    const usedShopName = query(shopifyTokensRef, orderByChild('shopName'), equalTo(shopName));
 
     // Create a promise to handle the asynchronous Firebase query
     const checkExistingStore = new Promise((resolve) => {
         onValue(usedShopName, (snapshot) => {
-            let existingUserData = null;
+            let existingShopData = null;
             if (snapshot.exists()) {
                 snapshot.forEach((childSnapshot) => {
-                    if (childSnapshot.val().totalRevenue === undefined) {
-                        existingUserData = { key: childSnapshot.key, ...childSnapshot.val() };
-                    }
+                    existingShopData = { owner: childSnapshot.val().owner, ...childSnapshot.val() };
                 });
-                if (existingUserData === null) {
-                    // There is an existing user with totalRevenue set
-                    resolve('shopInUse');
-                } else {
-                    // There is an existing user without totalRevenue set
-                    resolve(existingUserData);
-                }
+                resolve(existingShopData);
             } else {
-                // No user with the shop name exists
                 resolve(null);
             }
         });
     });
 
-    // Check if the shop already exists and handle the case where totalRevenue is undefined
-    checkExistingStore.then((existingUserData) => {
-    if (existingUserData && existingUserData !== 'shopInUse') {
-        const userRefToUpdate = ref(db, 'users/' + existingUserData.email);
-        const updatedShopName = existingUserData.shopName + ' - removed';
-        update(userRefToUpdate, { shopName: updatedShopName }).then(() => {
-            console.log('User\'s shopName updated in database');
+    // Check if the shop already exists and handle it accordingly
+    checkExistingStore.then((existingShopData) => {
+        if (existingShopData) {
+            document.querySelector('#errorText').style.display = 'block';
+            document.querySelector('#errorText').innerText = "Shop Already In Use";
+        } else {
             updateShopNameForCurrentUser(shopName);
-        }).catch((error) => {
-            console.error('Error updating user\'s shopName in database:', error);
-        });
-    } else if (existingUserData === null) {
-        // No user with the shop name exists, continue with registration
-        updateShopNameForCurrentUser(shopName);
-    } else {
-        // Shop name is already in use and has totalRevenue set
-        document.querySelector('#errorText').style.display = 'block';
-        document.querySelector('#errorText').innerText = "Shop Already In Use";
-    }
+        }
     });
-
-    }
-
+}
 
     function updateShopNameForCurrentUser(shopName) {
-    const user = auth.currentUser;
-    if (user) {
-        var sanatizedEmail = user.email.replace(/\./g, ',');
-        const userRef = ref(db, 'users/' + sanatizedEmail);
-
-        // Update the shopName in the database for the current user
-        update(userRef, {
-            shopName: shopName
-        }).then(() => {
-            // Once the shop name is saved, continue with Shopify authentication.
+        const user = auth.currentUser;
+        if (user) {
+            var sanitizedEmail = user.email.replace(/\./g, ',');
             const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
             window.location.href = authURL;
-        }).catch((error) => {
-            console.error('Error updating shop name:', error);
+        } else {
+            console.error('No user is logged in.');
+        }
+    }
+
+    //----------------------
+    
+    function generateRandomID() {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+    function generateUniqueID(db) {
+        const generateAndCheck = () => {
+            const id = generateRandomID();
+            return checkIDUniqueness(db, id).then(isUnique => {
+                if (isUnique) {
+                    return id; // Return the unique ID
+                } else {
+                    console.warn('Generated ID is not unique. Regenerating...');
+                    return generateAndCheck(); // Retry generation
+                }
+            });
+        };
+        return generateAndCheck();
+    }
+
+    function checkIDUniqueness(db, id) {
+        const userRef = ref(db, 'users');
+        return get(userRef).then(snapshot => {
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                for (const key in users) {
+                    if (users.hasOwnProperty(key) && users[key].id === id) {
+                        return false; // ID already exists
+                    }
+                }
+            }
+            return true; // ID is unique
+        }).catch(error => {
+            console.error('Error checking ID uniqueness:', error);
+            return false; // Assume non-unique to prevent data corruption
         });
-    } else {
-        console.error('No user is logged in.');
-    }
     }
 
-
-    shopifySetupBtn.addEventListener('click', function() {
-        
-        shopifySetupBtn.classList.add('button-pop');
-
-        setTimeout(() => {
-            shopifySetupBtn.classList.remove('button-pop');
-        }, 200); 
-
-        initiateShopifyAuth();
-    });
 
 
 </script>
