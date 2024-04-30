@@ -571,8 +571,10 @@ function fetchUserDataByEmail(usersID, db) {
         const unsubscribe = onValue(userIDQuery, (snapshot) => {
             unsubscribe(); // Detach listener immediately after receiving data
             if (snapshot.exists()) {
+                const firstUserKey = Object.keys(snapshot.val())[0]; // Get the first key
+                const firstUserData = snapshot.val()[firstUserKey]; // Get the data of the first user
                 console.log('User data fetched for usersID:', usersID);
-                handleUserData(snapshot.val()).then(resolve);
+                handleUserData(firstUserData).then(resolve);
             } else {
                 console.log('No user found for this usersID:', usersID);
                 resolve();
@@ -584,6 +586,7 @@ function fetchUserDataByEmail(usersID, db) {
         });
     });
 }
+
 
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
