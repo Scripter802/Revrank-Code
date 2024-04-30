@@ -603,15 +603,17 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                                 let currentRevenue = userSnapshot.val().totalRevenue || 0;
                                 let newTotalRevenue = currentRevenue + shopRevenue;
                                 console.log("current: " + currentRevenue + " + " + shopRevenue); 
-                                return update(userSnapshot.ref, { totalRevenue: newTotalRevenue });
+                                return update(userSnapshot.ref, { totalRevenue: newTotalRevenue }).then(() => {
+                                    // Handle user data after update and resolve
+                                    return handleUserData(userSnapshot.val()).then(() => {
+                                        console.log('Revenue update and user data handling completed for owner ID:', ownerId);
+                                        resolve();
+                                    });
+                                });
                             } else {
                                 console.log('User not found for owner ID:', ownerId);
                                 resolve();
                             }
-                        })
-                        .then(() => {
-                            console.log('Revenue update completed for owner ID:', ownerId);
-                            resolve();
                         })
                         .catch(error => {
                             console.log('Failed to update user data:', error);
@@ -633,6 +635,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
         });
     });
 }
+
 
 
 function handleUserData(userDataP) {
