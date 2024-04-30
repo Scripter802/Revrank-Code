@@ -588,7 +588,7 @@ function fetchUserDataByEmail(usersID, db) {
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
         const shopifyTokensRef = ref(db, 'shopifyTokens');
-        var shopNameR = shopName + '.myshopify.com'
+        var shopNameR = shopName + '.myshopify.com';
         const shopQuery = query(shopifyTokensRef, orderByChild('shopName'), equalTo(shopNameR));
 
         const unsubscribe = onValue(shopQuery, (shopSnapshot) => {
@@ -602,13 +602,27 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                             if (userSnapshot.exists()) {
                                 let currentRevenue = userSnapshot.val().totalRevenue || 0;
                                 let newTotalRevenue = currentRevenue + shopRevenue;
-                                console.log("current: " + currentRevenue + " + " + shopRevenue); 
-                                return update(userSnapshot.ref, { totalRevenue: newTotalRevenue }).then(() => {
-                                    // Handle user data after update and resolve
-                                    return handleUserData(userSnapshot.val()).then(() => {
-                                        console.log('Revenue update and user data handling completed for owner ID:', ownerId);
+                                console.log("current: " + currentRevenue + " + " + shopRevenue);
+                                update(userSnapshot.ref, { totalRevenue: newTotalRevenue })
+                                .then(() => {
+                                    // Re-fetch the updated user data
+                                    return get(usersRef);
+                                })
+                                .then(updatedUserSnapshot => {
+                                    if (updatedUserSnapshot.exists()) {
+                                        // Handle user data after update and resolve
+                                        return handleUserData(updatedUserSnapshot.val()).then(() => {
+                                            console.log('Revenue update and user data handling completed for owner ID:', ownerId);
+                                            resolve();
+                                        });
+                                    } else {
+                                        console.log('Failed to refetch updated user data for owner ID:', ownerId);
                                         resolve();
-                                    });
+                                    }
+                                })
+                                .catch(error => {
+                                    console.log('Failed to update user data:', error);
+                                    reject(error);
                                 });
                             } else {
                                 console.log('User not found for owner ID:', ownerId);
@@ -616,7 +630,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                             }
                         })
                         .catch(error => {
-                            console.log('Failed to update user data:', error);
+                            console.log('Failed to fetch user data:', error);
                             reject(error);
                         });
                     } else {
@@ -635,6 +649,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
         });
     });
 }
+
 
 function handleUserData(userDataP) {
     return new Promise((resolve, reject) => {
