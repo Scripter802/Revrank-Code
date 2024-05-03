@@ -1,7 +1,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-import { getDatabase, ref, set, get, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+import { getDatabase, ref, set, get, remove, update, orderByChild, query, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -69,6 +69,10 @@ $(document).ready(function() {
     Promise.all(promises).then(() => {
     //All good!!!!
     console.log("all good!")
+
+
+        //Remove invalid stores
+        cleanupFirebaseUserData(userData.email, db);
 
         document.querySelector('#firstNameTxt').innerText = userData.firstName;
 
@@ -564,26 +568,27 @@ $(document).ready(function() {
 
 });
 
-function fetchUserDataByEmail(usersID, db) {
-    return new Promise((resolve, reject) => {
-        const usersRef = ref(db, 'users');
-        const userIDQuery = query(usersRef, orderByChild('id'), equalTo(usersID));
-        const unsubscribe = onValue(userIDQuery, (snapshot) => {
-            unsubscribe(); // Detach listener immediately after receiving data
-            if (snapshot.exists()) {
-                const firstUserKey = Object.keys(snapshot.val())[0]; // Get the first key
-                const firstUserData = snapshot.val()[firstUserKey]; // Get the data of the first user
-                console.log('User data fetched for usersID:', usersID);
-                handleUserData(firstUserData).then(resolve);
-            } else {
-                console.log('No user found for this usersID:', usersID);
-                resolve();
+function cleanupFirebaseUserData(email, db) {
+    const sanitizedEmail = email.replace(/\./g, ',');
+    const shopifyTokensRef = ref(db, 'shopifyTokens');
+    const tokensQuery = query(shopifyTokensRef, orderByChild('owner'), equalTo(sanitizedEmail));
+
+    get(tokensQuery).then(snapshot => {
+        snapshot.forEach(childSnapshot => {
+            const data = childSnapshot.val();
+            const keys = Object.keys(data);
+
+            // If the document contains only the 'owner' key, delete it
+            if (keys.length === 1 && keys[0] === 'owner') {
+                remove(childSnapshot.ref).then(() => {
+                    console.log(`Deleted token for owner: ${sanitizedEmail}`);
+                }).catch(error => {
+                    console.error(`Error deleting token for owner: ${sanitizedEmail}`, error);
+                });
             }
-        }, (error) => {
-            console.log('Failed to fetch user data:', error);
-            unsubscribe();
-            reject(error);
         });
+    }).catch(error => {
+        console.error("Error fetching shopifyTokens:", error);
     });
 }
 
