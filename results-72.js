@@ -592,6 +592,29 @@ function cleanupFirebaseUserData(email, db) {
     });
 }
 
+function fetchUserDataByEmail(usersID, db) {
+    return new Promise((resolve, reject) => {
+        const usersRef = ref(db, 'users');
+        const userIDQuery = query(usersRef, orderByChild('id'), equalTo(usersID));
+
+        get(userIDQuery).then((snapshot) => {
+            if (snapshot.exists()) {
+                const firstUserKey = Object.keys(snapshot.val())[0]; // Get the first key
+                const firstUserData = snapshot.val()[firstUserKey]; // Get the data of the first user
+                console.log('User data fetched for usersID:', usersID);
+                handleUserData(firstUserData)
+                    .then(resolve)
+                    .catch(reject);
+            } else {
+                console.log('No user found for this usersID:', usersID);
+                resolve();
+            }
+        }).catch((error) => {
+            console.log('Failed to fetch user data:', error);
+            reject(error);
+        });
+    });
+}
 
 function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
     return new Promise((resolve, reject) => {
