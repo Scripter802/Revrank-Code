@@ -67,24 +67,43 @@
     console.log(email)
 
     signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        // Login successful.
-        var user = userCredential.user;
-        console.log('User logged in:', user);
+    // Login successful.
+    var user = userCredential.user;
+    console.log('User logged in:', user);
 
-        // Fetch user data based on email
-        const userRef = ref(db, `users/${email.replace(/\./g, ',')}`);
+    // Fetch user data based on email
+    const userRef = ref(db, `users/${email.replace(/\./g, ',')}`);
 
-        onValue(userRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const userData = snapshot.val(); // Directly use the snapshot value
-                console.log('User data:', userData);
+    onValue(userRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const userData = snapshot.val(); // Directly use the snapshot value
+            console.log('User data:', userData);
 
-                if(userData.totalRevenue === undefined || userData.totalRevenue == 'undefined'){
+            if (userData.totalRevenue === undefined || userData.totalRevenue == 'undefined') {
+                // Remove user from 'users'
+                remove(userRef).then(() => {
+                    console.log('User removed from users.');
 
-                    remove(ref(db, 'users/' + email.replace(/\./g, ',')));
+                    // Remove user from Shopify tokens
+                    const shopifyTokensRef = ref(db, 'shopifyTokens');
+                    onValue(shopifyTokensRef, (shopifySnapshot) => {
+                        if (shopifySnapshot.exists()) {
+                            const shopifyData = shopifySnapshot.val();
+
+                            for (let tokenKey in shopifyData) {
+                                if (shopifyData[tokenKey].owner === email.replace(/\./g, ',')) {
+                                    const tokenRef = ref(db, `shopifyTokens/${tokenKey}`);
+                                    remove(tokenRef).then(() => {
+                                        console.log(`Shopify token with key ${tokenKey} removed.`);
+                                    }).catch((error) => {
+                                        console.error('Error removing Shopify token:', error);
+                                    });
+                                }
+                            }
+                        }
+                    });
 
                     // Remove user from authentication system
-                    const user = auth.currentUser;
                     user.delete().then(() => {
                         console.log('User deleted from authentication system.');
                     }).catch((error) => {
@@ -93,22 +112,21 @@
 
                     document.querySelector('#errTxt').style.display = 'block';
                     document.querySelector('#errTxt').innerText = "Account Not Complete. Please Register Again";
-                }else{
-                    window.location.href = "/results?u=" + userData.id;
-                }
+                }).catch((error) => {
+                    console.error('Error removing user from users:', error);
+                });
             } else {
-                console.log('No user found with the specified email.');
-                document.querySelector('#errTxt').innerText = "No account with that email";
-
-                loginBtn.style.display = 'block'
-                loadingAnim.style.display = 'none'
+                window.location.href = "/results?u=" + userData.id;
             }
-        });
+        } else {
+            console.log('No user found with the specified email.');
+            document.querySelector('#errTxt').innerText = "No account with that email";
 
-
-
-
-        }).catch((error) => {
+            loginBtn.style.display = 'block';
+            loadingAnim.style.display = 'none';
+        }
+    });
+}).catch((error) => {
     var errorCode = error.code;
     var errorMessage = error.message;
 
