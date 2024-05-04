@@ -70,9 +70,11 @@ $(document).ready(function() {
     //All good!!!!
     console.log("all good!")
 
-
         //Remove invalid stores
         cleanupFirebaseUserData(userData.email, db);
+
+        //Rendering of connected stores to settings
+        renderConnectedShops();
 
         document.querySelector('#firstNameTxt').innerText = userData.firstName;
 
@@ -539,8 +541,7 @@ $(document).ready(function() {
                 $('#shops_title').hide();
                 $('#close-settings').hide();
             }
-        });        
-        
+        });              
 
         $('#manage-shops').click(function() {
             // Hide main settings and show shops screen
@@ -548,14 +549,13 @@ $(document).ready(function() {
             $('#profile-shops').css('display', 'flex');
 
             $('.shop-name').prop('disabled', true);
+            $('.shop-name').css('background-color', '#21272c');
         
             // Optionally, adjust titles as needed
             $('#shops_title').show();
             $('#servers_title').hide();
             $('#editTitle').hide();
         });
-
-
 
         function removeActiveClones() {
             $('.shop-obj').filter(':not(:first)').each(function () {
@@ -595,9 +595,7 @@ $(document).ready(function() {
                 $shopObj.find('.confirm-add-button').show();
             }
         });
-        
-
-          
+             
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
             $('#editTitle').show();
@@ -672,6 +670,55 @@ $(document).ready(function() {
     });
 
 });
+
+function renderConnectedShops(){
+    const shopifyTokensRef = ref(db, "shopifyTokens");
+
+// Query to fetch objects where owner equals userData.email
+const shopQuery = query(shopifyTokensRef, orderByChild("owner"), equalTo(userData.email));
+
+// Get the data
+get(shopQuery).then((snapshot) => {
+    if (snapshot.exists()) {
+        const shopifyObjects = snapshot.val();
+        const shopKeys = Object.keys(shopifyObjects);
+        const shopsCollection = document.getElementById("shopsCollection");
+        const shopTemplate = document.querySelector(".shop-obj");
+
+        // Remove all children of shopsCollection initially
+        while (shopsCollection.firstChild) {
+            shopsCollection.removeChild(shopsCollection.firstChild);
+        }
+
+        shopKeys.forEach((key) => {
+            const shopObject = shopifyObjects[key];
+            if (Object.keys(shopObject).length > 1) {
+                // Clone the template
+                const shopClone = shopTemplate.cloneNode(true);
+
+                // Find the shop-name input element
+                const shopNameInput = shopClone.querySelector(".shop-name");
+
+                // Set the shop name in the input with formatted value
+                let shopName = shopObject.shopName || "";
+                shopName = shopName.replace(".myshopify.com", "");
+                shopName = shopName.charAt(0).toUpperCase() + shopName.slice(1);
+                shopNameInput.value = shopName;
+
+                // Append the clone to the collection
+                shopsCollection.appendChild(shopClone);
+            }
+        });
+
+        // Remove the original template
+        shopTemplate.remove();
+    } else {
+        console.log("No data available");
+    }
+}).catch((error) => {
+    console.error(error);
+});
+}
 
 function cleanupFirebaseUserData(email, db) {
     const sanitizedEmail = email.replace(/\./g, ',');
