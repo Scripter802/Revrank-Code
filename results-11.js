@@ -589,6 +589,7 @@ $(document).ready(function() {
             if (!hasActiveClone) {
                 var $shopObj = $('.shop-obj').last().clone();
                 $shopObj.find('.shop-name').prop('disabled', false).show();
+                $shopObj.find('.shop-name').val('');
                 $('.confirm-add-button').hide();
                 var $parent = $('.shop-obj').parent();
                 $shopObj.insertAfter($('.shop-obj').last());
@@ -672,7 +673,8 @@ $(document).ready(function() {
 });
 
 function renderConnectedShops(){
-    const shopifyTokensRef = ref(db, "shopifyTokens");
+ // Define the reference to the shopifyTokens
+const shopifyTokensRef = ref(db, "shopifyTokens");
 
 // Query to fetch objects where owner equals userData.email
 const shopQuery = query(shopifyTokensRef, orderByChild("owner"), equalTo(userData.email));
@@ -685,10 +687,13 @@ get(shopQuery).then((snapshot) => {
         const shopsCollection = document.getElementById("shopsCollection");
         const shopTemplate = document.querySelector(".shop-obj");
 
-        // Remove all children of shopsCollection initially
-        while (shopsCollection.firstChild) {
-            shopsCollection.removeChild(shopsCollection.firstChild);
-        }
+        // Remove only existing shop-obj elements
+        const existingShopObjs = shopsCollection.querySelectorAll(".shop-obj");
+        existingShopObjs.forEach((obj) => {
+            if (obj !== shopTemplate) {
+                obj.remove();
+            }
+        });
 
         shopKeys.forEach((key) => {
             const shopObject = shopifyObjects[key];
@@ -710,8 +715,10 @@ get(shopQuery).then((snapshot) => {
             }
         });
 
-        // Remove the original template
-        shopTemplate.remove();
+        // Remove the original template only if it was not already cloned
+        if (shopTemplate && !shopKeys.includes(shopTemplate)) {
+            shopTemplate.remove();
+        }
     } else {
         console.log("No data available");
     }
