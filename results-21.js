@@ -759,6 +759,10 @@ function renderConnectedShops() {
                     // Add event listener to confirm-delete-button
                     const confirmDeleteButton = shopClone.querySelector(".confirm-delete-button");
                     confirmDeleteButton.addEventListener("click", function () {
+
+                        if($('.shop-obj').length == 1)
+                        return;
+
                         let shopNameLower = shopName.toLowerCase();
                         let keyToDelete = shopNameLower + ",myshopify,com";
                         let shopRevenue = shopObject.shopRevenue || "0";
