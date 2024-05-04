@@ -536,13 +536,13 @@ $(document).ready(function() {
                 $('#shops_title').hide();
                 $('#close-settings').hide();
             }
-        });
+        });        
         
 
         $('#manage-shops').click(function() {
             // Hide main settings and show shops screen
             $('#profile-settings').hide();
-            $('#profile-shops').show();
+            $('#profile-shops').css('display', 'flex');
         
             // Optionally, adjust titles as needed
             $('#shops_title').show();
