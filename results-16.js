@@ -578,12 +578,41 @@ $(document).ready(function() {
             $('.confirm-delete-button').toggle();
         });
         
+
+        function attachConfirmAddHandler(button) {
+            button.on('click', function () {
+                console.log("click on confirm");
+                const parentElem = $(this).closest('div');
+                const shopNameElem = parentElem.find('.shop-name');
+                let shopName = shopNameElem.val().trim();
+        
+                if (shopName === '' || /\s/.test(shopName)) {
+                    shopNameElem.css('border-color', 'red');
+                } else {
+                    shopNameElem.css('border-color', '');
+                    shopName = shopName.replace(/\.myshopify\.com$/, '');
+                    const shopNameR = shopName + ',myshopify,com';
+                    const sanitizedEmail = userData.email;
+        
+                    const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
+                    update(userShopifyTokenRef, {
+                        owner: sanitizedEmail
+                    }).then(() => {
+                        const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
+                        window.location.href = authURL;
+                    }).catch((error) => {
+                        console.error('Error updating shop name:', error);
+                    });
+                }
+            });
+        }
+        
         // When the add shop button is clicked
         $('#add-shop-button').click(function () {
             $('.confirm-delete-button').hide();
-
+        
             // Check if there's already an active clone
-            var activeClone = $('.shop-obj').filter(':not(:first)').filter(function() {
+            var activeClone = $('.shop-obj').filter(':not(:first)').filter(function () {
                 return $(this).find('.confirm-add-button').is(':visible');
             });
         
@@ -598,8 +627,18 @@ $(document).ready(function() {
                 var $parent = $('.shop-obj').parent();
                 $shopObj.insertAfter($('.shop-obj').last());
                 $shopObj.find('.confirm-add-button').show();
+        
+                // Attach the event handler to the newly added button
+                attachConfirmAddHandler($shopObj.find('.confirm-add-button'));
             }
         });
+        
+        // Attach the event handler to any existing confirm-add-buttons
+        $('.confirm-add-button').each(function () {
+            attachConfirmAddHandler($(this));
+        });
+        
+
              
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
@@ -679,87 +718,59 @@ $(document).ready(function() {
 });
 
 
-function renderConnectedShops() {
+function renderConnectedShops(){
     // Define the reference to the shopifyTokens
-    const shopifyTokensRef = ref(db, "shopifyTokens");
-
-    // Query to fetch objects where owner equals userData.email
-    const shopQuery = query(shopifyTokensRef, orderByChild("owner"), equalTo(userData.email));
-
-    // Get the data
-    get(shopQuery).then((snapshot) => {
-        if (snapshot.exists()) {
-            const shopifyObjects = snapshot.val();
-            const shopKeys = Object.keys(shopifyObjects);
-            const shopsCollection = document.getElementById("shopHolder");
-            const shopTemplate = document.querySelector(".shop-obj");
-
-            // Remove only existing shop-obj elements
-            const existingShopObjs = shopsCollection.querySelectorAll(".shop-obj");
-            existingShopObjs.forEach((obj) => {
-                if (obj !== shopTemplate) {
-                    obj.remove();
-                }
-            });
-
-            shopKeys.forEach((key) => {
-                const shopObject = shopifyObjects[key];
-                if (Object.keys(shopObject).length > 1) {
-                    // Clone the template
-                    const shopClone = shopTemplate.cloneNode(true);
-
-                    // Find the shop-name input element
-                    const shopNameInput = shopClone.querySelector(".shop-name");
-
-                    // Set the shop name in the input with formatted value
-                    let shopName = shopObject.shopName || "";
-                    shopName = shopName.replace(".myshopify.com", "");
-                    shopName = shopName.charAt(0).toUpperCase() + shopName.slice(1);
-                    shopNameInput.value = shopName;
-
-                    // Append the clone to the collection
-                    shopsCollection.appendChild(shopClone);
-
-                    // Attach event handler to the confirm-add-button
-                    $(shopClone).find('.confirm-add-button').on('click', function () {
-                        console.log("click on confirm")
-
-                        const parentElem = $(this).closest('div');
-                        const shopNameElem = parentElem.find('.shop-name');
-                        let shopName = shopNameElem.val().trim();
-
-                        if (shopName === '' || /\s/.test(shopName)) {
-                            shopNameElem.css('border-color', 'red');
-                        } else {
-                            shopNameElem.css('border-color', '');
-                            shopName = shopName.replace(/\.myshopify\.com$/, '');
-                            const shopNameR = shopName + ',myshopify,com';
-                            const sanitizedEmail = userData.email;
-
-                            const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
-                            update(userShopifyTokenRef, {
-                                owner: sanitizedEmail
-                            }).then(() => {
-                                const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
-                                window.location.href = authURL;
-                            }).catch((error) => {
-                                console.error('Error updating shop name:', error);
-                            });
-                        }
-                    });
-                }
-            });
-
-            // Remove the original template only if it was not already cloned
-            if (shopTemplate && !shopKeys.includes(shopTemplate)) {
-                shopTemplate.remove();
-            }
-        } else {
-            console.log("No data available");
-        }
-    }).catch((error) => {
-        console.error(error);
-    });
+   const shopifyTokensRef = ref(db, "shopifyTokens");
+   
+   // Query to fetch objects where owner equals userData.email
+   const shopQuery = query(shopifyTokensRef, orderByChild("owner"), equalTo(userData.email));
+   
+   // Get the data
+   get(shopQuery).then((snapshot) => {
+       if (snapshot.exists()) {
+           const shopifyObjects = snapshot.val();
+           const shopKeys = Object.keys(shopifyObjects);
+           const shopsCollection = document.getElementById("shopHolder");
+           const shopTemplate = document.querySelector(".shop-obj");
+   
+           // Remove only existing shop-obj elements
+           const existingShopObjs = shopsCollection.querySelectorAll(".shop-obj");
+           existingShopObjs.forEach((obj) => {
+               if (obj !== shopTemplate) {
+                   obj.remove();
+               }
+           });
+   
+           shopKeys.forEach((key) => {
+               const shopObject = shopifyObjects[key];
+               if (Object.keys(shopObject).length > 1) {
+                   // Clone the template
+                   const shopClone = shopTemplate.cloneNode(true);
+   
+                   // Find the shop-name input element
+                   const shopNameInput = shopClone.querySelector(".shop-name");
+   
+                   // Set the shop name in the input with formatted value
+                   let shopName = shopObject.shopName || "";
+                   shopName = shopName.replace(".myshopify.com", "");
+                   shopName = shopName.charAt(0).toUpperCase() + shopName.slice(1);
+                   shopNameInput.value = shopName;
+   
+                   // Append the clone to the collection
+                   shopsCollection.appendChild(shopClone);
+               }
+           });
+   
+           // Remove the original template only if it was not already cloned
+           if (shopTemplate && !shopKeys.includes(shopTemplate)) {
+               shopTemplate.remove();
+           }
+       } else {
+           console.log("No data available");
+       }
+   }).catch((error) => {
+       console.error(error);
+   });
 }
 
 
