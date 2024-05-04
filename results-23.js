@@ -505,9 +505,9 @@ $(document).ready(function() {
                 $('#profile-settings').show();
         
                 // Show servers_title, hide others
-                $('#servers_title').show();
+                $('#editTitle').show();
+                $('#servers_title').hide();
                 $('#shops_title').hide();
-                $('#editTitle').hide();
                 $('#close-settings').show();
             }
             // Check if profile-shops is visible
