@@ -888,10 +888,10 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                         const usersRef = ref(db, `users/${ownerId}`);
                         get(usersRef).then(userSnapshot => {
                             if (userSnapshot.exists()) {
-                                let currentRevenue = userSnapshot.val().totalRevenue || 0;
-                                let newTotalRevenue = currentRevenue + shopRevenue;
+                                let currentRevenue = Number(userSnapshot.val().totalRevenue) || 0;
+                                let newTotalRevenue = currentRevenue + Number(shopRevenue);
                                 console.log("current: " + currentRevenue + " + " + shopRevenue);
-                                update(userSnapshot.ref, { totalRevenue: newTotalRevenue })
+                                update(userSnapshot.ref, { totalRevenue: newTotalRevenue })                                
                                 .then(() => {
                                     // Re-fetch the updated user data
                                     return get(usersRef);
