@@ -610,6 +610,8 @@ $(document).ready(function() {
         });
 
         $('.confirm-add-button').on('click', function () {
+            console.log("click on confirm")
+            
             const parentElem = $(this).closest('div');
             const shopNameElem = parentElem.find('.shop-name');
             let shopName = shopNameElem.val().trim();
