@@ -561,6 +561,20 @@ $(document).ready(function() {
             $('#editTitle').hide();
         });
 
+        $('#manage-discords').click(function() {
+            // Hide main settings and show shops screen
+            $('#profile-settings').hide();
+            $('#profile-discords').css('display', 'flex');
+
+            $('.discord-name').prop('disabled', true);
+            $('.discord-name').css('background-color', '#21272c');
+        
+            // Optionally, adjust titles as needed
+            $('#servers_title').show();
+            $('#shops_title').hide();
+            $('#editTitle').hide();
+        });
+
         function removeActiveClones() {
             $('.shop-obj').filter(':not(:first)').each(function () {
                 if ($(this).find('.confirm-add-button').is(':visible')) {
