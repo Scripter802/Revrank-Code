@@ -492,12 +492,53 @@ $(document).ready(function() {
         });
 
         $('#close-settings').click(function() {
-            $('#profile-settings').css('display', 'none');
-            $('#close-settings').css('display', 'none');
-
-            $('#profile-private').css('display', 'flex');
+            // Check if profile-discords is visible
+            if ($('#profile-discords').is(':visible')) {
+                // Hide profile-discords and show profile-settings
+                $('#profile-discords').hide();
+                $('#profile-settings').show();
+                
+                // Show servers_title, hide others
+                $('#servers_title').show();
+                $('#shops_title').hide();
+                $('#editTitle').hide();
+            } 
+            // Check if profile-shops is visible
+            else if ($('#profile-shops').is(':visible')) {
+                // Hide profile-shops and show profile-settings
+                $('#profile-shops').hide();
+                $('#profile-settings').show();
+        
+                // Show shops_title, hide others
+                $('#shops_title').show();
+                $('#servers_title').hide();
+                $('#editTitle').hide();
+            } 
+            // Check if profile-settings is visible
+            else if ($('#profile-settings').is(':visible')) {
+                // Hide profile-settings and show profile-private
+                $('#profile-settings').hide();
+                $('#profile-private').show();
+        
+                // Show editTitle, hide others
+                $('#editTitle').show();
+                $('#servers_title').hide();
+                $('#shops_title').hide();
+            }
+            // If profile-private is visible, do nothing or any other desired behavior
         });
 
+        $('#manage-shops').click(function() {
+            // Hide main settings and show shops screen
+            $('#profile-settings').hide();
+            $('#profile-shops').show();
+        
+            // Optionally, adjust titles as needed
+            $('#shops_title').show();
+            $('#servers_title').hide();
+            $('#editTitle').hide();
+        });
+          
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
             $('#close-settings').css('display', 'block');
