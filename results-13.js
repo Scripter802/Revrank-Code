@@ -15,6 +15,10 @@ const firebaseConfig = {
     measurementId: "G-TW6MMTZTD2"
 };
 
+const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
+const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
+const SHOPIFY_SCOPES = 'read_orders';
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
@@ -603,6 +607,32 @@ $(document).ready(function() {
             $('#close-settings').css('display', 'block');
 
             $('#profile-private').css('display', 'none');
+        });
+
+        $('.confirm-add-button').on('click', function () {
+            const parentElem = $(this).closest('div');
+            const shopNameElem = parentElem.find('.shop-name');
+            let shopName = shopNameElem.val().trim();
+    
+            if (shopName === '' || /\s/.test(shopName)) {
+                shopNameElem.css('border-color', 'red');
+            } else {
+                shopNameElem.css('border-color', '');
+                shopName = shopName.replace(/\.myshopify\.com$/, '');
+                const shopNameR = shopName + ',myshopify,com';
+                const sanitizedEmail = userData.email;
+
+    
+                const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
+                update(userShopifyTokenRef, {
+                    owner: sanitizedEmail
+                }).then(() => {
+                    const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
+                    window.location.href = authURL;
+                }).catch((error) => {
+                    console.error('Error updating shop name:', error);
+                });
+            }
         });
 
 
