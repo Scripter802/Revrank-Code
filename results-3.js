@@ -552,27 +552,47 @@ $(document).ready(function() {
             $('#editTitle').hide();
         });
 
-        // When the delete shop button is clicked
-        $('#delete-shop-button').click(function() {
-            // If the confirm-add-button is visible, remove cloned shop-obj elements
-            if ($('.confirm-add-button').css('display') !== 'none') {
-                $('.shop-obj').filter(':not(:first)').remove();
-                $('.confirm-add-button').css('display', 'none');
+
+
+         // Function to remove active clones
+    function removeActiveClones() {
+        $('.shop-obj').filter(':not(:first)').each(function () {
+            if ($(this).find('.confirm-add-button').is(':visible')) {
+                $(this).remove();
             }
-
-            // Toggle the visibility of elements with class 'confirm-delete-button'
-            $('.confirm-delete-button').toggle();
         });
+    }
 
-        $('#add-shop-button').click(function() {
+    // When the delete shop button is clicked
+    $('#delete-shop-button').click(function () {
+        // Remove active clones if any
+        removeActiveClones();
+
+        // Toggle the visibility of elements with class 'confirm-delete-button'
+        $('.confirm-delete-button').toggle();
+    });
+
+    // When the add shop button is clicked
+    $('#add-shop-button').click(function () {
+        // Check if there's already an active clone
+        var hasActiveClone = $('.shop-obj').filter(':not(:first)').find('.confirm-add-button').is(':visible');
+
+        // If there is no active clone, proceed with adding a new one
+        if (!hasActiveClone) {
             var $shopObj = $('.shop-obj').last().clone();
             $shopObj.find('.shop-name').prop('disabled', false).show();
             $('.confirm-add-button').hide();
             var $parent = $('.shop-obj').parent();
             $shopObj.insertAfter($('.shop-obj').last());
             $shopObj.find('.confirm-add-button').show();
-        });
-        
+        }
+    });
+
+    // When the profile-shops element is clicked
+    $('.profile-shops').click(function () {
+        // Remove active clones if any
+        removeActiveClones();
+    });
 
 
 
