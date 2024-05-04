@@ -718,7 +718,7 @@ $(document).ready(function() {
 });
 
 
-function renderConnectedShops(){
+function renderConnectedShops() {
     // Define the reference to the shopifyTokens
     const shopifyTokensRef = ref(db, "shopifyTokens");
 
@@ -758,7 +758,7 @@ function renderConnectedShops(){
 
                     // Add event listener to confirm-delete-button
                     const confirmDeleteButton = shopClone.querySelector(".confirm-delete-button");
-                    confirmDeleteButton.addEventListener("click", function() {
+                    confirmDeleteButton.addEventListener("click", function () {
                         let shopNameLower = shopName.toLowerCase();
                         let keyToDelete = shopNameLower + ",myshopify,com";
                         let shopRevenue = shopObject.shopRevenue || "0";
@@ -777,17 +777,30 @@ function renderConnectedShops(){
                                         let revenueToSubtract = parseFloat(shopRevenue || "0");
                                         let newRevenue = currentRevenue - revenueToSubtract;
 
+
                                         // Update the user's total revenue
-                                        update(userRef, { totalRevenue: newRevenue.toString() });
+                                        update(userRef, { totalRevenue: newRevenue.toString() })
+                                        .then(() => {
+                                            shopClone.remove();
+                                            window.location.href = "/results?u=" + userData.id;
+                                        })
+                                        .catch((error) => {
+                                            console.error("Error updating total revenue:", error);
+                                            shopClone.style.borderColor = "red";
+                                        });
+                                        
                                     } else {
                                         console.log("User not found.");
+                                        shopClone.style.borderColor = "red";
                                     }
                                 }).catch((error) => {
                                     console.error("Error getting user data:", error);
+                                    shopClone.style.borderColor = "red";
                                 });
                             })
                             .catch((error) => {
                                 console.error("Error removing shop:", error);
+                                shopClone.style.borderColor = "red";
                             });
                     });
 
@@ -807,6 +820,7 @@ function renderConnectedShops(){
         console.error(error);
     });
 }
+
 
 
 
