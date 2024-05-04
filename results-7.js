@@ -554,41 +554,49 @@ $(document).ready(function() {
 
 
 
-         // Function to remove active clones
-    function removeActiveClones() {
-        $('.shop-obj').filter(':not(:first)').each(function () {
-            if ($(this).find('.confirm-add-button').is(':visible')) {
-                $(this).remove();
+        function removeActiveClones() {
+            $('.shop-obj').filter(':not(:first)').each(function () {
+                if ($(this).find('.confirm-add-button').is(':visible')) {
+                    $(this).remove();
+                }
+            });
+        }
+        
+        // When the delete shop button is clicked
+        $('#delete-shop-button').click(function () {
+            // Remove active clones if any
+            removeActiveClones();
+        
+            // Toggle the visibility of elements with class 'confirm-delete-button'
+            $('.confirm-delete-button').toggle();
+        });
+        
+        // When the add shop button is clicked
+        $('#add-shop-button').click(function () {
+            // Check if there's already an active clone
+            var activeClone = $('.shop-obj').filter(':not(:first)').filter(function() {
+                return $(this).find('.confirm-add-button').is(':visible');
+            });
+        
+            console.log("Number of active clones: " + activeClone.length);
+        
+            var hasActiveClone = activeClone.length > 0;
+            console.log("Has active clone: " + hasActiveClone);
+        
+            // If there is no active clone, proceed with adding a new one
+            if (!hasActiveClone) {
+                var $shopObj = $('.shop-obj').last().clone();
+                $shopObj.find('.shop-name').prop('disabled', false).show();
+                $('.confirm-add-button').hide();
+                var $parent = $('.shop-obj').parent();
+                $shopObj.insertAfter($('.shop-obj').last());
+                $shopObj.find('.confirm-add-button').show();
+            } else {
+                console.log("An active clone exists, skipping addition.");
             }
         });
-    }
+        
 
-    // When the delete shop button is clicked
-    $('#delete-shop-button').click(function () {
-        // Remove active clones if any
-        removeActiveClones();
-
-        // Toggle the visibility of elements with class 'confirm-delete-button'
-        $('.confirm-delete-button').toggle();
-    });
-
-    // When the add shop button is clicked
-    $('#add-shop-button').click(function () {
-        // Check if there's already an active clone
-        var hasActiveClone = $('.shop-obj').filter(':not(:first)').find('.confirm-add-button').is(':visible');
-
-        console.log("has clone: " + hasActiveClone)
-
-        // If there is no active clone, proceed with adding a new one
-        if (hasActiveClone == false) {
-            var $shopObj = $('.shop-obj').last().clone();
-            $shopObj.find('.shop-name').prop('disabled', false).show();
-            $('.confirm-add-button').hide();
-            var $parent = $('.shop-obj').parent();
-            $shopObj.insertAfter($('.shop-obj').last());
-            $shopObj.find('.confirm-add-button').show();
-        }
-    });
 
     // When the profile-shops element is clicked
     $('.profile-shops').click(function () {
