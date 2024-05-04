@@ -144,7 +144,8 @@ $(document).ready(function() {
                     'background-color': '#7ab861',
                     'border-color': 'white',
                     'color': 'white'
-                }).text('Link copied!');
+                })
+                $(this).children().first().text('Link copied!');
         
 
                 setTimeout(() => {
@@ -152,7 +153,8 @@ $(document).ready(function() {
                         'color': 'white',
                         'background-color': 'transparent',
                         'border-color': '#b829e3'
-                    }).text('Share Profile');  
+                    })
+                    $(this).children().first().text('Share Profile');
                 }, 2000);
         
             }, (err) => {
@@ -172,15 +174,17 @@ $(document).ready(function() {
                     'background-color': '#7ab861',
                     'border-color': 'white',
                     'color': 'white'
-                }).text('Link copied!');
+                })
+                $(this).children().first().text('Link copied!');
         
 
                 setTimeout(() => {
                     $(this).css({
                         'color': 'white',
-                        'background-color': '#b829e3',
+                        'background-color': 'transparent',
                         'border-color': '#b829e3'
-                    }).text('Share Profile');  
+                    })
+                    $(this).children().first().text('Share Profile');
                 }, 2000);
         
             }, (err) => {
