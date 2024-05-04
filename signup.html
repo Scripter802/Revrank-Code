@@ -252,7 +252,7 @@
 
 
 
-    function initiateShopifyAuth() {
+function initiateShopifyAuth() {
     var shopName = document.querySelector('#shopnameInput').value.trim().toLowerCase();
     if (!shopName) return;
 
@@ -265,7 +265,7 @@
     shopName = shopName.replace(/\.myshopify\.com$/, '');
 
     const shopifyTokensRef = ref(db, 'shopifyTokens');
-    const usedShopName = query(shopifyTokensRef, orderByChild('shopName'), equalTo(shopName));
+    const usedShopName = query(shopifyTokensRef, orderByChild('shopName'), equalTo(shopName + '.myshopify.com'));
 
     // Create a promise to handle the asynchronous Firebase query
     const checkExistingStore = new Promise((resolve) => {

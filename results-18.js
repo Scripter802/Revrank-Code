@@ -720,58 +720,94 @@ $(document).ready(function() {
 
 function renderConnectedShops(){
     // Define the reference to the shopifyTokens
-   const shopifyTokensRef = ref(db, "shopifyTokens");
-   
-   // Query to fetch objects where owner equals userData.email
-   const shopQuery = query(shopifyTokensRef, orderByChild("owner"), equalTo(userData.email));
-   
-   // Get the data
-   get(shopQuery).then((snapshot) => {
-       if (snapshot.exists()) {
-           const shopifyObjects = snapshot.val();
-           const shopKeys = Object.keys(shopifyObjects);
-           const shopsCollection = document.getElementById("shopHolder");
-           const shopTemplate = document.querySelector(".shop-obj");
-   
-           // Remove only existing shop-obj elements
-           const existingShopObjs = shopsCollection.querySelectorAll(".shop-obj");
-           existingShopObjs.forEach((obj) => {
-               if (obj !== shopTemplate) {
-                   obj.remove();
-               }
-           });
-   
-           shopKeys.forEach((key) => {
-               const shopObject = shopifyObjects[key];
-               if (Object.keys(shopObject).length > 1) {
-                   // Clone the template
-                   const shopClone = shopTemplate.cloneNode(true);
-   
-                   // Find the shop-name input element
-                   const shopNameInput = shopClone.querySelector(".shop-name");
-   
-                   // Set the shop name in the input with formatted value
-                   let shopName = shopObject.shopName || "";
-                   shopName = shopName.replace(".myshopify.com", "");
-                   shopName = shopName.charAt(0).toUpperCase() + shopName.slice(1);
-                   shopNameInput.value = shopName;
-   
-                   // Append the clone to the collection
-                   shopsCollection.appendChild(shopClone);
-               }
-           });
-   
-           // Remove the original template only if it was not already cloned
-           if (shopTemplate && !shopKeys.includes(shopTemplate)) {
-               shopTemplate.remove();
-           }
-       } else {
-           console.log("No data available");
-       }
-   }).catch((error) => {
-       console.error(error);
-   });
+    const shopifyTokensRef = ref(db, "shopifyTokens");
+
+    // Query to fetch objects where owner equals userData.email
+    const shopQuery = query(shopifyTokensRef, orderByChild("owner"), equalTo(userData.email));
+
+    // Get the data
+    get(shopQuery).then((snapshot) => {
+        if (snapshot.exists()) {
+            const shopifyObjects = snapshot.val();
+            const shopKeys = Object.keys(shopifyObjects);
+            const shopsCollection = document.getElementById("shopHolder");
+            const shopTemplate = document.querySelector(".shop-obj");
+
+            // Remove only existing shop-obj elements
+            const existingShopObjs = shopsCollection.querySelectorAll(".shop-obj");
+            existingShopObjs.forEach((obj) => {
+                if (obj !== shopTemplate) {
+                    obj.remove();
+                }
+            });
+
+            shopKeys.forEach((key) => {
+                const shopObject = shopifyObjects[key];
+                if (Object.keys(shopObject).length > 1) {
+                    // Clone the template
+                    const shopClone = shopTemplate.cloneNode(true);
+
+                    // Find the shop-name input element
+                    const shopNameInput = shopClone.querySelector(".shop-name");
+
+                    // Set the shop name in the input with formatted value
+                    let shopName = shopObject.shopName || "";
+                    shopName = shopName.replace(".myshopify.com", "");
+                    shopName = shopName.charAt(0).toUpperCase() + shopName.slice(1);
+                    shopNameInput.value = shopName;
+
+                    // Add event listener to confirm-delete-button
+                    const confirmDeleteButton = shopClone.querySelector(".confirm-delete-button");
+                    confirmDeleteButton.addEventListener("click", function() {
+                        let shopNameLower = shopName.toLowerCase();
+                        let keyToDelete = shopNameLower + ",myshopify,com";
+                        let shopRevenue = shopObject.shopRevenue || "0";
+                        let owner = shopObject.owner;
+
+                        // Remove the object from shopifyTokens
+                        remove(ref(db, `shopifyTokens/${keyToDelete}`))
+                            .then(() => {
+                                console.log("Shop successfully removed.");
+                                // Update the user's total revenue
+                                const userRef = ref(db, `users/${owner}`);
+                                get(userRef).then((userSnapshot) => {
+                                    if (userSnapshot.exists()) {
+                                        let userData = userSnapshot.val();
+                                        let currentRevenue = parseFloat(userData.totalRevenue || "0");
+                                        let revenueToSubtract = parseFloat(shopRevenue || "0");
+                                        let newRevenue = currentRevenue - revenueToSubtract;
+
+                                        // Update the user's total revenue
+                                        update(userRef, { totalRevenue: newRevenue.toString() });
+                                    } else {
+                                        console.log("User not found.");
+                                    }
+                                }).catch((error) => {
+                                    console.error("Error getting user data:", error);
+                                });
+                            })
+                            .catch((error) => {
+                                console.error("Error removing shop:", error);
+                            });
+                    });
+
+                    // Append the clone to the collection
+                    shopsCollection.appendChild(shopClone);
+                }
+            });
+
+            // Remove the original template only if it was not already cloned
+            if (shopTemplate && !shopKeys.includes(shopTemplate)) {
+                shopTemplate.remove();
+            }
+        } else {
+            console.log("No data available");
+        }
+    }).catch((error) => {
+        console.error(error);
+    });
 }
+
 
 
 
