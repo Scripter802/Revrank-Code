@@ -511,7 +511,7 @@ $(document).ready(function() {
                 $('#profile-settings').show();
         
                 // Show shops_title, hide others
-                $('#shops_title').show();
+                $('#editTitle').show();
                 $('#servers_title').hide();
                 $('#editTitle').hide();
                 $('#close-settings').show();
@@ -523,10 +523,10 @@ $(document).ready(function() {
                 $('#profile-private').show();
         
                 // Show editTitle, hide others
-                $('#editTitle').show();
+                $('#editTitle').hide();
                 $('#servers_title').hide();
                 $('#shops_title').hide();
-                $('#close-settings').show();
+                $('#close-settings').hide();
             }
             // Check if profile-private is visible
             else if ($('#profile-private').is(':visible')) {
@@ -552,6 +552,7 @@ $(document).ready(function() {
           
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
+            $('#editTitle').show();
             $('#close-settings').css('display', 'block');
 
             $('#profile-private').css('display', 'none');
