@@ -554,9 +554,9 @@ $(document).ready(function() {
 
         // When the delete shop button is clicked
         $('#delete-shop-button').click(function() {
-            // If the confirm-add-button is visible, remove cloned shop-name elements
+            // If the confirm-add-button is visible, remove cloned shop-obj elements
             if ($('.confirm-add-button').css('display') !== 'none') {
-                $('.shop-name').filter(':not(:first)').remove();
+                $('.shop-obj').filter(':not(:first)').remove();
                 $('.confirm-add-button').css('display', 'none');
             }
 
@@ -566,18 +566,20 @@ $(document).ready(function() {
 
         // When the add shop button is clicked
         $('#add-shop-button').click(function() {
-            // Duplicate the '.shop-name' element
-            var $shopName = $('.shop-name').last().clone();
+            // Duplicate the '.shop-obj' element
+            var $shopObj = $('.shop-obj').last().clone();
 
-            // Enable the duplicated element
-            $shopName.prop('disabled', false).show();
+            // Enable the child element with class 'shop-name'
+            $shopObj.find('.shop-name').prop('disabled', false).show();
 
             // Insert the new element before the confirm-add-button sibling
-            $shopName.insertBefore($('.confirm-add-button'));
+            $shopObj.insertBefore($('.confirm-add-button'));
 
             // Show the confirm-add-button
             $('.confirm-add-button').css('display', 'block');
         });
+
+
 
 
           
