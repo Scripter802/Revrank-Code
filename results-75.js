@@ -497,12 +497,13 @@ $(document).ready(function() {
                 // Hide profile-discords and show profile-settings
                 $('#profile-discords').hide();
                 $('#profile-settings').show();
-                
+        
                 // Show servers_title, hide others
                 $('#servers_title').show();
                 $('#shops_title').hide();
                 $('#editTitle').hide();
-            } 
+                $('#close-settings').show();
+            }
             // Check if profile-shops is visible
             else if ($('#profile-shops').is(':visible')) {
                 // Hide profile-shops and show profile-settings
@@ -513,7 +514,8 @@ $(document).ready(function() {
                 $('#shops_title').show();
                 $('#servers_title').hide();
                 $('#editTitle').hide();
-            } 
+                $('#close-settings').show();
+            }
             // Check if profile-settings is visible
             else if ($('#profile-settings').is(':visible')) {
                 // Hide profile-settings and show profile-private
@@ -524,9 +526,18 @@ $(document).ready(function() {
                 $('#editTitle').show();
                 $('#servers_title').hide();
                 $('#shops_title').hide();
+                $('#close-settings').show();
             }
-            // If profile-private is visible, do nothing or any other desired behavior
+            // Check if profile-private is visible
+            else if ($('#profile-private').is(':visible')) {
+                // Hide all titles and the close button
+                $('#editTitle').hide();
+                $('#servers_title').hide();
+                $('#shops_title').hide();
+                $('#close-settings').hide();
+            }
         });
+        
 
         $('#manage-shops').click(function() {
             // Hide main settings and show shops screen
