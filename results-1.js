@@ -566,17 +566,21 @@ $(document).ready(function() {
 
         // When the add shop button is clicked
         $('#add-shop-button').click(function() {
-            // Duplicate the '.shop-obj' element
+            // Duplicate the last '.shop-obj' element
             var $shopObj = $('.shop-obj').last().clone();
 
             // Enable the child element with class 'shop-name'
             $shopObj.find('.shop-name').prop('disabled', false).show();
 
-            // Insert the new element before the confirm-add-button sibling
-            $shopObj.insertBefore($('.confirm-add-button'));
+            // Hide all other confirm-add-button elements
+            $('.confirm-add-button').hide();
 
-            // Show the confirm-add-button
-            $('.confirm-add-button').css('display', 'block');
+            // Insert the new element into the parent of the original '.shop-obj'
+            var $parent = $('.shop-obj').parent();
+            $parent.append($shopObj);
+
+            // Show the confirm-add-button for the new clone
+            $shopObj.find('.confirm-add-button').show();
         });
 
 
