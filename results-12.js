@@ -684,7 +684,7 @@ get(shopQuery).then((snapshot) => {
     if (snapshot.exists()) {
         const shopifyObjects = snapshot.val();
         const shopKeys = Object.keys(shopifyObjects);
-        const shopsCollection = document.getElementById("shopsCollection");
+        const shopsCollection = document.getElementById("shopHolder");
         const shopTemplate = document.querySelector(".shop-obj");
 
         // Remove only existing shop-obj elements
