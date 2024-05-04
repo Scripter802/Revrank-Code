@@ -512,8 +512,8 @@ $(document).ready(function() {
         
                 // Show shops_title, hide others
                 $('#editTitle').show();
+                $('#shops_title').hide();
                 $('#servers_title').hide();
-                $('#editTitle').hide();
                 $('#close-settings').show();
             }
             // Check if profile-settings is visible
@@ -543,12 +543,29 @@ $(document).ready(function() {
             // Hide main settings and show shops screen
             $('#profile-settings').hide();
             $('#profile-shops').css('display', 'flex');
+
+            $('.shop-name').prop('disabled', true);
         
             // Optionally, adjust titles as needed
             $('#shops_title').show();
             $('#servers_title').hide();
             $('#editTitle').hide();
         });
+
+        // When the delete shop button is clicked
+        $('#delete-shop-button').click(function() {
+            // Show all elements with class 'confirm-delete-button' and hide those with 'confirm-add-button'
+            $('.confirm-delete-button').css('display', 'block');
+            $('.confirm-add-button').css('display', 'none');
+        });
+
+        // When the add shop button is clicked
+        $('#add-shop-button').click(function() {
+            // Show all elements with class 'confirm-add-button' and hide those with 'confirm-delete-button'
+            $('.confirm-add-button').css('display', 'block');
+            $('.confirm-delete-button').css('display', 'none');
+        });
+
           
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
