@@ -129,7 +129,7 @@ $(document).ready(function() {
                 $(this).removeClass('enabled').addClass('disabled');
         
                 // Updating the .instagram value in the database
-                const usersRef = ref(db, 'users/' + userId); 
+                const usersRef = ref(db, 'users/' + userData.email); 
                 update(usersRef, { instagram: newInstagramValue })
                     .then(() => {
                         console.log("Instagram handle updated successfully.");
