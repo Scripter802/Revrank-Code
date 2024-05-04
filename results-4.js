@@ -578,7 +578,7 @@ $(document).ready(function() {
         var hasActiveClone = $('.shop-obj').filter(':not(:first)').find('.confirm-add-button').is(':visible');
 
         // If there is no active clone, proceed with adding a new one
-        if (!hasActiveClone) {
+        if (hasActiveClone == false) {
             var $shopObj = $('.shop-obj').last().clone();
             $shopObj.find('.shop-name').prop('disabled', false).show();
             $('.confirm-add-button').hide();
