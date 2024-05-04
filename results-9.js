@@ -507,6 +507,9 @@ $(document).ready(function() {
             // Check if profile-shops is visible
             else if ($('#profile-shops').is(':visible')) {
                 // Hide profile-shops and show profile-settings
+                $('.confirm-delete-button').hide();
+                removeActiveClones();
+
                 $('#profile-shops').hide();
                 $('#profile-settings').show();
         
@@ -573,15 +576,14 @@ $(document).ready(function() {
         
         // When the add shop button is clicked
         $('#add-shop-button').click(function () {
+            $('.confirm-delete-button').hide();
+
             // Check if there's already an active clone
             var activeClone = $('.shop-obj').filter(':not(:first)').filter(function() {
                 return $(this).find('.confirm-add-button').is(':visible');
             });
         
-            console.log("Number of active clones: " + activeClone.length);
-        
             var hasActiveClone = activeClone.length > 0;
-            console.log("Has active clone: " + hasActiveClone);
         
             // If there is no active clone, proceed with adding a new one
             if (!hasActiveClone) {
@@ -591,8 +593,6 @@ $(document).ready(function() {
                 var $parent = $('.shop-obj').parent();
                 $shopObj.insertAfter($('.shop-obj').last());
                 $shopObj.find('.confirm-add-button').show();
-            } else {
-                console.log("An active clone exists, skipping addition.");
             }
         });
         
