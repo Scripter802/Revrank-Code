@@ -597,16 +597,6 @@ $(document).ready(function() {
         });
         
 
-
-    // When the profile-shops element is clicked
-    $('.profile-shops').click(function () {
-        // Remove active clones if any
-        removeActiveClones();
-    });
-
-
-
-
           
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
