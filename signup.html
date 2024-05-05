@@ -26,12 +26,18 @@
     var lastNameInput = document.querySelector('#lastNameInput');
     var emailInput = document.querySelector('#emailInput');
     var signUpButton = document.querySelector('#signUpButton');
-    var IGSubmitBtn = document.querySelector('#igSubmitBtn');
-    var IGskipBtn = document.querySelector('#igSkipBtn');
     var firstStepBtn = document.querySelector('#firstStepBtn');
     var shopifySetupBtn = document.querySelector('#shopifySetupBtn');
     var emailForm = document.querySelector('#email-form-2');
     var storeForm = document.querySelector('#storeInput');
+    var IGSubmitBtn = document.querySelector('#igSubmitBtn');
+    var IGskipBtn = document.querySelector('#igSkipBtn');
+
+    var DisSubmitBtn = document.querySelector('#discordSubmitButton');
+    var DisSkipBtn = document.querySelector('#disSkipBtn');
+    var DisInput = document.querySelector('#discordInput');
+
+
 
     var passInput = document.querySelector('#passInput');
     var passInputC = document.querySelector('#passInputConfirm');
@@ -64,6 +70,8 @@
 
 
     firstStepBtn.addEventListener('click', function() {
+
+        makeCircleActive("step2c");
 
         console.log("step 1 click")
         console.log(document.querySelector('#nameInput').value )
@@ -116,7 +124,7 @@
 
             document.querySelector('#secondStep').style.display = 'none'
             document.querySelector('#igStep').style.display = 'flex'
-            //document.querySelector('#finalStep').style.display = 'flex'
+            makeCircleActive('step3c');
         }).catch(error => {
             console.error('Error registering user:', error);
             // Handle error
@@ -168,7 +176,7 @@
 
                                         document.querySelector('#secondStep').style.display = 'none'
                                         document.querySelector('#igStep').style.display = 'flex'
-                                        //document.querySelector('#finalStep').style.display = 'flex'
+                                        makeCircleActive('step3c');
                                     }).catch(error => {
                                         console.error('Error registering user:', error);
                                         // Handle error
@@ -218,7 +226,31 @@
                 instagram: instagramHandle
             }).then(() => {
                 document.querySelector('#igStep').style.display = 'none';
+                document.querySelector('#disStep').style.display = 'flex';
+                makeCircleActive('step4c');
+            }).catch((error) => {
+                console.error('Error updating user:', error);
+            });
+        }
+    });
+
+    DisSubmitBtn.addEventListener('click', function() {
+        var discordHandle = DisInput.value.trim().replace('@', '');
+        discordHandle = DisInput.value.trim().replace('#', '');
+
+        if (discordHandle.includes(' ')) {
+            document.querySelector('#errorTextIG').style.display = 'block';
+            document.querySelector('#errorTextIG').innerText = "No spaces allowed in the username";
+        } else {
+            document.querySelector('#errorTextIG').style.display = 'none';
+            var sanatizedEmail = emailInput.value.toLowerCase().replace(/\./g, ',');
+            const userRef = ref(db, 'users/' + sanatizedEmail);
+            update(userRef, {
+                discord: discordHandle
+            }).then(() => {
+                document.querySelector('#disStep').style.display = 'none';
                 document.querySelector('#finalStep').style.display = 'flex';
+                makeCircleActive('step5c');
             }).catch((error) => {
                 console.error('Error updating user:', error);
             });
@@ -232,11 +264,27 @@
             instagram: 'none'
         }).then(() => {
             document.querySelector('#igStep').style.display = 'none';
-            document.querySelector('#finalStep').style.display = 'flex';
+            document.querySelector('#disStep').style.display = 'flex';
+            makeCircleActive('step4c');
         }).catch((error) => {
             console.error('Error updating user:', error);
         });
     });
+
+    DisSkipBtn.addEventListener('click', function() {
+        var sanatizedEmail = emailInput.value.toLowerCase().replace(/\./g, ',');
+        const userRef = ref(db, 'users/' + sanatizedEmail);
+        update(userRef, {
+            discord: 'none'
+        }).then(() => {
+            document.querySelector('#disStep').style.display = 'none';
+            document.querySelector('#finalStep').style.display = 'flex';
+            makeCircleActive('step5c');
+        }).catch((error) => {
+            console.error('Error updating user:', error);
+        });
+    });
+
 
     shopifySetupBtn.addEventListener('click', function() {
         
@@ -250,7 +298,17 @@
     });
 
 
-
+function makeCircleActive(className) {
+    var elements = document.getElementsByClassName(className);
+    if (elements.length > 0) {
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].style.color = 'white';
+            elements[i].style.backgroundColor = '#b829e3';
+        }
+    } else {
+        console.log('No elements found with class:', className);
+    }
+}
 
 function initiateShopifyAuth() {
     var shopName = document.querySelector('#shopnameInput').value.trim().toLowerCase();

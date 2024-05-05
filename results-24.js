@@ -99,6 +99,7 @@ $(document).ready(function() {
         $('#email-settings').val(userData.email.replace(/,/g, '.'));
         $('#email-settings').prop('disabled', true);
         $('#ig-settings').val('@' + userData.instagram);
+        $('#discord-settings').val('@' + userData.discord);
         $('#shop-settings').val(userData.shopName);
         $('#shop-settings').prop('disabled', true);
 
@@ -112,6 +113,7 @@ $(document).ready(function() {
         }
 
         var originalValue = $('#ig-settings').val();
+        var originalValueD = $('#discord-settings').val();
 
         $('#ig-settings').on('input', function() {
             var currentValue = $(this).val();
@@ -122,20 +124,32 @@ $(document).ready(function() {
             }
         });
 
+        $('#discord-settings').on('input', function() {
+            var currentValue = $(this).val();
+            if (currentValue !== originalValueD) {
+                $('#save-changes').removeClass('disabled').addClass('enabled');
+            } else {
+                $('#save-changes').removeClass('enabled').addClass('disabled');
+            }
+        });
+
+
         $('#save-changes').click(function() {
             if ($(this).hasClass('enabled')) {
                 var newInstagramValue = $('#ig-settings').val().replace(/^@/, '');
+                var newDiscordValue = $('#discord-settings').val().replace(/^@/, '');
                 originalValue = $('#ig-settings').val(); 
+                originalValueD = $('#discord-settings').val(); 
                 $(this).removeClass('enabled').addClass('disabled');
         
                 // Updating the .instagram value in the database
                 const usersRef = ref(db, 'users/' + userData.email); 
-                update(usersRef, { instagram: newInstagramValue })
+                update(usersRef, { instagram: newInstagramValue, discord: newDiscordValue })
                     .then(() => {
-                        console.log("Instagram handle updated successfully.");
+                        console.log("Instagram/Discord handle updated successfully.");
                     })
                     .catch((error) => {
-                        console.error("Error updating Instagram handle:", error);
+                        console.error("Error updating Instagram/Discord handle:", error);
                     });
             }
         });   
