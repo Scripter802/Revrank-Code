@@ -155,7 +155,7 @@ $(document).ready(function() {
         });   
 
         $('.share-profile-class').click(function() {
-            var sharingUrl = "https://www.revrank.io/sharing?s=" + userData.id;
+            var sharingUrl = "https://www.revrank.io/sharing/" + userData.id;
         
             navigator.clipboard.writeText(sharingUrl).then(() => {
                 console.log('Copying to clipboard was successful!');
@@ -185,7 +185,7 @@ $(document).ready(function() {
         });
         
         $('.share-profile-class-settings').click(function() {
-            var sharingUrl = "https://www.revrank.io/sharing?s=" + userData.id;
+            var sharingUrl = "https://www.revrank.io/sharing/" + userData.id;
         
             navigator.clipboard.writeText(sharingUrl).then(() => {
                 console.log('Copying to clipboard was successful!');
