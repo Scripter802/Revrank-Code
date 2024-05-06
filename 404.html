@@ -1,18 +1,23 @@
 <script>
 
-    
+
 window.onload = function() {
     const path = window.location.pathname;
     const parts = path.split('/').filter(part => part !== '');
-    const page = parts.length > 0 ? parts[parts.length - 2] : '';
-    const subPage = parts.length > 1 ? parts[parts.length - 1] : '';
-
+    const page = parts.length > 0 ? parts[parts.length - 2] : ''; 
+    const subPage = parts.length > 1 ? parts[parts.length - 1] : ''; 
 
     console.log('Page:', page);
     console.log('SubPage:', subPage);
 
 
+    if (page === 'register') {
+        window.location.href = `https://www.revrank.io/register?d=${encodeURIComponent(subPage)}`;
+    } if (page === 'sharing') {
+        window.location.href = `https://www.revrank.io/sharing?s=${encodeURIComponent(subPage)}`;
+    }
 };
+
 
     
 </script>
