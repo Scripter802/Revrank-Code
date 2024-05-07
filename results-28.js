@@ -760,10 +760,13 @@ function confirmDiscordInvite(){
     get(userRef).then((snapshot) => {
         if (snapshot.exists()) {
             const userData = snapshot.val();
+            console.log("got data")
+            console.log(userData)
             if (userData.servers && Array.isArray(userData.servers)) {
                 userData.servers.forEach(serverId => {
                     const serverRef = ref(db, '/discordServers/' + serverId);
                     get(serverRef).then(serverSnapshot => {
+                        console.log("got server snapshot")
                         if (serverSnapshot.exists()) {
                             const serverData = serverSnapshot.val();
                             const users = serverData.users || [];
@@ -784,6 +787,7 @@ function confirmDiscordInvite(){
         console.error('Error reading user data:', error);
     });
 }
+
 
 function renderConnectedShops() {
     // Define the reference to the shopifyTokens
