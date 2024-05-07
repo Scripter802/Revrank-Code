@@ -763,7 +763,7 @@ function confirmDiscordInvite() {
             console.log("User data fetched:", userData);
             
             if (userData.servers && typeof userData.servers === 'object') {
-                Object.keys(userData.servers).forEach(serverId => {
+                Object.values(userData.servers).forEach(serverId => {  // Use Object.values to get the values
                     const serverRef = ref(db, '/discordServers/' + serverId);
 
                     get(serverRef).then(serverSnapshot => {
@@ -797,6 +797,7 @@ function confirmDiscordInvite() {
         console.error('Error reading user data:', error);
     });
 }
+
 
 
 function renderConnectedShops() {
