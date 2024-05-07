@@ -1,7 +1,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-    import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+    import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onValue, remove, push } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 
     const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
     const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
@@ -36,6 +36,8 @@
     var DisSubmitBtn = document.querySelector('#discordSubmitButton');
     var DisSkipBtn = document.querySelector('#disSkipBtn');
     var DisInput = document.querySelector('#discordInput');
+
+    var serverInvite = null;
 
 
 
@@ -112,6 +114,9 @@
         var user = userCredential.user;
         console.log('User registered:', user);
 
+        var urlParams = new URLSearchParams(window.location.search);
+        serverInvite = urlParams.get('d');
+
             generateUniqueID(db).then(uniqueID => {
             // Insert user with unique ID into database
             const userRef = ref(db, 'users/' + sanatizedEmail);
@@ -125,6 +130,12 @@
             document.querySelector('#secondStep').style.display = 'none'
             document.querySelector('#igStep').style.display = 'flex'
             makeCircleActive('step3c');
+
+            if (serverInvite) {
+                const userServersRef = ref(db, 'users/' + sanatizedEmail + '/servers');
+                push(userServersRef, serverInvite);
+            }
+
         }).catch(error => {
             console.error('Error registering user:', error);
             // Handle error
@@ -164,6 +175,9 @@
                                         var user = userCredential.user;
                                         console.log('New user registered:', user);
 
+                                        var urlParams = new URLSearchParams(window.location.search);
+                                        serverInvite = urlParams.get('d');
+
                                         generateUniqueID(db).then(uniqueID => {
                                         // Insert user with unique ID into database
                                         const userRef = ref(db, 'users/' + sanatizedEmail);
@@ -177,6 +191,11 @@
                                         document.querySelector('#secondStep').style.display = 'none'
                                         document.querySelector('#igStep').style.display = 'flex'
                                         makeCircleActive('step3c');
+
+                                        if (serverInvite) {
+                                            const userServersRef = ref(db, 'users/' + sanatizedEmail + '/servers');
+                                            push(userServersRef, serverInvite);
+                                        }
                                     }).catch(error => {
                                         console.error('Error registering user:', error);
                                         // Handle error

@@ -25,6 +25,7 @@ const db = getDatabase();
 const baseImgURL = 'https://uploads-ssl.webflow.com/64dcd192670d2073a8390761/';
 var userID, shopRevenue, shopNameUsed;
 var userData;
+var isFirstTime = false;
 
 const thresholds = [
     { rank: 'Pawn', value: 25000 },
@@ -44,16 +45,19 @@ $(document).ready(function() {
 
     console.log("userID: " + userID)
     if (userID) {
+        //Normal login
         console.log('Normal login');
+
         urlParams.delete('u');
         const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
         window.history.replaceState({}, document.title, newUrl);
 
         promises.push(fetchUserDataByEmail(userID, db));
-
-        //setup shopNameUsed + shopRevenue for login
     } else {
-        console.log("no email")
+        //#1 time user
+        console.log('#1 time user');
+        isFirstTime = true;
+
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
         if (!userID && !shopRevenue) {
             console.log("redirect: userID: " + userID + " && " + shopRevenue )
@@ -66,7 +70,6 @@ $(document).ready(function() {
         const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
         window.history.replaceState({}, document.title, newUrl);
 
-        console.log('#1 time user');
         promises.push(fetchUserDataByShopNameAndUpdateRevenue(shopNameUsed, shopRevenue, db));
     }
 
@@ -79,6 +82,11 @@ $(document).ready(function() {
 
         //Rendering of connected stores to settings
         renderConnectedShops();
+
+        if(isFirstTime){
+            //First time -> add to discord server IF he has invite
+            confirmDiscordInvite();
+        }
 
         document.querySelector('#firstNameTxt').innerText = userData.firstName;
 
@@ -745,6 +753,47 @@ $(document).ready(function() {
 
 });
 
+function confirmDiscordInvite(){
+const userServersRef = ref(db, 'users/' + userData.email + '/servers');
+
+// Get the server keys for the user
+get(userServersRef).then((snapshot) => {
+    if (snapshot.exists()) {
+        const serverKeys = snapshot.val(); // This will be an object of keys pointing to server invites
+
+        // For each key in the serverKeys, fetch the server data from /discordServers
+        Object.keys(serverKeys).forEach((key) => {
+            const serverRef = ref(db, '/discordServers/' + key);
+
+            // Fetch each server object
+            get(serverRef).then((serverSnapshot) => {
+                if (serverSnapshot.exists()) {
+                    const serverData = serverSnapshot.val();
+
+                    // Check if the users array exists, if not create one
+                    if (!serverData.users) {
+                        serverData.users = [];
+                    }
+
+                    // Push userData.id to the server's users array if not already present
+                    if (!serverData.users.includes(userData.id)) {
+                        serverData.users.push(userData.id);
+
+                        // Update the server object with the new users array
+                        const updates = {};
+                        updates['/discordServers/' + key + '/users'] = serverData.users;
+                        update(ref(db), updates);
+                    }
+                }
+            });
+        });
+    } else {
+        console.log("No servers found for this user.");
+    }
+}).catch((error) => {
+    console.error("Failed to fetch user servers:", error);
+});
+}
 
 function renderConnectedShops() {
     // Define the reference to the shopifyTokens

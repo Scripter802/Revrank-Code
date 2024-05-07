@@ -1,0 +1,65 @@
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+    import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
+      authDomain: "revrank-d889f.firebaseapp.com",
+      databaseURL: "https://revrank-d889f-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "revrank-d889f",
+      storageBucket: "revrank-d889f.appspot.com",
+      messagingSenderId: "715615705364",
+      appId: "1:715615705364:web:523f3f60f1e83b2cb90a01",
+      measurementId: "G-TW6MMTZTD2"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase();
+
+    const sendForReviewBtn = document.getElementById('sendForReview');
+    sendForReviewBtn.addEventListener('click', () => {
+        const emailInput = document.getElementById('email_Input').value;
+        const serverName = document.getElementById('serverName').value;
+        const serverLink = document.getElementById('serverLink').value;
+
+        if (emailInput && serverName && serverLink) {
+            const newServerId = generateHash(8); // Ensure you have a function to generate a hash
+            const newServer = {
+                ownerEmail: emailInput,
+                name: serverName,
+                url: serverLink,
+                leaderboard: '',
+                users: '',
+                approved: 'N',
+                id: newServerId
+            };
+
+            const serverRef = ref(db, 'discordServers/' + newServerId);
+            set(serverRef, newServer)
+                .then(() => {
+                    alert('Server submitted for review!');
+                })
+                .catch((error) => {
+                    console.error('Error submitting server:', error);
+                    alert('Failed to submit server for review.');
+                });
+        } else {
+            alert('Please fill all fields.');
+        }
+    });
+
+    function generateHash(length) {
+        const result = [];
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+            result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
+        }
+        return result.join('');
+    }
+
+
+
+</script>
