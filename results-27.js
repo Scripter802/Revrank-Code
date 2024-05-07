@@ -83,6 +83,7 @@ $(document).ready(function() {
         //Rendering of connected stores to settings
         renderConnectedShops();
 
+        console.log("isfirsttime: " + isFirstTime)
         if(isFirstTime){
             //First time -> add to discord server IF he has invite
             confirmDiscordInvite();
@@ -754,45 +755,34 @@ $(document).ready(function() {
 });
 
 function confirmDiscordInvite(){
-const userServersRef = ref(db, 'users/' + userData.email + '/servers');
+    const userRef = ref(db, 'users/' + userData.email.replace('.', ',')); 
 
-// Get the server keys for the user
-get(userServersRef).then((snapshot) => {
-    if (snapshot.exists()) {
-        const serverKeys = snapshot.val(); // This will be an object of keys pointing to server invites
-
-        // For each key in the serverKeys, fetch the server data from /discordServers
-        Object.keys(serverKeys).forEach((key) => {
-            const serverRef = ref(db, '/discordServers/' + key);
-
-            // Fetch each server object
-            get(serverRef).then((serverSnapshot) => {
-                if (serverSnapshot.exists()) {
-                    const serverData = serverSnapshot.val();
-
-                    // Check if the users array exists, if not create one
-                    if (!serverData.users) {
-                        serverData.users = [];
-                    }
-
-                    // Push userData.id to the server's users array if not already present
-                    if (!serverData.users.includes(userData.id)) {
-                        serverData.users.push(userData.id);
-
-                        // Update the server object with the new users array
-                        const updates = {};
-                        updates['/discordServers/' + key + '/users'] = serverData.users;
-                        update(ref(db), updates);
-                    }
-                }
-            });
-        });
-    } else {
-        console.log("No servers found for this user.");
-    }
-}).catch((error) => {
-    console.error("Failed to fetch user servers:", error);
-});
+    get(userRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            if (userData.servers && Array.isArray(userData.servers)) {
+                userData.servers.forEach(serverId => {
+                    const serverRef = ref(db, '/discordServers/' + serverId);
+                    get(serverRef).then(serverSnapshot => {
+                        if (serverSnapshot.exists()) {
+                            const serverData = serverSnapshot.val();
+                            const users = serverData.users || [];
+                            users.push(userData.id); // Assuming `userData.id` is the user's unique identifier
+    
+                            // Update the server entry with the new list of users
+                            const updates = {};
+                            updates['/discordServers/' + serverId + '/users'] = users;
+                            update(ref(db), updates);
+                        }
+                    });
+                });
+            }
+        } else {
+            console.log('No user data found');
+        }
+    }).catch(error => {
+        console.error('Error reading user data:', error);
+    });
 }
 
 function renderConnectedShops() {
