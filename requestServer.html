@@ -40,6 +40,9 @@
             set(serverRef, newServer)
                 .then(() => {
                     alert('Server submitted for review!');
+                    emailInputElem.value = '';
+                    serverNameElem.value = '';
+                    serverLinkElem.value = '';
                 })
                 .catch((error) => {
                     console.error('Error submitting server:', error);
