@@ -754,34 +754,44 @@ $(document).ready(function() {
 
 });
 
-function confirmDiscordInvite(){
-    const userRef = ref(db, 'users/' + userData.email.replace('.', ',')); 
+function confirmDiscordInvite() {
+    const userRef = ref(db, 'users/' + userData.email.replace('.', ','));
 
     get(userRef).then((snapshot) => {
         if (snapshot.exists()) {
             const userData = snapshot.val();
-            console.log("got data")
-            console.log(userData)
-            if (userData.servers && Array.isArray(userData.servers)) {
-                userData.servers.forEach(serverId => {
+            console.log("User data fetched:", userData);
+            
+            if (userData.servers && typeof userData.servers === 'object') {
+                Object.keys(userData.servers).forEach(serverId => {
                     const serverRef = ref(db, '/discordServers/' + serverId);
+
                     get(serverRef).then(serverSnapshot => {
-                        console.log("got server snapshot")
                         if (serverSnapshot.exists()) {
                             const serverData = serverSnapshot.val();
                             const users = serverData.users || [];
-                            users.push(userData.id); // Assuming `userData.id` is the user's unique identifier
-    
-                            // Update the server entry with the new list of users
-                            const updates = {};
-                            updates['/discordServers/' + serverId + '/users'] = users;
-                            update(ref(db), updates);
+
+                            if (!users.includes(userData.id)) {
+                                users.push(userData.id); // Add user only if not already added
+                                const updates = {};
+                                updates['/discordServers/' + serverId + '/users'] = users;
+                                update(ref(db), updates);
+                                console.log("User added to server:", serverId);
+                            } else {
+                                console.log("User already exists in server:", serverId);
+                            }
+                        } else {
+                            console.log("No server data found for:", serverId);
                         }
+                    }).catch(error => {
+                        console.error("Error reading server data:", error);
                     });
                 });
+            } else {
+                console.log("No servers data found for user.");
             }
         } else {
-            console.log('No user data found');
+            console.log('No user data found.');
         }
     }).catch(error => {
         console.error('Error reading user data:', error);
