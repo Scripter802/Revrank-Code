@@ -761,38 +761,37 @@ $(document).ready(function() {
 
 function renderConnectedServers() {
     if (!userData.servers) {
-        document.getElementById('serverHolderM').children[0].style.display = "none";
-        document.getElementById('noDisTxt').style.display = "block";
+        $('#serverHolderM').children().first().hide();
+        $('#noDisTxt').show();
         return;
     }
 
-    const serverHolderM = document.getElementById('serverHolderM');
-    const template = serverHolderM.getElementsByClassName('discord-obj')[0];
+    var $serverHolderM = $('#serverHolderM');
+    var $template = $serverHolderM.find('.discord-obj').first();
 
-    for (const serverKey in userData.servers) {
-        const serverId = userData.servers[serverKey];
-
-        const serverRef = ref(db, `/discordServers/${serverId}`);
-        onValue(serverRef, (snapshot) => {
-            const serverData = snapshot.val();
+    $.each(userData.servers, function(serverKey, serverId) {
+        var serverRef = ref(db, `/discordServers/${serverId}`);
+        onValue(serverRef, function(snapshot) {
+            var serverData = snapshot.val();
             if (serverData) {
-                const serverElem = template.cloneNode(true);
+                var $serverElem = $template.clone();
 
+                var $serverNameElem = $serverElem.find('.server-name').first();
+                var $serverUrlElem = $serverElem.find('.server-url').first();
 
-                const serverNameElem = serverElem.getElementsByClassName('server-name')[0];
-                const serverUrlElem = serverElem.getElementsByClassName('server-url')[0];
-
-                serverNameElem.value = serverData.name;
-                serverNameElem.disabled = true; 
-                serverUrlElem.href = serverData.url;
-                serverHolderM.appendChild(serverElem);
+                $serverNameElem.val(serverData.name);
+                $serverNameElem.prop('disabled', true);
+                $serverNameElem.css('background-color', '#21272c');
+                $serverUrlElem.attr('href', serverData.url);
+                $serverHolderM.append($serverElem);
             }
         }, {
             onlyOnce: true
         });
-    }
-    template.remove();
+    });
+    $template.remove();
 }
+
 
 
 

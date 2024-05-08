@@ -134,6 +134,7 @@
             if (serverInvite) {
                 const userServersRef = ref(db, 'users/' + sanatizedEmail + '/servers');
                 push(userServersRef, serverInvite);
+                DisSkipBtn.style.display = "none";
             }
 
         }).catch(error => {
