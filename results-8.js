@@ -788,20 +788,25 @@ function renderConnectedServers() {
                 $serverElem.find('.confirm-delete-button-d').click(function() {
                     // Remove from DOM
                     $serverElem.remove();
-                    
-                    // Remove from user's servers parameter
-                    delete userData.servers[serverKey];
+
+                    // Find the correct key and delete it from user's servers
+                    Object.keys(userData.servers).forEach(key => {
+                        if (userData.servers[key] === serverId) {
+                            delete userData.servers[key];
+                        }
+                    });
+
+                    // Update the servers in the database
                     const userServersRef = ref(db, `/users/${userData.id}/servers`);
                     set(userServersRef, userData.servers);
 
                     // Remove user from the users array in /discordServers
-                    const usersIndex = serverData.users.indexOf(userData.id); // Assuming userData.id holds the user's ID
+                    const usersIndex = serverData.users.indexOf(userData.id);
                     if (usersIndex > -1) {
                         serverData.users.splice(usersIndex, 1);
                         const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
                         set(serverUsersRef, serverData.users);
                     }
-
                 });
 
                 $serverHolderM.append($serverElem);
@@ -812,6 +817,7 @@ function renderConnectedServers() {
     });
     $template.remove();
 }
+
 
 
 
