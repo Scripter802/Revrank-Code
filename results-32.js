@@ -83,7 +83,7 @@ $(document).ready(function() {
         //Rendering of connected stores to settings
         renderConnectedShops();
         renderConnectedServers();
-        renderAllServers();
+        //renderAllServers();
 
         console.log("isfirsttime: " + isFirstTime)
         if(isFirstTime){
