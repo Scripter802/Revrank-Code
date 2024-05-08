@@ -235,6 +235,9 @@
     IGSubmitBtn.addEventListener('click', function() {
         var instagramHandle = instagramInput.value.trim().replace('@', '');
 
+        if(instagramHandle == "" || instagramHandle == null || instagramHandle == undefined)
+        return
+
         if (instagramHandle.includes(' ')) {
             document.querySelector('#errorTextIG').style.display = 'block';
             document.querySelector('#errorTextIG').innerText = "No spaces allowed in the handle";
@@ -257,6 +260,9 @@
     DisSubmitBtn.addEventListener('click', function() {
         var discordHandle = DisInput.value.trim().replace('@', '');
         discordHandle = DisInput.value.trim().replace('#', '');
+
+        if(discordHandle == "" || discordHandle == null || discordHandle == undefined)
+        return
 
         if (discordHandle.includes(' ')) {
             document.querySelector('#errorTextIG').style.display = 'block';
