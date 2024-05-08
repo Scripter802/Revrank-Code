@@ -799,6 +799,8 @@ function removeServer(serverKey, serverId, serverData, $serverElem) {
     const userServersRef = ref(db, `/users/${userData.id}/servers/${serverKey}`);
     const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
 
+    console.log('userServersRef: ' + userServersRef)
+
     // Begin transaction to remove the server from user's list
     remove(userServersRef).then(() => {
         console.log("Server removed from user's list:", serverKey);
