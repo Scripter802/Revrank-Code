@@ -789,20 +789,12 @@ function renderConnectedServers() {
                     // Remove from DOM
                     $serverElem.remove();
 
-                    console.log("Attempting to delete server:", serverId);
-                    console.log("Current userData.servers:", userData.servers);
-
-                    // Find the correct key and delete it from user's servers
-                    Object.keys(userData.servers).forEach(key => {
-                        console.log("is || " + userData.servers[key] + " == " + serverId)
-                        if (userData.servers[key] === serverId) {
-                            delete userData.servers[key];
-                        }
-                    });
+                    // Find the correct key and set it to null for deletion
+                    const updateServerData = {};
+                    updateServerData[`/users/${userData.id}/servers/${serverKey}`] = null;
 
                     // Update the servers in the database
-                    const userServersRef = ref(db, `/users/${userData.id}/servers`);
-                    set(userServersRef, userData.servers);
+                    update(ref(db), updateServerData);
 
                     // Remove user from the users array in /discordServers
                     const usersIndex = serverData.users.indexOf(userData.id);
