@@ -794,12 +794,14 @@ function renderConnectedServers() {
                     const userServersRef = ref(db, `/users/${userData.id}/servers`);
                     set(userServersRef, userData.servers);
 
-                    // Remove from /discordServers
-                    const discordServerRef = ref(db, `/discordServers/${serverId}`);
-                    remove(discordServerRef);
+                    // Remove user from the users array in /discordServers
+                    const usersIndex = serverData.users.indexOf(userData.id); // Assuming userData.id holds the user's ID
+                    if (usersIndex > -1) {
+                        serverData.users.splice(usersIndex, 1);
+                        const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
+                        set(serverUsersRef, serverData.users);
+                    }
 
-                    // Optionally, handle the 'users' array in the server data
-                    // This would require additional code to manage the array
                 });
 
                 $serverHolderM.append($serverElem);
@@ -810,6 +812,7 @@ function renderConnectedServers() {
     });
     $template.remove();
 }
+
 
 
 
