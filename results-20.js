@@ -767,56 +767,59 @@ function renderConnectedServers() {
         return;
     }
 
-    const $serverHolderM = $('#serverHolderM');
-    const $template = $serverHolderM.find('.discord-obj').first();
+    var $serverHolderM = $('#serverHolderM');
+    var $template = $serverHolderM.find('.discord-obj').first();
 
     $.each(userData.servers, function(serverKey, serverId) {
-        const serverRef = ref(db, `/discordServers/${serverId}`);
+        console.log("Server Key:", serverKey, "Server ID:", serverId); // Debug log
 
-        get(serverRef).then((snapshot) => {
-            const serverData = snapshot.val();
+        var serverRef = ref(db, `/discordServers/${serverId}`);
+        onValue(serverRef, function(snapshot) {
+            var serverData = snapshot.val();
+            console.log("Server Data Fetched for Server ID:", serverId, serverData); // Debug log
 
             if (serverData) {
-                const $serverElem = $template.clone();
-                $serverElem.find('.server-name').first().val(serverData.name).prop('disabled', true).css('background-color', '#21272c');
-                $serverElem.find('.server-url').first().attr('href', serverData.url);
+                var $serverElem = $template.clone();
+                var $serverNameElem = $serverElem.find('.server-name').first();
+                var $serverUrlElem = $serverElem.find('.server-url').first();
+
+                $serverNameElem.val(serverData.name);
+                $serverNameElem.prop('disabled', true);
+                $serverNameElem.css('background-color', '#21272c');
+                $serverUrlElem.attr('href', serverData.url);
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
-                    removeServer(serverKey, serverId, serverData, $serverElem);
+                    console.log("Initiating Removal for Server Key:", serverKey); // Debug log
+
+                    $serverElem.remove();
+
+                    const updateServerData = {};
+                    updateServerData[`/users/${userData.id}/servers/${serverKey}`] = null;
+                    update(ref(db), updateServerData).then(() => {
+                        console.log("Server removed from user's list:", serverKey); // Debug log
+                    }).catch(error => {
+                        console.error("Error removing server from user's list:", error); // Error log
+                    });
+
+                    const usersIndex = serverData.users.indexOf(userData.id);
+                    if (usersIndex > -1) {
+                        serverData.users.splice(usersIndex, 1);
+                        const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
+                        set(serverUsersRef, serverData.users).then(() => {
+                            console.log("User removed from server's user list:", userData.id); // Debug log
+                        }).catch(error => {
+                            console.error("Error removing user from server's user list:", error); // Error log
+                        });
+                    }
                 });
 
                 $serverHolderM.append($serverElem);
             }
-        }).catch(error => {
-            console.error("Failed to fetch server data:", error);
+        }, {
+            onlyOnce: true
         });
     });
-
     $template.remove();
-}
-
-function removeServer(serverKey, serverId, serverData, $serverElem) {
-    const userServersRef = ref(db, `/users/${userData.id}/servers/${serverKey}`);
-    const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
-
-    console.log('userServersRef: ' + userServersRef)
-
-    // Begin transaction to remove the server from user's list
-    remove(userServersRef).then(() => {
-        console.log("Server removed from user's list:", serverKey);
-
-        // Remove user from server's user list
-        const usersIndex = serverData.users.indexOf(userData.id);
-        if (usersIndex > -1) {
-            serverData.users.splice(usersIndex, 1);
-            return set(serverUsersRef, serverData.users);
-        }
-    }).then(() => {
-        console.log("User removed from server's user list:", userData.id);
-        $serverElem.remove();
-    }).catch(error => {
-        console.error("Failed to update user and server records:", error);
-    });
 }
 
 
