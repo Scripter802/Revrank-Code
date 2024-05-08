@@ -39,10 +39,12 @@
             const serverRef = ref(db, 'discordServers/' + newServerId);
             set(serverRef, newServer)
                 .then(() => {
-                    alert('Server submitted for review!');
-                    emailInputElem.value = '';
-                    serverNameElem.value = '';
-                    serverLinkElem.value = '';
+                    document.getElementById('succTxt').style.display = "block"
+                    document.getElementById('sendForReview').style.display = "none"
+                    
+                    document.getElementById('email_Input').value = '';
+                    document.getElementById('serverName').value = '';
+                    document.getElementById('serverLink').value = '';
                 })
                 .catch((error) => {
                     console.error('Error submitting server:', error);
