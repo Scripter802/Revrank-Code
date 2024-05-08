@@ -784,21 +784,14 @@ function renderConnectedServers() {
                 $serverNameElem.css('background-color', '#21272c');
                 $serverUrlElem.attr('href', serverData.url);
 
-                // Attach click handler to the delete button
                 $serverElem.find('.confirm-delete-button-d').click(function() {
-                    // Remove from DOM
                     $serverElem.remove();
+                    console.log("Removing serverKey: " + serverKey);
 
-                    console.log("remove serverKey: " + serverKey)
-
-                    // Find the correct key and set it to null for deletion
                     const updateServerData = {};
                     updateServerData[`/users/${userData.id}/servers/${serverKey}`] = null;
-
-                    // Update the servers in the database
                     update(ref(db), updateServerData);
 
-                    // Remove user from the users array in /discordServers
                     const usersIndex = serverData.users.indexOf(userData.id);
                     if (usersIndex > -1) {
                         serverData.users.splice(usersIndex, 1);
@@ -815,6 +808,7 @@ function renderConnectedServers() {
     });
     $template.remove();
 }
+
 
 
 
