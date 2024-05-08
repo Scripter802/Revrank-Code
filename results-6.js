@@ -608,13 +608,14 @@ $(document).ready(function() {
             });
         }
         
-        // When the delete shop button is clicked
         $('#delete-shop-button').click(function () {
-            // Remove active clones if any
             removeActiveClones();
-        
-            // Toggle the visibility of elements with class 'confirm-delete-button'
             $('.confirm-delete-button').toggle();
+        });
+
+
+        $('#delete-server-button').click(function () {
+            $('.confirm-delete-button-d').toggle();
         });
         
 
@@ -775,7 +776,6 @@ function renderConnectedServers() {
             var serverData = snapshot.val();
             if (serverData) {
                 var $serverElem = $template.clone();
-
                 var $serverNameElem = $serverElem.find('.server-name').first();
                 var $serverUrlElem = $serverElem.find('.server-url').first();
 
@@ -783,6 +783,25 @@ function renderConnectedServers() {
                 $serverNameElem.prop('disabled', true);
                 $serverNameElem.css('background-color', '#21272c');
                 $serverUrlElem.attr('href', serverData.url);
+
+                // Attach click handler to the delete button
+                $serverElem.find('.confirm-delete-button-d').click(function() {
+                    // Remove from DOM
+                    $serverElem.remove();
+                    
+                    // Remove from user's servers parameter
+                    delete userData.servers[serverKey];
+                    const userServersRef = ref(db, `/users/${userData.id}/servers`);
+                    set(userServersRef, userData.servers);
+
+                    // Remove from /discordServers
+                    const discordServerRef = ref(db, `/discordServers/${serverId}`);
+                    remove(discordServerRef);
+
+                    // Optionally, handle the 'users' array in the server data
+                    // This would require additional code to manage the array
+                });
+
                 $serverHolderM.append($serverElem);
             }
         }, {
@@ -791,7 +810,6 @@ function renderConnectedServers() {
     });
     $template.remove();
 }
-
 
 
 
