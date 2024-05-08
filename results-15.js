@@ -771,9 +771,13 @@ function renderConnectedServers() {
     var $template = $serverHolderM.find('.discord-obj').first();
 
     $.each(userData.servers, function(serverKey, serverId) {
+        console.log("Server Key:", serverKey, "Server ID:", serverId); // Debug log
+
         var serverRef = ref(db, `/discordServers/${serverId}`);
         onValue(serverRef, function(snapshot) {
             var serverData = snapshot.val();
+            console.log("Server Data Fetched for Server ID:", serverId, serverData); // Debug log
+
             if (serverData) {
                 var $serverElem = $template.clone();
                 var $serverNameElem = $serverElem.find('.server-name').first();
@@ -785,18 +789,27 @@ function renderConnectedServers() {
                 $serverUrlElem.attr('href', serverData.url);
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
+                    console.log("Initiating Removal for Server Key:", serverKey); // Debug log
+
                     $serverElem.remove();
-                    console.log("Removing serverKey: " + serverKey);
 
                     const updateServerData = {};
                     updateServerData[`/users/${userData.id}/servers/${serverKey}`] = null;
-                    update(ref(db), updateServerData);
+                    update(ref(db), updateServerData).then(() => {
+                        console.log("Server removed from user's list:", serverKey); // Debug log
+                    }).catch(error => {
+                        console.error("Error removing server from user's list:", error); // Error log
+                    });
 
                     const usersIndex = serverData.users.indexOf(userData.id);
                     if (usersIndex > -1) {
                         serverData.users.splice(usersIndex, 1);
                         const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
-                        set(serverUsersRef, serverData.users);
+                        set(serverUsersRef, serverData.users).then(() => {
+                            console.log("User removed from server's user list:", userData.id); // Debug log
+                        }).catch(error => {
+                            console.error("Error removing user from server's user list:", error); // Error log
+                        });
                     }
                 });
 
@@ -808,6 +821,7 @@ function renderConnectedServers() {
     });
     $template.remove();
 }
+
 
 
 
