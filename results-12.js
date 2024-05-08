@@ -789,6 +789,8 @@ function renderConnectedServers() {
                     // Remove from DOM
                     $serverElem.remove();
 
+                    console.log("remove serverKey: " + serverKey)
+
                     // Find the correct key and set it to null for deletion
                     const updateServerData = {};
                     updateServerData[`/users/${userData.id}/servers/${serverKey}`] = null;
