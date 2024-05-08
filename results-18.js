@@ -772,7 +772,8 @@ function renderConnectedServers() {
 
     $.each(userData.servers, function(serverKey, serverId) {
         const serverRef = ref(db, `/discordServers/${serverId}`);
-        onValue(serverRef, function(snapshot) {
+
+        get(serverRef).then((snapshot) => {
             const serverData = snapshot.val();
 
             if (serverData) {
@@ -781,40 +782,41 @@ function renderConnectedServers() {
                 $serverElem.find('.server-url').first().attr('href', serverData.url);
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
-                    // Begin transaction to update both users and servers atomically
-                    runTransaction(ref(db), (currentData) => {
-                        if (currentData) {
-                            // Remove server from user's list
-                            if (currentData.users && currentData.users[userData.id] && currentData.users[userData.id].servers) {
-                                delete currentData.users[userData.id].servers[serverKey];
-                            }
-
-                            // Remove user from server's user list
-                            const usersIndex = serverData.users.indexOf(userData.id);
-                            if (usersIndex > -1) {
-                                serverData.users.splice(usersIndex, 1);
-                            }
-
-                            currentData.discordServers[serverId].users = serverData.users;
-                            return currentData; // This updates the entire structure at once
-                        }
-                    }).then(() => {
-                        console.log("Successfully updated both user and server records.");
-                        $serverElem.remove();
-                    }).catch(error => {
-                        console.error("Failed to update user and server records:", error);
-                    });
+                    removeServer(serverKey, serverId, serverData, $serverElem);
                 });
 
                 $serverHolderM.append($serverElem);
             }
-        }, {
-            onlyOnce: true
+        }).catch(error => {
+            console.error("Failed to fetch server data:", error);
         });
     });
 
     $template.remove();
 }
+
+function removeServer(serverKey, serverId, serverData, $serverElem) {
+    const userServersRef = ref(db, `/users/${userData.id}/servers/${serverKey}`);
+    const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
+
+    // Begin transaction to remove the server from user's list
+    remove(userServersRef).then(() => {
+        console.log("Server removed from user's list:", serverKey);
+
+        // Remove user from server's user list
+        const usersIndex = serverData.users.indexOf(userData.id);
+        if (usersIndex > -1) {
+            serverData.users.splice(usersIndex, 1);
+            return set(serverUsersRef, serverData.users);
+        }
+    }).then(() => {
+        console.log("User removed from server's user list:", userData.id);
+        $serverElem.remove();
+    }).catch(error => {
+        console.error("Failed to update user and server records:", error);
+    });
+}
+
 
 
 
