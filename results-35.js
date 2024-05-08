@@ -760,43 +760,40 @@ $(document).ready(function() {
 //Discord----------
 
 function renderConnectedServers() {
-    // Checking if the user has any servers
     if (!userData.servers) {
-        document.getElementById('serverHolderM').children[0].style.display = "none"
-        document.getElementById('noDisTxt').style.display = "block"
+        document.getElementById('serverHolderM').children[0].style.display = "none";
+        document.getElementById('noDisTxt').style.display = "block";
         return;
     }
 
     const serverHolderM = document.getElementById('serverHolderM');
     const template = serverHolderM.getElementsByClassName('discord-obj')[0];
 
-    // Loop through each server key in userData.servers
     for (const serverKey in userData.servers) {
         const serverId = userData.servers[serverKey];
 
-        // Fetch server data from Firebase
         const serverRef = ref(db, `/discordServers/${serverId}`);
         onValue(serverRef, (snapshot) => {
             const serverData = snapshot.val();
             if (serverData) {
-                // Clone the template
                 const serverElem = template.cloneNode(true);
 
-                // Set the server name and URL
+
                 const serverNameElem = serverElem.getElementsByClassName('server-name')[0];
                 const serverUrlElem = serverElem.getElementsByClassName('server-url')[0];
 
-                serverNameElem.textContent = serverData.name;
+                serverNameElem.value = serverData.name;
+                serverNameElem.disabled = true; 
                 serverUrlElem.href = serverData.url;
-
-                // Append the cloned element to the container
                 serverHolderM.appendChild(serverElem);
             }
         }, {
             onlyOnce: true
         });
     }
+    template.remove();
 }
+
 
 
 function confirmDiscordInvite() {
