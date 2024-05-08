@@ -789,8 +789,12 @@ function renderConnectedServers() {
                     // Remove from DOM
                     $serverElem.remove();
 
+                    console.log("Attempting to delete server:", serverId);
+                    console.log("Current userData.servers:", userData.servers);
+
                     // Find the correct key and delete it from user's servers
-                    Object.values(userData.servers).forEach(key => {
+                    Object.keys(userData.servers).forEach(key => {
+                        console.log("is || " + userData.servers[key] + " == " + serverId)
                         if (userData.servers[key] === serverId) {
                             delete userData.servers[key];
                         }
