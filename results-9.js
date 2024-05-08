@@ -790,7 +790,7 @@ function renderConnectedServers() {
                     $serverElem.remove();
 
                     // Find the correct key and delete it from user's servers
-                    Object.keys(userData.servers).forEach(key => {
+                    Object.values(userData.servers).forEach(key => {
                         if (userData.servers[key] === serverId) {
                             delete userData.servers[key];
                         }
