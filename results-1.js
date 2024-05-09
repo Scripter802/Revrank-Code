@@ -891,6 +891,9 @@ function renderAllServers() {
                                     // Fetching the data
                                     get(serversRef).then(snapshot => {
                                         snapshot.forEach(childSnapshot => {
+                                            console.log("DOES ID MATCH")
+                                            console.log(childSnapshot.val() + " === " + server.id)
+                                            console.log("serverkey: " + serverKey)
                                             // Check if the server id matches
                                             if (childSnapshot.val() === server.id) {
                                                 const serverKey = childSnapshot.key;
