@@ -885,50 +885,59 @@ function renderAllServers() {
                                 
                                     $template.remove();
                                 
-                                    const updateServerData = {};
-                                    const serversRef = ref(db, `/users/${userData.email}/servers`);
-                                    
-                                    // Fetching the data
-                                    get(serversRef).then(snapshot => {
-                                        snapshot.forEach(childSnapshot => {
-                                            if (childSnapshot.val() === server.id) {
-                                                const serverKey = childSnapshot.key;
-                                                updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
-                                            }
-                                        });
-                                    
-                                        // Update the data
-                                        update(ref(db), updateServerData).then(() => {
-                                            console.log("Server removed from user's list:", server.id); 
-                                        }).catch(error => {
-                                            console.error("Error removing server from user's list:", error); 
-                                        });
-                                    }).catch(error => {
-                                        console.error("Error fetching servers:", error);
-                                    });
+                                    const serversRef = ref(db, '/discordServers');
+                                    const serversQuery = query(serversRef);
                                 
-                                    const serverDetails = serverData[server.id];
-                                    console.log("ServerDetails: ", serverDetails)
-                                    console.log("server.id: ", server.id)
-                                    if (serverDetails && Array.isArray(serverDetails.users)) {
-                                        const usersIndex = serverDetails.users.indexOf(userData.id);
-                                        if (usersIndex > -1) {
-                                            serverDetails.users.splice(usersIndex, 1);
-                                            const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
-                                            set(serverUsersRef, serverDetails.users)
-                                                .then(() => {
-                                                    console.log("User removed from server's user list:", userData.id); // Debug log
-                                                })
-                                                .catch(error => {
-                                                    console.error("Error removing user from server's user list:", error); // Error log
+                                    get(serversQuery).then((snapshot) => {
+                                        if (snapshot.exists()) {
+                                            const freshServerData = snapshot.val(); // Refetching the updated server data
+                                            const serverDetails = freshServerData[server.id];
+                                            console.log("Updated ServerDetails: ", serverDetails)
+                                
+                                            const updateServerData = {};
+                                            const userServersRef = ref(db, `/users/${userData.email}/servers`);
+                                
+                                            // Fetching the user data
+                                            get(userServersRef).then(snapshot => {
+                                                snapshot.forEach(childSnapshot => {
+                                                    if (childSnapshot.val() === server.id) {
+                                                        const serverKey = childSnapshot.key;
+                                                        updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
+                                                    }
                                                 });
+                                
+                                                // Update the data
+                                                update(ref(db), updateServerData).then(() => {
+                                                    console.log("Server removed from user's list:", server.id); 
+                                                }).catch(error => {
+                                                    console.error("Error removing server from user's list:", error); 
+                                                });
+                                            }).catch(error => {
+                                                console.error("Error fetching servers:", error);
+                                            });
+                                
+                                            if (serverDetails && Array.isArray(serverDetails.users)) {
+                                                const usersIndex = serverDetails.users.indexOf(userData.id);
+                                                if (usersIndex > -1) {
+                                                    serverDetails.users.splice(usersIndex, 1);
+                                                    const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                                                    set(serverUsersRef, serverDetails.users)
+                                                        .then(() => {
+                                                            console.log("User removed from server's user list:", userData.id); // Debug log
+                                                        })
+                                                        .catch(error => {
+                                                            console.error("Error removing user from server's user list:", error); // Error log
+                                                        });
+                                                }
+                                            } else {
+                                                console.log("No user list found for the server:", server.id);
+                                            }
                                         }
-                                    } else {
-                                        console.log("No user list found for the server:", server.id);
-                                    }
-
-
+                                    }).catch((error) => {
+                                        console.error('Error refetching servers:', error);
+                                    });
                                 });
+                                
                                 
                         
                                 $('#noDisTxt').hide();                        
