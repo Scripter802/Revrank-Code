@@ -773,6 +773,63 @@ $(document).ready(function() {
 
 //Discord----------
 
+function renderAllServers() {
+    const serversRef = ref(db, '/discordServers');
+    const serversQuery = query(serversRef); // Optionally, add filtering conditions here
+
+    get(serversQuery).then((snapshot) => {
+        if (snapshot.exists()) {
+            const serverData = snapshot.val();
+            const serverKeys = Object.keys(serverData);
+            const serverHolder = document.getElementById('serverHolder');
+            const serverTemplate = document.querySelector('.discord-obj-add');
+
+            serverKeys.forEach((key) => {
+                const server = serverData[key];
+                const serverClone = serverTemplate.cloneNode(true);
+
+                const serverNameInput = serverClone.querySelector('.server-name');
+                serverNameInput.value = server.name;
+                serverNameInput.disabled = true;
+                serverNameInput.style.backgroundColor = '#21272c';
+
+                const serverUrlAnchor = serverClone.querySelector('.server-url');
+                serverUrlAnchor.href = server.url;
+
+                const addButton = serverClone.querySelector('.server-add-button');
+                addButton.addEventListener('click', function() {
+                    console.log('Add server button clicked');
+
+                    // Add server ID to the current user's `.servers`
+                    const userServersRef = ref(db, `/users/${userData.email}/servers`);
+                    set(userServersRef, {[key]: server.id})
+                      .then(() => console.log('Server added to user profile.'))
+                      .catch((error) => console.error('Error adding server to user profile:', error));
+
+                    // Add user ID to the server's `.users`
+                    const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                    const newUserIndex = Object.keys(server.users).length; // Assuming `server.users` is available and is an object
+                    set(serverUsersRef, {[newUserIndex]: userData.id})
+                      .then(() => console.log('User added to server.'))
+                      .catch((error) => console.error('Error adding user to server:', error));
+                });
+
+                serverHolder.appendChild(serverClone);
+            });
+
+            // Remove the original template if not cloned
+            if (!serverKeys.includes(serverTemplate.getAttribute('id'))) {
+                serverTemplate.remove();
+            }
+        } else {
+            console.log('No servers found.');
+        }
+    }).catch((error) => {
+        console.error('Error fetching servers:', error);
+    });
+}
+
+
 function renderConnectedServers() {
     if (!userData.servers) {
         $('#serverHolderM').children().first().hide();
@@ -834,69 +891,6 @@ function renderConnectedServers() {
     });
     $template.remove();
 }
-
-function renderAllServers() {
-    const serversRef = ref(db, '/discordServers');
-    const serversQuery = query(serversRef); // Optionally, add filtering conditions here
-
-    get(serversQuery).then((snapshot) => {
-        if (snapshot.exists()) {
-            const serverData = snapshot.val();
-            const serverKeys = Object.keys(serverData);
-            const serverHolder = document.getElementById('serverHolder');
-            const serverTemplate = document.querySelector('.discord-obj-add');
-
-            console.log("server template:", serverTemplate)
-
-            serverKeys.forEach((key) => {
-                const server = serverData[key];
-
-                console.log("RENDERING FOR")
-                console.log(server)
-
-                // Clone the template
-                const serverClone = serverTemplate.cloneNode(true);
-
-                console.log("clone: ", serverClone);
-
-                // Set server name and URL
-                const serverNameInput = serverClone.querySelector('.server-name');
-                serverNameInput.value = server.name;
-                serverNameInput.disabled = true;
-                serverNameInput.style.backgroundColor = '#21272c';
-
-                const serverUrlAnchor = serverClone.querySelector('.server-url');
-                serverUrlAnchor.href = server.url;
-
-                const addButton = serverClone.querySelector('.server-add-button');
-                addButton.addEventListener('click', function() {
-                    console.log('Add server button clicked');
-                });
-
-                // Append the clone to the holder
-                serverHolder.appendChild(serverClone);
-            });
-
-            // Remove the original template if not cloned
-            if (!serverKeys.includes(serverTemplate.getAttribute('id'))) {
-                serverTemplate.remove();
-            }
-        } else {
-            console.log('No servers found.');
-        }
-    }).catch((error) => {
-        console.error('Error fetching servers:', error);
-    });
-}
-
-
-
-
-
-
-
-
-
 
 
 function confirmDiscordInvite() {
