@@ -910,10 +910,7 @@ function renderAllServers() {
                                     }).catch(error => {
                                         console.error("Error fetching servers:", error);
                                     });
-                                    
-                                    console.log("SERTVER DATA: ", serverData)
-                                
-                                    // Ensure serverData.users is an array before attempting to modify it
+                                                                    
                                     if (!Array.isArray(serverData.users)) {
                                         serverData.users = [];
                                     }
@@ -999,7 +996,7 @@ function renderConnectedServers() {
                     const updateServerData = {};
                     updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                     update(ref(db), updateServerData).then(() => {
-                        console.log("Server removed from user's list:", serverKey); // Debug log
+                        console.log("(already connected) Server removed from user's list:", serverKey); // Debug log
                     }).catch(error => {
                         console.error("Error removing server from user's list:", error); // Error log
                     });
@@ -1009,7 +1006,7 @@ function renderConnectedServers() {
                         serverData.users.splice(usersIndex, 1);
                         const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
                         set(serverUsersRef, serverData.users).then(() => {
-                            console.log("User removed from server's user list:", userData.id); // Debug log
+                            console.log("(already connected) User removed from server's user list:", userData.id); // Debug log
                         }).catch(error => {
                             console.error("Error removing user from server's user list:", error); // Error log
                         });
