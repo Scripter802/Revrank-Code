@@ -838,25 +838,33 @@ function renderConnectedServers() {
 function renderAllServers() {
     var $serverHolder = $('#serverHolder');
     const serversRef = ref(db, '/discordServers');
+    var $serverTemplate = $('.discord-obj.template');
+
+    // Remove existing server entries except the template
+    $('.discord-obj').not('.template').remove();
 
     onValue(serversRef, (snapshot) => {
         $serverHolder.empty();
 
         if (snapshot.exists()) {
             snapshot.forEach((childSnapshot) => {
-                var $newServer = $('.discord-obj.template').clone().removeClass('template');
-                $newServer.find('.server-name').val(childSnapshot.val().name);
-                $newServer.find('.server-name').prop('disabled', true);
-                $newServer.find('.server-name').css('background-color', '#21272c');
-                $newServer.find('.server-url').attr('href', childSnapshot.val().url);
-                $newServer.find('.server-add-button').on('click', function() {
-                    console.log('AAAA');
+                // Clone the template and remove the 'template' class
+                var $serverClone = $serverTemplate.clone().removeClass('template');
+
+                // Set values from snapshot
+                $serverClone.find('.server-name').val(childSnapshot.val().name)
+                            .prop('disabled', true)
+                            .css('background-color', '#21272c');
+                $serverClone.find('.server-url').attr('href', childSnapshot.val().url);
+                $serverClone.find('.server-add-button').on('click', function() {
+                    console.log('Add server button clicked');
                 });
 
-                $serverHolder.append($newServer);
+                // Append the cloned and modified server to the holder
+                $serverHolder.append($serverClone);
             });
-            // Remove or hide the template after rendering all servers
-            $('.discord-obj.template').remove();
+
+             $serverTemplate.remove();
         } else {
             console.log('No servers found.');
         }
@@ -864,6 +872,7 @@ function renderAllServers() {
         onlyOnce: true 
     });
 }
+
 
 
 
