@@ -163,7 +163,7 @@ $(document).ready(function() {
 
                 if(newDiscordValue != "none" && newDiscordValue != "" && newDiscordValue != " " && newDiscordValue != null && newDiscordValue != undefined ){
                     var disButtonS = $('#manage-discords');
-                    disButtonS.css("background-color", "#none");
+                    disButtonS.css("background-color", "none");
                     disButtonS.prop('disabled', false);
                     disButtonS.children().first().text("Manage Discord Servers");
                 }else{
@@ -611,7 +611,8 @@ $(document).ready(function() {
 
         $('#manage-discords').click(function() {
 
-            if ($(this).css("background-color") === "rgba(128, 128, 128, 0.239)") {
+            var firstChild = $(this).children().first();
+            if (firstChild.text() === "Discord Username Missing") {
                 return;
             }
 
