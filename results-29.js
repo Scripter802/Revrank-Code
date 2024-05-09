@@ -846,16 +846,11 @@ function renderAllServers() {
             const serverHolder = document.getElementById('serverHolder');
             const serverTemplate = document.querySelector('.discord-obj');
 
-            // Remove existing server-obj elements, except the template
-            const existingServerObjs = serverHolder.querySelectorAll('.discord-obj');
-            existingServerObjs.forEach((obj) => {
-                if (obj !== serverTemplate) {
-                    obj.remove();
-                }
-            });
-
             serverKeys.forEach((key) => {
                 const server = serverData[key];
+
+                console.log("RENDERING FOR")
+                console.log(server)
 
                 // Clone the template
                 const serverClone = serverTemplate.cloneNode(true);
@@ -869,7 +864,6 @@ function renderAllServers() {
                 const serverUrlAnchor = serverClone.querySelector('.server-url');
                 serverUrlAnchor.href = server.url;
 
-                // Add event listener to add-button
                 const addButton = serverClone.querySelector('.server-add-button');
                 addButton.addEventListener('click', function() {
                     console.log('Add server button clicked');
