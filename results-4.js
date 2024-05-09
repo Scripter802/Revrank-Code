@@ -1028,8 +1028,7 @@ function renderConnectedServers() {
         });
     });
     $template.remove();
-}
-
+} 
 
 
 function confirmDiscordInvite() {
