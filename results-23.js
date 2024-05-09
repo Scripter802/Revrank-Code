@@ -654,7 +654,7 @@ $(document).ready(function() {
         
                 if (shopName === '' || /\s/.test(shopName)) {
                     shopNameElem.css('border-color', 'red');
-                    return; // Stop further execution
+                    return; 
                 }
         
                 shopName = shopName.replace(/\.myshopify\.com$/, '');
