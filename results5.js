@@ -907,11 +907,7 @@ function renderAllServers() {
                                         console.error("Error fetching servers:", error);
                                     });
 
-                                    console.log("serversData: " + serverData)
-                                                                    
-                                    if (!Array.isArray(serverData.users)) {
-                                        serverData.users = [];
-                                    }
+                                    console.log("serversData: ", serverData)
                                 
                                     const usersIndex = serverData.users.indexOf(userData.id);
                                     if (usersIndex > -1) {
