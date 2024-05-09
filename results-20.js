@@ -648,31 +648,44 @@ $(document).ready(function() {
 
         function attachConfirmAddHandler(button) {
             button.on('click', function () {
-                console.log("click on confirm");
                 const parentElem = $(this).closest('div');
                 const shopNameElem = parentElem.find('.shop-name');
                 let shopName = shopNameElem.val().trim();
         
                 if (shopName === '' || /\s/.test(shopName)) {
                     shopNameElem.css('border-color', 'red');
-                } else {
-                    shopNameElem.css('border-color', '');
-                    shopName = shopName.replace(/\.myshopify\.com$/, '');
-                    const shopNameR = shopName + ',myshopify,com';
-                    const sanitizedEmail = userData.email;
-        
-                    const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
-                    update(userShopifyTokenRef, {
-                        owner: sanitizedEmail
-                    }).then(() => {
-                        const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
-                        window.location.href = authURL;
-                    }).catch((error) => {
-                        console.error('Error updating shop name:', error);
-                    });
+                    return; // Stop further execution
                 }
+        
+                shopName = shopName.replace(/\.myshopify\.com$/, '');
+                const shopNameR = shopName + ',myshopify,com';
+        
+                const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
+        
+                get(userShopifyTokenRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // Shop exists, so set the border color to red
+                        shopNameElem.css('border-color', 'red');
+                    } else {
+                        // Shop does not exist, proceed with the operation
+                        shopNameElem.css('border-color', '');
+                        const sanitizedEmail = userData.email;
+        
+                        update(userShopifyTokenRef, {
+                            owner: sanitizedEmail
+                        }).then(() => {
+                            const authURL = `https://${shopName}.myshopify.com/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&redirect_uri=${SHOPIFY_REDIRECT_URI}`;
+                            window.location.href = authURL;
+                        }).catch((error) => {
+                            console.error('Error updating shop name:', error);
+                        });
+                    }
+                }).catch((error) => {
+                    console.error('Error checking shop existence:', error);
+                });
             });
         }
+        
 
 
 
