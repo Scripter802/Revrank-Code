@@ -528,6 +528,9 @@ $(document).ready(function() {
                 // Hide profile-discords and show profile-settings
                 $('#profile-discords').hide();
                 $('#profile-settings').show();
+
+                $('#form-discord').show();
+                $('#form-add').hide();
         
                 // Show servers_title, hide others
                 $('#editTitle').show();
@@ -652,6 +655,8 @@ $(document).ready(function() {
         $('#add-server-button').click(function () {
             $('#form-discord').hide();
             $('#form-add').show();
+
+            $('.confirm-delete-button-d').hide();
         });
 
         $('#cancel-adding').click(function () {
@@ -790,67 +795,68 @@ function renderAllServers() {
                 // Fetch the server users to check if current user is part of it
                 const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
                 get(serverUsersRef).then(userSnapshot => {
-                    if (userSnapshot.exists()) {
-                        const users = userSnapshot.val();
-
-                        // Check if the user's ID is not in the list of users
-                        if (!Object.values(users).includes(userData.id)) {
-                            const serverClone = serverTemplate.cloneNode(true);
-
-                            const serverNameInput = serverClone.querySelector('.server-name');
-                            serverNameInput.value = server.name;
-                            serverNameInput.disabled = true;
-                            serverNameInput.style.backgroundColor = '#21272c';
-
-                            const serverUrlAnchor = serverClone.querySelector('.server-url');
-                            serverUrlAnchor.href = server.url;
-
-                            const addButton = serverClone.querySelector('.server-add-button');
-                            addButton.addEventListener('click', function() {
-                                const userServersRef = ref(db, `/users/${userData.email}/servers`);
-                                const addUserServerPromise = push(userServersRef, server.id);
-                                
-                                // Append the new user ID at the next index
-                                const nextIndex = Object.keys(users).length;
-                                users[nextIndex] = userData.id; 
-                                
-                                const updateUserPromise = set(serverUsersRef, users);
-                                
-                                Promise.all([addUserServerPromise, updateUserPromise])
-                                    .then(() => {
-                                        $('#form-add').hide();
-                                        $('#form-discord').show();
-
-                                        // Add to connected servers
-                                        var $serverHolderM = $('#serverHolderM');
-                                        var $template = $serverHolderM.find('.discord-obj').first().clone();
-                                        var $serverNameElem = $template.find('.server-name').first();
-                                        var $serverUrlElem = $template.find('.server-url').first();
-
-                                        $serverNameElem.val(server.name);
-                                        $serverNameElem.prop('disabled', true);
-                                        $serverNameElem.css('background-color', '#21272c');
-                                        $serverUrlElem.attr('href', server.url);
-                                        $template.css('display', 'flex');
-
-                                        // Remove "no servers" message if present
-                                        $('#noDisTxt').hide();
-                                        $serverHolderM.append($template);
-
-                                        // Remove server from original list
-                                        serverClone.remove();
-                                    })
-                                    .catch((error) => {
-                                        console.error('Error during operations:', error);
-                                    });
-                            });
-
-                            serverHolder.appendChild(serverClone);
-                        }
+                    let users = userSnapshot.val();
+                
+                    // Ensure users is an object, initialize as empty object if it's not
+                    if (!users || typeof users !== 'object') {
+                        users = {}; // Initialize users as an empty object
+                    }
+                
+                    // Check if the user's ID is not in the list of users
+                    if (!Object.values(users).includes(userData.id)) {
+                        const serverClone = serverTemplate.cloneNode(true);
+                        const serverNameInput = serverClone.querySelector('.server-name');
+                        serverNameInput.value = server.name;
+                        serverNameInput.disabled = true;
+                        serverNameInput.style.backgroundColor = '#21272c';
+                
+                        const serverUrlAnchor = serverClone.querySelector('.server-url');
+                        serverUrlAnchor.href = server.url;
+                
+                        const addButton = serverClone.querySelector('.server-add-button');
+                        addButton.addEventListener('click', function() {
+                            const userServersRef = ref(db, `/users/${userData.email}/servers`);
+                            const addUserServerPromise = push(userServersRef, server.id);
+                            
+                            // Append the new user ID at the next index
+                            const nextIndex = Object.keys(users).length;
+                            users[nextIndex] = userData.id; // Add the user ID
+                            
+                            const updateUserPromise = set(serverUsersRef, users);
+                            
+                            Promise.all([addUserServerPromise, updateUserPromise])
+                                .then(() => {
+                                    // Additional UI updates and handling
+                                    $('#form-add').hide();
+                                    $('#form-discord').show();
+                
+                                    var $serverHolderM = $('#serverHolderM');
+                                    var $template = $serverHolderM.find('.discord-obj').first().clone();
+                                    var $serverNameElem = $template.find('.server-name').first();
+                                    var $serverUrlElem = $template.find('.server-url').first();
+                
+                                    $serverNameElem.val(server.name);
+                                    $serverNameElem.prop('disabled', true);
+                                    $serverNameElem.css('background-color', '#21272c');
+                                    $serverUrlElem.attr('href', server.url);
+                                    $template.css('display', 'flex');
+                
+                                    $('#noDisTxt').hide();
+                                    $serverHolderM.append($template);
+                
+                                    serverClone.remove();
+                                })
+                                .catch((error) => {
+                                    console.error('Error during operations:', error);
+                                });
+                        });
+                
+                        serverHolder.appendChild(serverClone);
                     }
                 }).catch((error) => {
                     console.error('Error fetching server users:', error);
                 });
+                
             });
 
             // Remove the original template if not cloned
