@@ -116,8 +116,8 @@ $(document).ready(function() {
 
         if(userData.discord === "none") {
             var disButton = $('#manage-discords');
-            disButton.css("background-color", "#8080803d");
-            disButton.prop("disabled", true);
+            disButton.css('background-color', '#8080803d');
+            disButton.prop('disabled', true);
             disButton.children().first().text("Discord Username Missing");
         }
         
@@ -164,12 +164,12 @@ $(document).ready(function() {
                 if(newDiscordValue != "none" && newDiscordValue != "" && newDiscordValue != " " && newDiscordValue != null && newDiscordValue != undefined ){
                     var disButtonS = $('#manage-discords');
                     disButtonS.css("background-color", "#none");
-                    disButtonS.prop("disabled", false);
+                    disButtonS.prop('disabled', false);
                     disButtonS.children().first().text("Manage Discord Servers");
                 }else{
                     var disButton = $('#manage-discords');
                     disButton.css("background-color", "#8080803d");
-                    disButton.prop("disabled", true);
+                    disButton.prop('disabled', true);
                     disButton.children().first().text("Discord Username Missing");
                 }
         
@@ -610,6 +610,11 @@ $(document).ready(function() {
         });
 
         $('#manage-discords').click(function() {
+
+            if ($(this).css("background-color") === "rgba(128, 128, 128, 0.239)") {
+                return;
+            }
+
             // Hide main settings and show shops screen
             $('#profile-settings').hide();
             $('#profile-discords').css('display', 'flex');
