@@ -847,39 +847,54 @@ function renderAllServers() {
                                 
                                     $template.remove();
                                 
-                                    // Removing server from user's list accurately
-                                    const userServerRef = ref(db, `/users/${userData.email}/servers/${server.id}`);
-                                    remove(userServerRef).then(() => {
-                                        console.log("Server removed from user's list:", server.id); // Debug log
-                                    }).catch(error => {
-                                        console.error("Error removing server from user's list:", error); // Error log
-                                    });
-                                
-                                    // Correctly handling the removal of the user from the server's user list
-                                    if (serverData.users && serverData.users.includes(userData.id)) {
-                                        const index = serverData.users.indexOf(userData.id);
-                                        if (index > -1) {
-                                            serverData.users.splice(index, 1); // Remove the user from the array
-                                
-                                            const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
-                                            if (serverData.users.length > 0) {
-                                                set(serverUsersRef, serverData.users).then(() => {
-                                                    console.log("User removed from server's user list:", userData.id); // Debug log
-                                                }).catch(error => {
-                                                    console.error("Error removing user from server's user list:", error); // Error log
-                                                });
-                                            } else {
-                                                // If no users left, you might want to remove the users node entirely or handle accordingly
-                                                remove(serverUsersRef).then(() => {
-                                                    console.log("User list node removed as it's now empty.");
-                                                }).catch(error => {
-                                                    console.error("Error removing empty user list node:", error);
-                                                });
+                                    const updateServerData = {};
+                                    const serversRef = ref(db, `/users/${userData.email}/servers`);
+                                    
+                                    // Fetching the data
+                                    once(serversRef, snapshot => {
+                                        snapshot.forEach(childSnapshot => {
+                                            if (childSnapshot.val() && childSnapshot.val().id === server.id) {
+                                                const serverKey = childSnapshot.key;
+                                                updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                                             }
-                                        }
+                                        });
+                                    
+                                        // Update the data
+                                        update(ref(db), updateServerData).then(() => {
+                                            console.log("Server removed from user's list:", server.id); // Debug log
+                                        }).catch(error => {
+                                            console.error("Error removing server from user's list:", error); // Error log
+                                        });
+                                    });
+                                    
+                                
+                                    // Ensure serverData.users is an array before attempting to modify it
+                                    if (!Array.isArray(serverData.users)) {
+                                        serverData.users = [];
+                                    }
+                                
+                                    const usersIndex = serverData.users.indexOf(userData.id);
+                                    if (usersIndex > -1) {
+                                        serverData.users.splice(usersIndex, 1); // Remove the user from the array
+                                    }
+                                
+                                    if (serverData.users.length > 0) {
+                                        const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                                        set(serverUsersRef, serverData.users).then(() => {
+                                            console.log("User removed from server's user list:", userData.id); // Debug log
+                                        }).catch(error => {
+                                            console.error("Error removing user from server's user list:", error); // Error log
+                                        });
+                                    } else {
+                                        // If no users left, you might want to remove the users node entirely or handle accordingly
+                                        const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                                        remove(serverUsersRef).then(() => {
+                                            console.log("User list node removed as it's now empty.");
+                                        }).catch(error => {
+                                            console.error("Error removing empty user list node:", error);
+                                        });
                                     }
                                 });
-                                
                                 
                         
                                 $('#noDisTxt').hide();
@@ -890,6 +905,7 @@ function renderAllServers() {
                             .catch((error) => {
                                 console.error('Error during operations:', error);
                             });
+                        
                         
                         });
                 
