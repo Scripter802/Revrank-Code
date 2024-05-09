@@ -844,7 +844,7 @@ function renderAllServers() {
             const serverData = snapshot.val();
             const serverKeys = Object.keys(serverData);
             const serverHolder = document.getElementById('serverHolder');
-            const serverTemplate = document.querySelector('.discord-obj');
+            const serverTemplate = document.querySelector('.discord-obj-add');
 
             console.log("server template:", serverTemplate)
 
