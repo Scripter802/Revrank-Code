@@ -1,7 +1,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-import { getDatabase, ref, set, get, remove, update, orderByChild, query, equalTo, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+import { getDatabase, ref, set, get, remove, update, orderByChild, query, equalTo, onValue, push } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -798,20 +798,24 @@ function renderAllServers() {
 
                 const addButton = serverClone.querySelector('.server-add-button');
                 addButton.addEventListener('click', function() {
-                    console.log('Add server button clicked');
-
-                    // Add server ID to the current user's `.servers` with a unique key
-                    const userServersRef = ref(db, `/users/${userData.id}/servers`);
-                    push(userServersRef, server.id)
-                      .then(() => console.log('Server added to user profile.'))
-                      .catch((error) => console.error('Error adding server to user profile:', error));
-
-                    // Add user ID to the server's `.users`
+                    const userServersRef = ref(db, `/users/${userData.email}/servers`);
+                    const addUserServerPromise = push(userServersRef, server.id);
+            
                     const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
-                    push(serverUsersRef, userData.id)
-                      .then(() => console.log('User added to server.'))
-                      .catch((error) => console.error('Error adding user to server:', error));
+                    const addUserToServerPromise = push(serverUsersRef, userData.id);
+                
+                    Promise.all([addUserServerPromise, addUserToServerPromise])
+                        .then(() => {
+                            console.log("YAY");
+                            renderConnectedServers();
+                            $('#form-add').hide()
+                            $('#form-discord').show()
+                        })
+                        .catch((error) => {
+                            console.error('Error during operations:', error); // Log any errors that occur during the operations
+                        });
                 });
+                
 
                 serverHolder.appendChild(serverClone);
             });
