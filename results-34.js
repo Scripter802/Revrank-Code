@@ -800,16 +800,15 @@ function renderAllServers() {
                 addButton.addEventListener('click', function() {
                     console.log('Add server button clicked');
 
-                    // Add server ID to the current user's `.servers`
-                    const userServersRef = ref(db, `/users/${userData.email}/servers`);
-                    set(userServersRef, {[key]: server.id})
+                    // Add server ID to the current user's `.servers` with a unique key
+                    const userServersRef = ref(db, `/users/${userData.id}/servers`);
+                    push(userServersRef, server.id)
                       .then(() => console.log('Server added to user profile.'))
                       .catch((error) => console.error('Error adding server to user profile:', error));
 
                     // Add user ID to the server's `.users`
                     const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
-                    const newUserIndex = Object.keys(server.users).length; // Assuming `server.users` is available and is an object
-                    set(serverUsersRef, {[newUserIndex]: userData.id})
+                    push(serverUsersRef, userData.id)
                       .then(() => console.log('User added to server.'))
                       .catch((error) => console.error('Error adding user to server:', error));
                 });
@@ -828,6 +827,7 @@ function renderAllServers() {
         console.error('Error fetching servers:', error);
     });
 }
+
 
 
 function renderConnectedServers() {
