@@ -786,45 +786,71 @@ function renderAllServers() {
 
             serverKeys.forEach((key) => {
                 const server = serverData[key];
-                const serverClone = serverTemplate.cloneNode(true);
 
-                const serverNameInput = serverClone.querySelector('.server-name');
-                serverNameInput.value = server.name;
-                serverNameInput.disabled = true;
-                serverNameInput.style.backgroundColor = '#21272c';
+                // Fetch the server users to check if current user is part of it
+                const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                get(serverUsersRef).then(userSnapshot => {
+                    if (userSnapshot.exists()) {
+                        const users = userSnapshot.val();
 
-                const serverUrlAnchor = serverClone.querySelector('.server-url');
-                serverUrlAnchor.href = server.url;
+                        // Check if the user's ID is not in the list of users
+                        if (!Object.values(users).includes(userData.id)) {
+                            const serverClone = serverTemplate.cloneNode(true);
 
-                const addButton = serverClone.querySelector('.server-add-button');
-                addButton.addEventListener('click', function() {
-                    const userServersRef = ref(db, `/users/${userData.email}/servers`);
-                    const addUserServerPromise = push(userServersRef, server.id);
-                
-                    const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
-                    get(serverUsersRef).then((snapshot) => {
-                        const users = snapshot.exists() ? snapshot.val() : {};
-                        const nextIndex = Object.keys(users).length; // Calculate the next index
-                        users[nextIndex] = userData.id; // Append the new user ID at this index
-                
-                        const updateUserPromise = set(serverUsersRef, users);
-                
-                        Promise.all([addUserServerPromise, updateUserPromise])
-                            .then(() => {
-                                $('#form-add').hide();
-                                $('#form-discord').show();
-                            })
-                            .catch((error) => {
-                                console.error('Error during operations:', error);
+                            const serverNameInput = serverClone.querySelector('.server-name');
+                            serverNameInput.value = server.name;
+                            serverNameInput.disabled = true;
+                            serverNameInput.style.backgroundColor = '#21272c';
+
+                            const serverUrlAnchor = serverClone.querySelector('.server-url');
+                            serverUrlAnchor.href = server.url;
+
+                            const addButton = serverClone.querySelector('.server-add-button');
+                            addButton.addEventListener('click', function() {
+                                const userServersRef = ref(db, `/users/${userData.email}/servers`);
+                                const addUserServerPromise = push(userServersRef, server.id);
+                                
+                                // Append the new user ID at the next index
+                                const nextIndex = Object.keys(users).length;
+                                users[nextIndex] = userData.id; 
+                                
+                                const updateUserPromise = set(serverUsersRef, users);
+                                
+                                Promise.all([addUserServerPromise, updateUserPromise])
+                                    .then(() => {
+                                        $('#form-add').hide();
+                                        $('#form-discord').show();
+
+                                        // Add to connected servers
+                                        var $serverHolderM = $('#serverHolderM');
+                                        var $template = $serverHolderM.find('.discord-obj').first().clone();
+                                        var $serverNameElem = $template.find('.server-name').first();
+                                        var $serverUrlElem = $template.find('.server-url').first();
+
+                                        $serverNameElem.val(server.name);
+                                        $serverNameElem.prop('disabled', true);
+                                        $serverNameElem.css('background-color', '#21272c');
+                                        $serverUrlElem.attr('href', server.url);
+                                        $template.css('display', 'flex');
+
+                                        // Remove "no servers" message if present
+                                        $('#noDisTxt').hide();
+                                        $serverHolderM.append($template);
+
+                                        // Remove server from original list
+                                        serverClone.remove();
+                                    })
+                                    .catch((error) => {
+                                        console.error('Error during operations:', error);
+                                    });
                             });
-                    }).catch((error) => {
-                        console.error('Error fetching users:', error);
-                    });
-                });
-                
-                
 
-                serverHolder.appendChild(serverClone);
+                            serverHolder.appendChild(serverClone);
+                        }
+                    }
+                }).catch((error) => {
+                    console.error('Error fetching server users:', error);
+                });
             });
 
             // Remove the original template if not cloned
@@ -838,8 +864,6 @@ function renderAllServers() {
         console.error('Error fetching servers:', error);
     });
 }
-
-
 
 function renderConnectedServers() {
     if (!userData.servers) {
