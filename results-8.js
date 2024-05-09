@@ -844,9 +844,9 @@ function renderAllServers() {
                                 // Add the confirm delete button listener to the cloned template
                                 $template.find('.confirm-delete-button-d').click(function() {
                                     console.log("Initiating Removal for Server ID:", server.id); // Debug log
-                        
+                                
                                     $template.remove();
-                        
+                                
                                     const updateServerData = {};
                                     updateServerData[`/users/${userData.email}/servers/${server.id}`] = null;
                                     update(ref(db), updateServerData).then(() => {
@@ -854,19 +854,35 @@ function renderAllServers() {
                                     }).catch(error => {
                                         console.error("Error removing server from user's list:", error); // Error log
                                     });
-                        
-                                    // Assuming that serverData.users is an array
+                                
+                                    // Ensure serverData.users is an array before attempting to modify it
+                                    if (!Array.isArray(serverData.users)) {
+                                        serverData.users = [];
+                                    }
+                                
                                     const usersIndex = serverData.users.indexOf(userData.id);
                                     if (usersIndex > -1) {
-                                        serverData.users.splice(usersIndex, 1);
+                                        serverData.users.splice(usersIndex, 1); // Remove the user from the array
+                                    }
+                                
+                                    if (serverData.users.length > 0) {
                                         const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
                                         set(serverUsersRef, serverData.users).then(() => {
                                             console.log("User removed from server's user list:", userData.id); // Debug log
                                         }).catch(error => {
                                             console.error("Error removing user from server's user list:", error); // Error log
                                         });
+                                    } else {
+                                        // If no users left, you might want to remove the users node entirely or handle accordingly
+                                        const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                                        remove(serverUsersRef).then(() => {
+                                            console.log("User list node removed as it's now empty.");
+                                        }).catch(error => {
+                                            console.error("Error removing empty user list node:", error);
+                                        });
                                     }
                                 });
+                                
                         
                                 $('#noDisTxt').hide();
                                 $serverHolderM.append($template);
