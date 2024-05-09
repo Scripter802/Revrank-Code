@@ -114,6 +114,14 @@ $(document).ready(function() {
         $('#shop-settings').val(userData.shopName);
         $('#shop-settings').prop('disabled', true);
 
+        if(userData.discord === "none") {
+            var disButton = $('#manage-discords');
+            disButton.css("background-color", "#8080803d");
+            disButton.prop("disabled", true);
+            disButton.children().first().text("Discord Username Missing");
+        }
+        
+
         $('#email-settings').css('background-color', '#21272c');
         $('#shop-settings').css('background-color', '#21272c');
 
@@ -152,6 +160,18 @@ $(document).ready(function() {
                 originalValue = $('#ig-settings').val(); 
                 originalValueD = $('#discord-settings').val(); 
                 $(this).removeClass('enabled').addClass('disabled');
+
+                if(newDiscordValue != "none" && newDiscordValue != "" && newDiscordValue != " " && newDiscordValue != null && newDiscordValue != undefined ){
+                    var disButtonS = $('#manage-discords');
+                    disButtonS.css("background-color", "#none");
+                    disButtonS.prop("disabled", false);
+                    disButtonS.children().first().text("Manage Discord Servers");
+                }else{
+                    var disButton = $('#manage-discords');
+                    disButton.css("background-color", "#8080803d");
+                    disButton.prop("disabled", true);
+                    disButton.children().first().text("Discord Username Missing");
+                }
         
                 // Updating the .instagram value in the database
                 const usersRef = ref(db, 'users/' + userData.email); 
@@ -850,11 +870,8 @@ function renderAllServers() {
                                     get(serversRef).then(snapshot => {
                                         snapshot.forEach(childSnapshot => {
                                             // Check if the server id matches
-                                            console.log('is ' + childSnapshot.val() + " && " + childSnapshot.val().id + " === " + server.id)
                                             if (childSnapshot.val() === server.id) {
-                                                console.log("FOUND")
                                                 const serverKey = childSnapshot.key;
-                                                console.log(serverKey)
                                                 updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                                             }
                                         });
