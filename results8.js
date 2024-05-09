@@ -15,6 +15,7 @@ const firebaseConfig = {
     measurementId: "G-TW6MMTZTD2"
 };
 
+
 const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
 const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
 const SHOPIFY_SCOPES = 'read_orders';
