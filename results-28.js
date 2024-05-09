@@ -836,40 +836,61 @@ function renderConnectedServers() {
 }
 
 function renderAllServers() {
-    var $serverHolder = $('#serverHolder');
     const serversRef = ref(db, '/discordServers');
-    var $serverTemplate = $('.discord-obj.template');
+    const serversQuery = query(serversRef); // Optionally, add filtering conditions here
 
-    // Remove existing server entries except the template
-    $('.discord-obj').not('.template').remove();
-
-    onValue(serversRef, (snapshot) => {
+    get(serversQuery).then((snapshot) => {
         if (snapshot.exists()) {
-            snapshot.forEach((childSnapshot) => {
-                // Clone the template and remove the 'template' class
-                var $serverClone = $serverTemplate.clone().removeClass('template');
+            const serverData = snapshot.val();
+            const serverKeys = Object.keys(serverData);
+            const serverHolder = document.getElementById('serverHolder');
+            const serverTemplate = document.querySelector('.discord-obj');
 
-                // Set values from snapshot
-                $serverClone.find('.server-name').val(childSnapshot.val().name)
-                            .prop('disabled', true)
-                            .css('background-color', '#21272c');
-                $serverClone.find('.server-url').attr('href', childSnapshot.val().url);
-                $serverClone.find('.server-add-button').on('click', function() {
+            // Remove existing server-obj elements, except the template
+            const existingServerObjs = serverHolder.querySelectorAll('.discord-obj');
+            existingServerObjs.forEach((obj) => {
+                if (obj !== serverTemplate) {
+                    obj.remove();
+                }
+            });
+
+            serverKeys.forEach((key) => {
+                const server = serverData[key];
+
+                // Clone the template
+                const serverClone = serverTemplate.cloneNode(true);
+
+                // Set server name and URL
+                const serverNameInput = serverClone.querySelector('.server-name');
+                serverNameInput.value = server.name;
+                serverNameInput.disabled = true;
+                serverNameInput.style.backgroundColor = '#21272c';
+
+                const serverUrlAnchor = serverClone.querySelector('.server-url');
+                serverUrlAnchor.href = server.url;
+
+                // Add event listener to add-button
+                const addButton = serverClone.querySelector('.server-add-button');
+                addButton.addEventListener('click', function() {
                     console.log('Add server button clicked');
                 });
 
-                // Append the cloned and modified server to the holder
-                $serverHolder.append($serverClone);
+                // Append the clone to the holder
+                serverHolder.appendChild(serverClone);
             });
 
-             $serverTemplate.remove();
+            // Remove the original template if not cloned
+            if (!serverKeys.includes(serverTemplate.getAttribute('id'))) {
+                serverTemplate.remove();
+            }
         } else {
             console.log('No servers found.');
         }
-    }, {
-        onlyOnce: true 
+    }).catch((error) => {
+        console.error('Error fetching servers:', error);
     });
 }
+
 
 
 
