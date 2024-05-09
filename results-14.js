@@ -780,7 +780,7 @@ $(document).ready(function() {
 
 function renderAllServers() {
     const serversRef = ref(db, '/discordServers');
-    const serversQuery = query(serversRef); // Optionally, add filtering conditions here
+    const serversQuery = query(serversRef); 
 
     get(serversQuery).then((snapshot) => {
         if (snapshot.exists()) {
@@ -792,17 +792,14 @@ function renderAllServers() {
             serverKeys.forEach((key) => {
                 const server = serverData[key];
 
-                // Fetch the server users to check if current user is part of it
                 const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
                 get(serverUsersRef).then(userSnapshot => {
                     let users = userSnapshot.val();
-                
-                    // Ensure users is an object, initialize as empty object if it's not
+            
                     if (!users || typeof users !== 'object') {
-                        users = {}; // Initialize users as an empty object
+                        users = {};
                     }
                 
-                    // Check if the user's ID is not in the list of users
                     if (!Object.values(users).includes(userData.id)) {
                         const serverClone = serverTemplate.cloneNode(true);
                         const serverNameInput = serverClone.querySelector('.server-name');
@@ -818,9 +815,9 @@ function renderAllServers() {
                             const userServersRef = ref(db, `/users/${userData.email}/servers`);
                             const addUserServerPromise = push(userServersRef, server.id);
                             
-                            // Append the new user ID at the next index
+
                             const nextIndex = Object.keys(users).length;
-                            users[nextIndex] = userData.id; // Add the user ID
+                            users[nextIndex] = userData.id; 
                             
                             const updateUserPromise = set(serverUsersRef, users);
                             
@@ -841,9 +838,8 @@ function renderAllServers() {
                                 $serverUrlElem.attr('href', server.url);
                                 $template.css('display', 'flex');
                         
-                                // Add the confirm delete button listener to the cloned template
                                 $template.find('.confirm-delete-button-d').click(function() {
-                                    console.log("Initiating Removal for Server ID:", server.id); // Debug log
+                                    console.log("Initiating Removal for Server ID:", server.id); 
                                 
                                     $template.remove();
                                 
@@ -854,21 +850,23 @@ function renderAllServers() {
                                     get(serversRef).then(snapshot => {
                                         snapshot.forEach(childSnapshot => {
                                             // Check if the server id matches
+                                            console.log('is ' + childSnapshot.val() + " && " + childSnapshot.val().id + " === " + server.id)
                                             if (childSnapshot.val() && childSnapshot.val().id === server.id) {
-                                                // Found the object with server.id as value
+                                                console.log("FOUND")
                                                 const serverKey = childSnapshot.key;
+                                                console.log(serverKey)
                                                 updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                                             }
                                         });
                                     
                                         // Update the data
                                         update(ref(db), updateServerData).then(() => {
-                                            console.log("Server removed from user's list:", server.id); // Debug log
+                                            console.log("Server removed from user's list:", server.id); 
                                         }).catch(error => {
-                                            console.error("Error removing server from user's list:", error); // Error log
+                                            console.error("Error removing server from user's list:", error); 
                                         });
                                     }).catch(error => {
-                                        console.error("Error fetching servers:", error); // Error log
+                                        console.error("Error fetching servers:", error);
                                     });
                                     
                                     
