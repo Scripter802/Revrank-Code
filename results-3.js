@@ -800,21 +800,28 @@ function renderAllServers() {
                 addButton.addEventListener('click', function() {
                     const userServersRef = ref(db, `/users/${userData.email}/servers`);
                     const addUserServerPromise = push(userServersRef, server.id);
-            
-                    const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
-                    const addUserToServerPromise = push(serverUsersRef, userData.id);
                 
-                    Promise.all([addUserServerPromise, addUserToServerPromise])
-                        .then(() => {
-                            console.log("YAY");
-                            renderConnectedServers();
-                            $('#form-add').hide()
-                            $('#form-discord').show()
-                        })
-                        .catch((error) => {
-                            console.error('Error during operations:', error); // Log any errors that occur during the operations
-                        });
+                    const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                    get(serverUsersRef).then((snapshot) => {
+                        const users = snapshot.exists() ? snapshot.val() : {};
+                        const nextIndex = Object.keys(users).length; // Calculate the next index
+                        users[nextIndex] = userData.id; // Append the new user ID at this index
+                
+                        const updateUserPromise = set(serverUsersRef, users);
+                
+                        Promise.all([addUserServerPromise, updateUserPromise])
+                            .then(() => {
+                                $('#form-add').hide();
+                                $('#form-discord').show();
+                            })
+                            .catch((error) => {
+                                console.error('Error during operations:', error);
+                            });
+                    }).catch((error) => {
+                        console.error('Error fetching users:', error);
+                    });
                 });
+                
                 
 
                 serverHolder.appendChild(serverClone);
