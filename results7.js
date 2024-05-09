@@ -908,6 +908,8 @@ function renderAllServers() {
                                     });
                                 
                                     const serverDetails = serverData[server.id];
+                                    console.log("ServerDetails: ", serverDetails)
+                                    console.log("server.id: ", server.id)
                                     if (serverDetails && Array.isArray(serverDetails.users)) {
                                         const usersIndex = serverDetails.users.indexOf(userData.id);
                                         if (usersIndex > -1) {
