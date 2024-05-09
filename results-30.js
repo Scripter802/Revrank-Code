@@ -846,6 +846,8 @@ function renderAllServers() {
             const serverHolder = document.getElementById('serverHolder');
             const serverTemplate = document.querySelector('.discord-obj');
 
+            console.log("server template:", serverTemplate)
+
             serverKeys.forEach((key) => {
                 const server = serverData[key];
 
@@ -854,6 +856,8 @@ function renderAllServers() {
 
                 // Clone the template
                 const serverClone = serverTemplate.cloneNode(true);
+
+                console.log("clone: ", serverClone);
 
                 // Set server name and URL
                 const serverNameInput = serverClone.querySelector('.server-name');
