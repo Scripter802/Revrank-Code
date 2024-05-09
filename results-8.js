@@ -908,7 +908,7 @@ function renderAllServers() {
                                         console.error("Error fetching servers:", error);
                                     });
                                     
-                                    
+                                    console.log("SERTVER DATA: ", serverData)
                                 
                                     // Ensure serverData.users is an array before attempting to modify it
                                     if (!Array.isArray(serverData.users)) {
