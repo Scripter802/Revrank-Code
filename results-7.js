@@ -878,6 +878,7 @@ function renderAllServers() {
                                 $serverNameElem.css('background-color', '#21272c');
                                 $serverUrlElem.attr('href', server.url);
                                 $template.css('display', 'flex');
+                                $serverHolderM.append($template);
                         
                                 $template.find('.confirm-delete-button-d').click(function() {
                                     console.log("Initiating Removal for Server ID:", server.id); 
@@ -938,9 +939,7 @@ function renderAllServers() {
                                 });
                                 
                         
-                                $('#noDisTxt').hide();
-                                $serverHolderM.append($template);
-                        
+                                $('#noDisTxt').hide();                        
                                 serverClone.remove();
                             })
                             .catch((error) => {
