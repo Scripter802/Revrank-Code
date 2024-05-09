@@ -930,14 +930,6 @@ function renderAllServers() {
                                         }).catch(error => {
                                             console.error("Error removing user from server's user list:", error); // Error log
                                         });
-                                    } else {
-                                        // If no users left, you might want to remove the users node entirely or handle accordingly
-                                        const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
-                                        remove(serverUsersRef).then(() => {
-                                            console.log("User list node removed as it's now empty.");
-                                        }).catch(error => {
-                                            console.error("Error removing empty user list node:", error);
-                                        });
                                     }
                                 });
                                 
