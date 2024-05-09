@@ -83,7 +83,7 @@ $(document).ready(function() {
         //Rendering of connected stores to settings
         renderConnectedShops();
         renderConnectedServers();
-        //renderAllServers();
+        renderAllServers();
 
         console.log("isfirsttime: " + isFirstTime)
         if(isFirstTime){
@@ -646,6 +646,19 @@ $(document).ready(function() {
                 }
             });
         }
+
+
+
+        $('#add-server-button').click(function () {
+            $('#form-discord').hide();
+            $('#form-add').show();
+        });
+
+        $('#cancel-adding').click(function () {
+            $('#form-discord').show();
+            $('#form-add').hide();
+        });
+
         
         // When the add shop button is clicked
         $('#add-shop-button').click(function () {
@@ -822,6 +835,35 @@ function renderConnectedServers() {
     $template.remove();
 }
 
+function renderAllServers() {
+    var $serverHolder = $('#serverHolder');
+    const serversRef = ref(db, '/discordServers');
+
+    onValue(serversRef, (snapshot) => {
+        $serverHolder.empty();
+
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                var $newServer = $('.discord-obj.template').clone().removeClass('template');
+                $newServer.find('.server-name').val(childSnapshot.val().name);
+                $newServer.find('.server-name').prop('disabled', true);
+                $newServer.find('.server-name').css('background-color', '#21272c');
+                $newServer.find('.server-url').attr('href', childSnapshot.val().url);
+                $newServer.find('.server-add-button').on('click', function() {
+                    console.log('AAAA');
+                });
+
+                $serverHolder.append($newServer);
+            });
+            // Remove or hide the template after rendering all servers
+            $('.discord-obj.template').remove();
+        } else {
+            console.log('No servers found.');
+        }
+    }, {
+        onlyOnce: true 
+    });
+}
 
 
 
