@@ -891,12 +891,8 @@ function renderAllServers() {
                                     // Fetching the data
                                     get(serversRef).then(snapshot => {
                                         snapshot.forEach(childSnapshot => {
-                                            console.log("DOES ID MATCH")
-                                            console.log(childSnapshot.val() + " === " + server.id)
-                                            // Check if the server id matches
                                             if (childSnapshot.val() === server.id) {
                                                 const serverKey = childSnapshot.key;
-                                                console.log("serverkey: " + serverKey)
                                                 updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                                             }
                                         });
@@ -910,6 +906,8 @@ function renderAllServers() {
                                     }).catch(error => {
                                         console.error("Error fetching servers:", error);
                                     });
+
+                                    console.log("serversData: " + serverData)
                                                                     
                                     if (!Array.isArray(serverData.users)) {
                                         serverData.users = [];
@@ -917,13 +915,10 @@ function renderAllServers() {
                                 
                                     const usersIndex = serverData.users.indexOf(userData.id);
                                     if (usersIndex > -1) {
-                                        serverData.users.splice(usersIndex, 1); // Remove the user from the array
-                                    }
-                                
-                                    if (serverData.users.length > 0) {
-                                        const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                                        serverData.users.splice(usersIndex, 1);
+                                        const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
                                         set(serverUsersRef, serverData.users).then(() => {
-                                            console.log("User removed from server's user list:", userData.id); // Debug log
+                                            console.log("(already connected) User removed from server's user list:", userData.id); // Debug log
                                         }).catch(error => {
                                             console.error("Error removing user from server's user list:", error); // Error log
                                         });
