@@ -114,7 +114,7 @@ $(document).ready(function() {
         $('#shop-settings').val(userData.shopName);
         $('#shop-settings').prop('disabled', true);
 
-        if(userData.discord === "none") {
+        if(userData.discord === "none" || userData.discord === "" || userData.discord === " " || userData.discord === null || userData.discord === undefined) {
             var disButton = $('#manage-discords');
             disButton.css('background-color', '#8080803d');
             disButton.prop('disabled', true);
@@ -163,13 +163,11 @@ $(document).ready(function() {
 
                 if(newDiscordValue != "none" && newDiscordValue != "" && newDiscordValue != " " && newDiscordValue != null && newDiscordValue != undefined ){
                     var disButtonS = $('#manage-discords');
-                    disButtonS.css("background-color", "none");
-                    disButtonS.prop('disabled', false);
+                    disButtonS.css("background-color", "transparent");
                     disButtonS.children().first().text("Manage Discord Servers");
                 }else{
                     var disButton = $('#manage-discords');
                     disButton.css("background-color", "#8080803d");
-                    disButton.prop('disabled', true);
                     disButton.children().first().text("Discord Username Missing");
                 }
         
