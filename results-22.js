@@ -790,9 +790,10 @@ function renderConnectedServers() {
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
                     // Remove server from userData object and update database
-                    remove(ref(db, `/users/${userData.id}/servers/${serverKey}`)).then(() => {
+                    var path = `/users/${userData.id}/servers/${serverKey}`;
+                    console.log("Path for deletion:", path);
+                    remove(ref(db, path)).then(() => {
                         console.log('Server removed:', serverId);
-                        $serverElem.remove(); // Remove the element from the DOM
                     }).catch(error => {
                         console.error('Error removing server:', error);
                     });
