@@ -979,12 +979,12 @@ function renderConnectedServers() {
     var $template = $serverHolderM.find('.discord-obj').first();
 
     $.each(userData.servers, function(serverKey, serverId) {
-        console.log("Server Key:", serverKey, "Server ID:", serverId);
+        console.log("Server Key:", serverKey, "Server ID:", serverId); // Debug log
 
         var serverRef = ref(db, `/discordServers/${serverId}`);
         onValue(serverRef, function(snapshot) {
             var serverData = snapshot.val();
-            console.log("Server Data Fetched for Server ID:", serverId, serverData);
+            console.log("Server Data Fetched for Server ID:", serverId, serverData); // Debug log
 
             if (serverData) {
                 var $serverElem = $template.clone();
@@ -997,23 +997,28 @@ function renderConnectedServers() {
                 $serverUrlElem.attr('href', serverData.url);
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
-                    console.log("Initiating Removal for Server Key:", serverKey);
+                    console.log("Initiating Removal for Server Key:", serverKey); // Debug log
+
+                    $serverElem.remove();
 
                     const updateServerData = {};
                     updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
-
                     update(ref(db), updateServerData).then(() => {
-                        console.log("Server removed from user's list:", serverKey);
-                        $serverElem.remove();
-
-                        // Re-adding the server to the initial list
-                        addServerBackToList(serverData);
+                        console.log("Server removed from user's list:", serverKey); // Debug log
                     }).catch(error => {
-                        console.error("Error removing server from user's list:", error);
+                        console.error("Error removing server from user's list:", error); // Error log
                     });
 
-                    // Handling server user list
-                    handleServerUserList(serverData, serverId);
+                    const usersIndex = serverData.users.indexOf(userData.id);
+                    if (usersIndex > -1) {
+                        serverData.users.splice(usersIndex, 1);
+                        const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
+                        set(serverUsersRef, serverData.users).then(() => {
+                            console.log("User removed from server's user list:", userData.id); // Debug log
+                        }).catch(error => {
+                            console.error("Error removing user from server's user list:", error); // Error log
+                        });
+                    }
                 });
 
                 $serverHolderM.append($serverElem);
@@ -1023,28 +1028,6 @@ function renderConnectedServers() {
         });
     });
     $template.remove();
-}
-
-function addServerBackToList(serverData) {
-    const serverHolder = document.getElementById('serverHolder');
-    const serverTemplate = document.querySelector('.discord-obj-add');
-    const serverClone = serverTemplate.cloneNode(true);
-    serverClone.querySelector('.server-name').value = serverData.name;
-    serverClone.querySelector('.server-url').href = serverData.url;
-    serverHolder.appendChild(serverClone);
-}
-
-function handleServerUserList(serverData, serverId) {
-    const usersIndex = serverData.users.indexOf(userData.id);
-    if (usersIndex > -1) {
-        serverData.users.splice(usersIndex, 1);
-        const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
-        set(serverUsersRef, serverData.users).then(() => {
-            console.log("User removed from server's user list:", userData.id);
-        }).catch(error => {
-            console.error("Error removing user from server's user list:", error);
-        });
-    }
 }
 
 
