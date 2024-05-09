@@ -851,7 +851,7 @@ function renderAllServers() {
                                     const serversRef = ref(db, `/users/${userData.email}/servers`);
                                     
                                     // Fetching the data
-                                    get(child(serversRef, '/')).then(snapshot => {
+                                    get(serversRef).then(snapshot => {
                                         snapshot.forEach(childSnapshot => {
                                             // Check if the server id matches
                                             if (childSnapshot.val() && childSnapshot.val().id === server.id) {
@@ -870,6 +870,7 @@ function renderAllServers() {
                                     }).catch(error => {
                                         console.error("Error fetching servers:", error); // Error log
                                     });
+                                    
                                     
                                 
                                     // Ensure serverData.users is an array before attempting to modify it
