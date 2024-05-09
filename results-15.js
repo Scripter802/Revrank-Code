@@ -851,7 +851,7 @@ function renderAllServers() {
                                         snapshot.forEach(childSnapshot => {
                                             // Check if the server id matches
                                             console.log('is ' + childSnapshot.val() + " && " + childSnapshot.val().id + " === " + server.id)
-                                            if (childSnapshot.val() && childSnapshot.val().id === server.id) {
+                                            if (childSnapshot.val() === server.id) {
                                                 console.log("FOUND")
                                                 const serverKey = childSnapshot.key;
                                                 console.log(serverKey)
