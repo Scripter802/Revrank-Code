@@ -789,28 +789,13 @@ function renderConnectedServers() {
                 $serverUrlElem.attr('href', serverData.url);
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
-                    console.log("Initiating Removal for Server Key:", serverKey); // Debug log
-
-                    $serverElem.remove();
-
-                    const updateServerData = {};
-                    updateServerData[`/users/${userData.id}/servers/${serverKey}`] = null;
-                    update(ref(db), updateServerData).then(() => {
-                        console.log("Server removed from user's list:", serverKey); // Debug log
+                    // Remove server from userData object and update database
+                    remove(ref(db, `/users/${userData.id}/servers/${serverKey}`)).then(() => {
+                        console.log('Server removed:', serverId);
+                        $serverElem.remove(); // Remove the element from the DOM
                     }).catch(error => {
-                        console.error("Error removing server from user's list:", error); // Error log
+                        console.error('Error removing server:', error);
                     });
-
-                    const usersIndex = serverData.users.indexOf(userData.id);
-                    if (usersIndex > -1) {
-                        serverData.users.splice(usersIndex, 1);
-                        const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
-                        set(serverUsersRef, serverData.users).then(() => {
-                            console.log("User removed from server's user list:", userData.id); // Debug log
-                        }).catch(error => {
-                            console.error("Error removing user from server's user list:", error); // Error log
-                        });
-                    }
                 });
 
                 $serverHolderM.append($serverElem);
@@ -819,8 +804,10 @@ function renderConnectedServers() {
             onlyOnce: true
         });
     });
+
     $template.remove();
 }
+
 
 
 
