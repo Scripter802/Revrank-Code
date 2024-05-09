@@ -1,7 +1,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-import { getDatabase, ref, set, get, remove, update, orderByChild, query, equalTo, onValue, push, once } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
+import { getDatabase, ref, set, get, remove, update, orderByChild, query, equalTo, onValue, push } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -851,9 +851,11 @@ function renderAllServers() {
                                     const serversRef = ref(db, `/users/${userData.email}/servers`);
                                     
                                     // Fetching the data
-                                    once(serversRef, snapshot => {
+                                    get(child(serversRef, '/')).then(snapshot => {
                                         snapshot.forEach(childSnapshot => {
+                                            // Check if the server id matches
                                             if (childSnapshot.val() && childSnapshot.val().id === server.id) {
+                                                // Found the object with server.id as value
                                                 const serverKey = childSnapshot.key;
                                                 updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                                             }
@@ -865,6 +867,8 @@ function renderAllServers() {
                                         }).catch(error => {
                                             console.error("Error removing server from user's list:", error); // Error log
                                         });
+                                    }).catch(error => {
+                                        console.error("Error fetching servers:", error); // Error log
                                     });
                                     
                                 
