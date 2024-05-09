@@ -659,6 +659,8 @@ $(document).ready(function() {
         
                 shopName = shopName.replace(/\.myshopify\.com$/, '');
                 const shopNameR = shopName + ',myshopify,com';
+
+                console.log("does: " + 'shopifyTokens/' + shopNameR)
         
                 const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
         
