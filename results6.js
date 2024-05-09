@@ -906,19 +906,26 @@ function renderAllServers() {
                                     }).catch(error => {
                                         console.error("Error fetching servers:", error);
                                     });
-
-                                    console.log("serversData: ", serverData)
                                 
-                                    const usersIndex = serverData.users.indexOf(userData.id);
-                                    if (usersIndex > -1) {
-                                        serverData.users.splice(usersIndex, 1);
-                                        const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
-                                        set(serverUsersRef, serverData.users).then(() => {
-                                            console.log("(already connected) User removed from server's user list:", userData.id); // Debug log
-                                        }).catch(error => {
-                                            console.error("Error removing user from server's user list:", error); // Error log
-                                        });
+                                    const serverDetails = serverData[server.id];
+                                    if (serverDetails && Array.isArray(serverDetails.users)) {
+                                        const usersIndex = serverDetails.users.indexOf(userData.id);
+                                        if (usersIndex > -1) {
+                                            serverDetails.users.splice(usersIndex, 1);
+                                            const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                                            set(serverUsersRef, serverDetails.users)
+                                                .then(() => {
+                                                    console.log("User removed from server's user list:", userData.id); // Debug log
+                                                })
+                                                .catch(error => {
+                                                    console.error("Error removing user from server's user list:", error); // Error log
+                                                });
+                                        }
+                                    } else {
+                                        console.log("No user list found for the server:", server.id);
                                     }
+
+
                                 });
                                 
                         
