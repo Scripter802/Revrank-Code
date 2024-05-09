@@ -825,30 +825,58 @@ function renderAllServers() {
                             const updateUserPromise = set(serverUsersRef, users);
                             
                             Promise.all([addUserServerPromise, updateUserPromise])
-                                .then(() => {
-                                    // Additional UI updates and handling
-                                    $('#form-add').hide();
-                                    $('#form-discord').show();
-                
-                                    var $serverHolderM = $('#serverHolderM');
-                                    var $template = $serverHolderM.find('.discord-obj').first().clone();
-                                    var $serverNameElem = $template.find('.server-name').first();
-                                    var $serverUrlElem = $template.find('.server-url').first();
-                
-                                    $serverNameElem.val(server.name);
-                                    $serverNameElem.prop('disabled', true);
-                                    $serverNameElem.css('background-color', '#21272c');
-                                    $serverUrlElem.attr('href', server.url);
-                                    $template.css('display', 'flex');
-                
-                                    $('#noDisTxt').hide();
-                                    $serverHolderM.append($template);
-                
-                                    serverClone.remove();
-                                })
-                                .catch((error) => {
-                                    console.error('Error during operations:', error);
+                            .then(() => {
+                                // Additional UI updates and handling
+                                $('#form-add').hide();
+                                $('#form-discord').show();
+                        
+                                var $serverHolderM = $('#serverHolderM');
+                                var $template = $serverHolderM.find('.discord-obj').first().clone();
+                                var $serverNameElem = $template.find('.server-name').first();
+                                var $serverUrlElem = $template.find('.server-url').first();
+                        
+                                $serverNameElem.val(server.name);
+                                $serverNameElem.prop('disabled', true);
+                                $serverNameElem.css('background-color', '#21272c');
+                                $serverUrlElem.attr('href', server.url);
+                                $template.css('display', 'flex');
+                        
+                                // Add the confirm delete button listener to the cloned template
+                                $template.find('.confirm-delete-button-d').click(function() {
+                                    console.log("Initiating Removal for Server ID:", server.id); // Debug log
+                        
+                                    $template.remove();
+                        
+                                    const updateServerData = {};
+                                    updateServerData[`/users/${userData.email}/servers/${server.id}`] = null;
+                                    update(ref(db), updateServerData).then(() => {
+                                        console.log("Server removed from user's list:", server.id); // Debug log
+                                    }).catch(error => {
+                                        console.error("Error removing server from user's list:", error); // Error log
+                                    });
+                        
+                                    // Assuming that serverData.users is an array
+                                    const usersIndex = serverData.users.indexOf(userData.id);
+                                    if (usersIndex > -1) {
+                                        serverData.users.splice(usersIndex, 1);
+                                        const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
+                                        set(serverUsersRef, serverData.users).then(() => {
+                                            console.log("User removed from server's user list:", userData.id); // Debug log
+                                        }).catch(error => {
+                                            console.error("Error removing user from server's user list:", error); // Error log
+                                        });
+                                    }
                                 });
+                        
+                                $('#noDisTxt').hide();
+                                $serverHolderM.append($template);
+                        
+                                serverClone.remove();
+                            })
+                            .catch((error) => {
+                                console.error('Error during operations:', error);
+                            });
+                        
                         });
                 
                         serverHolder.appendChild(serverClone);
