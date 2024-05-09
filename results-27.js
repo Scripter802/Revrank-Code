@@ -844,8 +844,6 @@ function renderAllServers() {
     $('.discord-obj').not('.template').remove();
 
     onValue(serversRef, (snapshot) => {
-        $serverHolder.empty();
-
         if (snapshot.exists()) {
             snapshot.forEach((childSnapshot) => {
                 // Clone the template and remove the 'template' class
