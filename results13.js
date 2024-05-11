@@ -874,7 +874,7 @@ function renderAllServers() {
                                 $('#form-discord').show();
                         
                                 var $serverHolderM = $('#serverHolderM');
-                                var $template = $serverHolderM.find('.discord-obj').first().clone();
+                                var $template = $serverHolderM.find('.discord-obj').first().clone().css('display', 'flex');;
                                 var $serverNameElem = $template.find('.server-name').first();
                                 var $serverUrlElem = $template.find('.server-url').first();
                         
@@ -888,7 +888,7 @@ function renderAllServers() {
                                 $template.find('.confirm-delete-button-d').click(function() {
                                     console.log("Initiating Removal for Server ID:", server.id); 
                                 
-                                    $template.remove();
+                                    $template.css('display', 'none');
                                 
                                     const serversRef = ref(db, '/discordServers');
                                     const serversQuery = query(serversRef);
@@ -992,7 +992,7 @@ function renderConnectedServers() {
             console.log("Server Data Fetched for Server ID:", serverId, serverData); // Debug log
 
             if (serverData) {
-                var $serverElem = $template.clone();
+                var $serverElem = $template.clone().css('display', 'flex');
                 var $serverNameElem = $serverElem.find('.server-name').first();
                 var $serverUrlElem = $serverElem.find('.server-url').first();
 
@@ -1032,7 +1032,7 @@ function renderConnectedServers() {
             onlyOnce: true
         });
     });
-    $template.remove();
+    $template.css('display', 'none');
 } 
 
 
