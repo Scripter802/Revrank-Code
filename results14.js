@@ -848,6 +848,7 @@ function renderAllServers() {
                     // Check if the user is not already a part of this server's user list
                     if (!Object.values(users).includes(userData.id)) {
                         const serverClone = serverTemplate.cloneNode(true);
+                        serverClone.setAttribute('data-server-id', server.id); 
                         const serverNameInput = serverClone.querySelector('.server-name');
                         serverNameInput.value = server.name;
                         serverNameInput.disabled = true;
@@ -928,7 +929,7 @@ function renderAllServers() {
                                                     const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
                                                     set(serverUsersRef, serverDetails.users)
                                                         .then(() => {
-                                                            console.log("User removed from server's user list:", userData.id); // Debug log
+                                                            console.log("User removed from server's user list:", userData.id); 
                                                         })
                                                         .catch(error => {
                                                             console.error("Error removing user from server's user list:", error); // Error log
@@ -984,12 +985,12 @@ function renderConnectedServers() {
     var $template = $serverHolderM.find('.discord-obj').first();
 
     $.each(userData.servers, function(serverKey, serverId) {
-        console.log("Server Key:", serverKey, "Server ID:", serverId); // Debug log
+        console.log("Server Key:", serverKey, "Server ID:", serverId); 
 
         var serverRef = ref(db, `/discordServers/${serverId}`);
         onValue(serverRef, function(snapshot) {
             var serverData = snapshot.val();
-            console.log("Server Data Fetched for Server ID:", serverId, serverData); // Debug log
+            console.log("Server Data Fetched for Server ID:", serverId, serverData); 
 
             if (serverData) {
                 var $serverElem = $template.clone().css('display', 'flex');
@@ -1002,14 +1003,15 @@ function renderConnectedServers() {
                 $serverUrlElem.attr('href', serverData.url);
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
-                    console.log("Initiating Removal for Server Key:", serverKey); // Debug log
+                    console.log("Initiating Removal for Server Key:", serverKey); 
 
                     $serverElem.remove();
 
                     const updateServerData = {};
                     updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                     update(ref(db), updateServerData).then(() => {
-                        console.log("(already connected) Server removed from user's list:", serverKey); // Debug log
+                        console.log("(already connected) Server removed from user's list:", serverKey); 
+                        appendServerToMainList(serverData, serverId);
                     }).catch(error => {
                         console.error("Error removing server from user's list:", error); // Error log
                     });
@@ -1019,7 +1021,7 @@ function renderConnectedServers() {
                         serverData.users.splice(usersIndex, 1);
                         const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
                         set(serverUsersRef, serverData.users).then(() => {
-                            console.log("(already connected) User removed from server's user list:", userData.id); // Debug log
+                            console.log("(already connected) User removed from server's user list:", userData.id); 
                         }).catch(error => {
                             console.error("Error removing user from server's user list:", error); // Error log
                         });
@@ -1034,6 +1036,81 @@ function renderConnectedServers() {
     });
     $template.css('display', 'none');
 } 
+
+function appendServerToMainList(serverData, serverId) {
+    const serverTemplate = document.querySelector('.discord-obj-add').cloneNode(true);
+    const serverHolder = document.getElementById('serverHolder');
+
+    // Set server data
+    serverTemplate.querySelector('.server-name').value = serverData.name;
+    serverTemplate.querySelector('.server-name').disabled = true;
+    serverTemplate.querySelector('.server-name').style.backgroundColor = '#21272c';
+    serverTemplate.querySelector('.server-url').href = serverData.url;
+    
+    // Add click event for adding back the server
+    serverTemplate.querySelector('.server-add-button').addEventListener('click', function() {
+        addUserToServer(serverId, serverData);
+    });
+
+    serverHolder.appendChild(serverTemplate);
+}
+
+function addUserToServer(serverId, serverData) {
+    const userServersRef = ref(db, `/users/${userData.email}/servers`);
+    const addUserServerPromise = push(userServersRef, serverId);
+
+    // Update the server data's user list
+    serverData.users.push(userData.id);
+    const updateUserPromise = set(ref(db, `/discordServers/${serverId}/users`), serverData.users);
+
+    Promise.all([addUserServerPromise, updateUserPromise])
+    .then(() => {
+        console.log('User added back to server:', serverId);
+
+        // Move server from the main list to the connected servers list
+        moveToConnectedServers(serverId, serverData);
+    })
+    .catch((error) => {
+        console.error('Error during re-adding server:', error);
+    });
+}
+
+function moveToConnectedServers(serverId, serverData) {
+    const $serverHolderM = $('#serverHolderM');
+    const $template = $serverHolderM.find('.discord-obj').first().clone();
+
+    // Ensure the template is visible and populated with server data
+    $template.attr('data-server-id', serverId)
+    $template.css('display', 'flex');
+    $template.find('.server-name').val(serverData.name).prop('disabled', true).css('background-color', '#21272c');
+    $template.find('.server-url').attr('href', serverData.url);
+
+    // Add a remove button event handler
+    $template.find('.confirm-delete-button-d').click(function() {
+        console.log("Initiating Removal for Server ID:", serverId);
+        $(this).closest('.discord-obj').remove();
+
+        // Firebase operations to remove server from user's list
+        const updateServerData = {};
+        updateServerData[`/users/${userData.email}/servers/${serverId}`] = null;
+        update(ref(db), updateServerData).catch(error => {
+            console.error("Error removing server from user's list:", error);
+        });
+
+        // Remove user from the server's user list
+        serverData.users.splice(serverData.users.indexOf(userData.id), 1);
+        set(ref(db, `/discordServers/${serverId}/users`), serverData.users).catch(error => {
+            console.error("Error removing user from server's user list:", error);
+        });
+    });
+
+    // Append the updated element to the connected servers holder
+    $serverHolderM.append($template);
+
+    // Remove the server from the main list
+    document.querySelector(`.discord-obj-add[data-server-id="${serverId}"]`).remove();
+}
+
 
 
 function confirmDiscordInvite() {
