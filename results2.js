@@ -818,6 +818,8 @@ $(document).ready(function() {
 
 //Discord----------
 
+const visibleServers = new Set();
+
 function renderAllServers() {
     const serversRef = ref(db, '/discordServers');
     const serversQuery = query(serversRef); 
@@ -835,6 +837,10 @@ function renderAllServers() {
 
             Object.keys(serverKeys).forEach((key) => {
                 const server = serverData[key];
+
+                if (!visibleServers.has(server.id)) {
+                    visibleServers.add(server.id);
+                }
 
                 const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
                 get(serverUsersRef).then(userSnapshot => {
@@ -945,8 +951,9 @@ function renderAllServers() {
                                 
                                 
                         
-                                $('#noDisTxt').hide();                        
-                                serverClone.remove();
+                                $('#noDisTxt').hide();      
+                                visibleServers.delete(server.id);                  
+                                serverClone.css('display', 'none');
                             })
                             .catch((error) => {
                                 console.error('Error during operations:', error);
@@ -954,6 +961,9 @@ function renderAllServers() {
                         });
                 
                         serverHolder.appendChild(serverClone);
+                        if (!visibleServers.has(server.id)) {
+                            serverClone.style.display = 'none';
+                        }
                     }
                 }).catch((error) => {
                     console.error('Error fetching server users:', error);
@@ -1005,6 +1015,16 @@ function renderConnectedServers() {
                     console.log("Initiating Removal for Server Key:", serverKey); // Debug log
 
                     $serverElem.remove();
+
+                    if (!visibleServers.has(serverId)) {
+                        visibleServers.add(serverId);
+                        document.querySelectorAll(`.server-name[value='${serverData.name}']`).forEach(elem => {
+                            const parent = elem.closest('.discord-obj-add');
+                            if (parent) {
+                                parent.style.display = 'flex'; 
+                            }
+                        });
+                    }
 
                     const updateServerData = {};
                     updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
