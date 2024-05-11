@@ -833,7 +833,7 @@ function renderAllServers() {
             const serverHolder = document.getElementById('serverHolder');
             const serverTemplate = document.querySelector('.discord-obj-add');
 
-            serverKeys.forEach((key) => {
+            Object.keys(approvedServers).forEach((key) => {
                 const server = serverData[key];
 
                 const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
