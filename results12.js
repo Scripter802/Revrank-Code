@@ -962,9 +962,8 @@ function renderAllServers() {
                 
             });
 
-            // Remove the original template if not cloned
-            if (!serverKeys.includes(serverTemplate.getAttribute('id'))) {
-                serverTemplate.remove();
+            if (!Object.keys(serverKeys).includes(serverTemplate.getAttribute('id'))) {
+                serverTemplate.remove(); 
             }
         } else {
             console.log('No servers found.');
