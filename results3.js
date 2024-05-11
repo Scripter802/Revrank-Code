@@ -953,7 +953,7 @@ function renderAllServers() {
                         
                                 $('#noDisTxt').hide();      
                                 visibleServers.delete(server.id);                  
-                                serverClone.css('display', 'none');
+                                serverClone.style.display = 'none';
                             })
                             .catch((error) => {
                                 console.error('Error during operations:', error);
