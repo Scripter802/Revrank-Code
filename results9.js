@@ -825,7 +825,11 @@ function renderAllServers() {
     get(serversQuery).then((snapshot) => {
         if (snapshot.exists()) {
             const serverData = snapshot.val();
-            const serverKeys = Object.keys(serverData);
+            const serverKeys = Object.keys(serverData).filter(key => serverData[key].approved === "Y").reduce((obj, key) => {
+                obj[key] = serverData[key];
+                return obj;
+            }, {});
+
             const serverHolder = document.getElementById('serverHolder');
             const serverTemplate = document.querySelector('.discord-obj-add');
 
