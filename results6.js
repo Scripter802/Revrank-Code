@@ -1016,6 +1016,8 @@ function renderConnectedServers() {
 
                     $serverElem.remove();
 
+                    console.log("visible servers ", visibleServers);
+
                     if (!visibleServers.has(serverId)) {
                         visibleServers.add(serverId);
                         const serverNames = document.getElementById('serverHolder').getElementsByClassName('server-name');
