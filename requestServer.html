@@ -21,7 +21,7 @@
     const sendForReviewBtn = document.getElementById('sendForReview');
     sendForReviewBtn.addEventListener('click', () => {
         const emailInput = document.getElementById('email_Input').value;
-        const serverName = document.getElementById('serverName').value;
+        const serverName = document.getElementById('serverName').value.trim();
         const serverLink = document.getElementById('serverLink').value;
 
         if (emailInput && serverName && serverLink) {

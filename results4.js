@@ -1018,7 +1018,7 @@ function renderConnectedServers() {
 
                     if (!visibleServers.has(serverId)) {
                         visibleServers.add(serverId);
-                        document.querySelectorAll(`.server-name[value='${serverData.name}']`).forEach(elem => {
+                        document.getElementById('serverHolder').querySelectorAll(`.server-name[value='${serverData.name}']`).forEach(elem => {
                             const parent = elem.closest('.discord-obj-add');
                             if (parent) {
                                 parent.style.display = 'flex'; 
