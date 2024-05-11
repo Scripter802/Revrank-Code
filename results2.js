@@ -868,8 +868,10 @@ function renderAllServers() {
                             const addUserServerPromise = push(userServersRef, server.id);
                 
                             // Determine the next index for adding a new user
+                            if (!users[userData.id]) {
                             const nextIndex = Object.keys(users).length;
                             users[nextIndex] = userData.id;
+                            }
                 
                             const updateUserPromise = set(serverUsersRef, users);
                 
