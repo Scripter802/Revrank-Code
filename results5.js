@@ -1018,13 +1018,18 @@ function renderConnectedServers() {
 
                     if (!visibleServers.has(serverId)) {
                         visibleServers.add(serverId);
-                        document.getElementById('serverHolder').querySelectorAll(`.server-name[value='${serverData.name}']`).forEach(elem => {
-                            const parent = elem.closest('.discord-obj-add');
-                            if (parent) {
-                                parent.style.display = 'flex'; 
+                        const serverNames = document.getElementById('serverHolder').getElementsByClassName('server-name');
+                        Array.from(serverNames).forEach(elem => {
+                            console.log("check if: " + elem.value + " === " + serverData.name)
+                            if (elem.value === serverData.name) {
+                                const parent = elem.closest('.discord-obj-add');
+                                if (parent) {
+                                    parent.style.display = 'flex'; 
+                                }
                             }
                         });
                     }
+                    
 
                     const updateServerData = {};
                     updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
