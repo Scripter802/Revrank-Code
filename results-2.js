@@ -121,7 +121,7 @@ $(document).ready(function() {
             disButton.prop('disabled', true);
             disButton.children().first().text("Discord Username Missing");
         }
-        
+
 
         $('#email-settings').css('background-color', '#21272c');
         $('#shop-settings').css('background-color', '#21272c');
@@ -171,7 +171,7 @@ $(document).ready(function() {
                     disButton.css("background-color", "#8080803d");
                     disButton.children().first().text("Discord Username Missing");
                 }
-        
+
                 // Updating the .instagram value in the database
                 const usersRef = ref(db, 'users/' + userData.email); 
                 update(usersRef, { instagram: newInstagramValue, discord: newDiscordValue })
@@ -186,17 +186,17 @@ $(document).ready(function() {
 
         $('.share-profile-class').click(function() {
             var sharingUrl = "https://www.revrank.io/sharing/" + userData.id;
-        
+
             navigator.clipboard.writeText(sharingUrl).then(() => {
                 console.log('Copying to clipboard was successful!');
-                        
+
                 $(this).css({
                     'background-color': '#7ab861',
                     'border-color': 'white',
                     'color': 'white'
                 })
                 $(this).children().first().text('Link copied!');
-        
+
 
                 setTimeout(() => {
                     $(this).css({
@@ -206,27 +206,27 @@ $(document).ready(function() {
                     })
                     $(this).children().first().text('Share Profile');
                 }, 2000);
-        
+
             }, (err) => {
                 console.error('Could not copy text: ', err);
                 alert('Failed to copy URL. Please try again.');
             });
-        
+
         });
-        
+
         $('.share-profile-class-settings').click(function() {
             var sharingUrl = "https://www.revrank.io/sharing/" + userData.id;
-        
+
             navigator.clipboard.writeText(sharingUrl).then(() => {
                 console.log('Copying to clipboard was successful!');
-                        
+
                 $(this).css({
                     'background-color': '#7ab861',
                     'border-color': 'white',
                     'color': 'white'
                 })
                 $(this).children().first().text('Link copied!');
-        
+
 
                 setTimeout(() => {
                     $(this).css({
@@ -236,12 +236,12 @@ $(document).ready(function() {
                     })
                     $(this).children().first().text('Share Profile');
                 }, 2000);
-        
+
             }, (err) => {
                 console.error('Could not copy text: ', err);
                 alert('Failed to copy URL. Please try again.');
             });
-        
+
         });
 
         var rankParam, imageURL, firstNameParam, igHandleParam, gotImageFromServer = false;
@@ -325,7 +325,7 @@ $(document).ready(function() {
                         });
                     } else {
 
-                        
+
                         const intervalId = setInterval(() => {
                             if (gotImageFromServer) {
                                 clearInterval(intervalId);
@@ -341,7 +341,7 @@ $(document).ready(function() {
                 }else{
                     if(/Mac/.test(navigator.platform) || /Win/.test(navigator.platform)){
                         if(gotImageFromServer){
-                        
+
                         $('#desktop_popup').css('display', 'flex');
                         document.querySelectorAll('.sharingbutton').forEach(function(sharingButton) {
                             let buttonChildren = sharingButton.children;
@@ -373,7 +373,7 @@ $(document).ready(function() {
                             setTimeout(function(){
                                 window.location.href = 'intent://instagram.com/a/r/#Intent;package=com.instagram.android;scheme=https;end';
                             }, 1000);
-                            
+
                         }else{
                             const intervalId = setInterval(() => {
                                 if (gotImageFromServer) {
@@ -401,7 +401,7 @@ $(document).ready(function() {
                             });
                         }
                 }
-                
+
                 }
             });
         });
@@ -416,15 +416,15 @@ $(document).ready(function() {
             var copyBtn = $('#copy_btn');
             const image = new Image();
             image.src = imageURL;
-        
+
             image.onload = () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = image.width;
                 canvas.height = image.height;
-        
+
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(image, 0, 0);
-        
+
                 canvas.toBlob(blob => {
                     navigator.clipboard.write([new ClipboardItem({'image/png': blob})])
                     .then(() => {
@@ -444,7 +444,7 @@ $(document).ready(function() {
                 }, 'image/png');
             };
         });
-        
+
 
         $('#share_x').on('click', function() {      
             const text = "I’m a verified " + rankParam + ". Numbers don't lie";
@@ -550,7 +550,7 @@ $(document).ready(function() {
 
                 $('#form-discord').show();
                 $('#form-add').hide();
-        
+
                 // Show servers_title, hide others
                 $('#editTitle').show();
                 $('#servers_title').hide();
@@ -565,7 +565,7 @@ $(document).ready(function() {
 
                 $('#profile-shops').hide();
                 $('#profile-settings').show();
-        
+
                 // Show shops_title, hide others
                 $('#editTitle').show();
                 $('#shops_title').hide();
@@ -577,7 +577,7 @@ $(document).ready(function() {
                 // Hide profile-settings and show profile-private
                 $('#profile-settings').hide();
                 $('#profile-private').show();
-        
+
                 // Show editTitle, hide others
                 $('#editTitle').hide();
                 $('#servers_title').hide();
@@ -601,7 +601,7 @@ $(document).ready(function() {
 
             $('.shop-name').prop('disabled', true);
             $('.shop-name').css('background-color', '#21272c');
-        
+
             // Optionally, adjust titles as needed
             $('#shops_title').show();
             $('#servers_title').hide();
@@ -621,7 +621,7 @@ $(document).ready(function() {
 
             $('.discord-name').prop('disabled', true);
             $('.discord-name').css('background-color', '#21272c');
-        
+
             // Optionally, adjust titles as needed
             $('#servers_title').show();
             $('#shops_title').hide();
@@ -635,7 +635,7 @@ $(document).ready(function() {
                 }
             });
         }
-        
+
         $('#delete-shop-button').click(function () {
             removeActiveClones();
             $('.confirm-delete-button').toggle();
@@ -645,26 +645,26 @@ $(document).ready(function() {
         $('#delete-server-button').click(function () {
             $('.confirm-delete-button-d').toggle();
         });
-        
+
 
         function attachConfirmAddHandler(button) {
             button.on('click', function () {
                 const parentElem = $(this).closest('div');
                 const shopNameElem = parentElem.find('.shop-name');
                 let shopName = shopNameElem.val().trim();
-        
+
                 if (shopName === '' || /\s/.test(shopName)) {
                     shopNameElem.css('border-color', 'red');
                     return; 
                 }
-        
+
                 shopName = shopName.replace(/\.myshopify\.com$/, '');
                 const shopNameR = shopName + ',myshopify,com';
 
                 console.log("does: " + 'shopifyTokens/' + shopNameR)
-        
+
                 const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
-        
+
                 get(userShopifyTokenRef).then((snapshot) => {
                     if (snapshot.exists()) {
                         // Shop exists, so set the border color to red
@@ -673,7 +673,7 @@ $(document).ready(function() {
                         // Shop does not exist, proceed with the operation
                         shopNameElem.css('border-color', '');
                         const sanitizedEmail = userData.email;
-        
+
                         update(userShopifyTokenRef, {
                             owner: sanitizedEmail
                         }).then(() => {
@@ -688,7 +688,7 @@ $(document).ready(function() {
                 });
             });
         }
-        
+
 
 
 
@@ -704,18 +704,18 @@ $(document).ready(function() {
             $('#form-add').hide();
         });
 
-        
+
         // When the add shop button is clicked
         $('#add-shop-button').click(function () {
             $('.confirm-delete-button').hide();
-        
+
             // Check if there's already an active clone
             var activeClone = $('.shop-obj').filter(':not(:first)').filter(function () {
                 return $(this).find('.confirm-add-button').is(':visible');
             });
-        
+
             var hasActiveClone = activeClone.length > 0;
-        
+
             // If there is no active clone, proceed with adding a new one
             if (!hasActiveClone) {
                 var $shopObj = $('.shop-obj').last().clone();
@@ -725,19 +725,19 @@ $(document).ready(function() {
                 var $parent = $('.shop-obj').parent();
                 $shopObj.insertAfter($('.shop-obj').last());
                 $shopObj.find('.confirm-add-button').show();
-        
+
                 // Attach the event handler to the newly added button
                 attachConfirmAddHandler($shopObj.find('.confirm-add-button'));
             }
         });
-        
+
         // Attach the event handler to any existing confirm-add-buttons
         $('.confirm-add-button').each(function () {
             attachConfirmAddHandler($(this));
         });
-        
 
-             
+
+
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
             $('#editTitle').show();
@@ -807,8 +807,8 @@ $(document).ready(function() {
         }
 
         //rank stuff--------------------------------
-        
-    
+
+
     }).catch(error => {
         console.error("Failed to process user data or updates:", error);
     });
@@ -817,8 +817,6 @@ $(document).ready(function() {
 
 
 //Discord----------
-
-const visibleServers = new Set();
 
 function renderAllServers() {
     const serversRef = ref(db, '/discordServers');
@@ -838,19 +836,15 @@ function renderAllServers() {
             Object.keys(serverKeys).forEach((key) => {
                 const server = serverData[key];
 
-                if (!visibleServers.has(server.id)) {
-                    visibleServers.add(server.id);
-                }
-
                 const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
                 get(serverUsersRef).then(userSnapshot => {
                     let users = userSnapshot.val();
-                
+
                     // Ensure that 'users' is an object, even if it is empty or uninitialized
                     if (!users || typeof users !== 'object') {
                         users = {};  // Initialize as an empty object if not already an object
                     }
-                
+
                     // Check if the user is not already a part of this server's user list
                     if (!Object.values(users).includes(userData.id)) {
                         const serverClone = serverTemplate.cloneNode(true);
@@ -858,74 +852,56 @@ function renderAllServers() {
                         serverNameInput.value = server.name;
                         serverNameInput.disabled = true;
                         serverNameInput.style.backgroundColor = '#21272c';
-                
+
                         const serverUrlAnchor = serverClone.querySelector('.server-url');
                         serverUrlAnchor.href = server.url;
-                
+
                         const addButton = serverClone.querySelector('.server-add-button');
                         addButton.addEventListener('click', function() {
                             const userServersRef = ref(db, `/users/${userData.email}/servers`);
                             const addUserServerPromise = push(userServersRef, server.id);
-                
+
                             // Determine the next index for adding a new user
-                            if (!users[userData.id]) {
                             const nextIndex = Object.keys(users).length;
                             users[nextIndex] = userData.id;
-                            }
-                
+
                             const updateUserPromise = set(serverUsersRef, users);
-                
+
                             Promise.all([addUserServerPromise, updateUserPromise])
                             .then(() => {
                                 // Additional UI updates and handling
                                 $('#form-add').hide();
                                 $('#form-discord').show();
-                        
+
                                 var $serverHolderM = $('#serverHolderM');
                                 var $template = $serverHolderM.find('.discord-obj').first().clone().css('display', 'flex');
                                 var $serverNameElem = $template.find('.server-name').first();
                                 var $serverUrlElem = $template.find('.server-url').first();
-                        
+
                                 $serverNameElem.val(server.name);
                                 $serverNameElem.prop('disabled', true);
                                 $serverNameElem.css('background-color', '#21272c');
                                 $serverUrlElem.attr('href', server.url);
                                 $template.css('display', 'flex');
                                 $serverHolderM.append($template);
-                        
+
                                 $template.find('.confirm-delete-button-d').click(function() {
                                     console.log("Initiating Removal for Server ID:", server.id); 
-                                
+
                                     $template.css('display', 'none');
 
-                                    console.log("visible servers ", visibleServers);
-
-                                    if (!visibleServers.has(server.id)) {
-                                        visibleServers.add(server.id);
-                                        const serverNames = document.getElementById('serverHolder').getElementsByClassName('server-name');
-                                        Array.from(serverNames).forEach(elem => {
-                                            console.log("check if: " + elem.value + " === " + server.name)
-                                            if (elem.value === server.name) {
-                                                const parent = elem.closest('.discord-obj-add');
-                                                if (parent) {
-                                                    parent.style.display = 'flex'; 
-                                                }
-                                            }
-                                        });
-                                    }
-                                
                                     const serversRef = ref(db, '/discordServers');
                                     const serversQuery = query(serversRef);
-                                
+
                                     get(serversQuery).then((snapshot) => {
                                         if (snapshot.exists()) {
                                             const freshServerData = snapshot.val(); // Refetching the updated server data
                                             const serverDetails = freshServerData[server.id];
                                             console.log("Updated ServerDetails: ", serverDetails)
-                                
+
                                             const updateServerData = {};
                                             const userServersRef = ref(db, `/users/${userData.email}/servers`);
-                                
+
                                             // Fetching the user data
                                             get(userServersRef).then(snapshot => {
                                                 snapshot.forEach(childSnapshot => {
@@ -934,7 +910,7 @@ function renderAllServers() {
                                                         updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                                                     }
                                                 });
-                                
+
                                                 // Update the data
                                                 update(ref(db), updateServerData).then(() => {
                                                     console.log("Server removed from user's list:", server.id); 
@@ -944,7 +920,7 @@ function renderAllServers() {
                                             }).catch(error => {
                                                 console.error("Error fetching servers:", error);
                                             });
-                                
+
                                             if (serverDetails && Array.isArray(serverDetails.users)) {
                                                 const usersIndex = serverDetails.users.indexOf(userData.id);
                                                 if (usersIndex > -1) {
@@ -966,28 +942,24 @@ function renderAllServers() {
                                         console.error('Error refetching servers:', error);
                                     });
                                 });
-                                
-                                
-                        
-                                $('#noDisTxt').hide();      
-                                visibleServers.delete(server.id);                  
-                                serverClone.style.display = 'none';
+
+
+
+                                $('#noDisTxt').hide();                        
+                                serverClone.remove();
                             })
                             .catch((error) => {
                                 console.error('Error during operations:', error);
                             });
                         });
-                
+
                         serverHolder.appendChild(serverClone);
-                        if (!visibleServers.has(server.id)) {
-                            serverClone.style.display = 'none';
-                        }
                     }
                 }).catch((error) => {
                     console.error('Error fetching server users:', error);
                 });
-                
-                
+
+
             });
 
             if (!Object.keys(serverKeys).includes(serverTemplate.getAttribute('id'))) {
@@ -1034,22 +1006,6 @@ function renderConnectedServers() {
 
                     $serverElem.remove();
 
-                    console.log("visible servers ", visibleServers);
-
-                    if (!visibleServers.has(serverId)) {
-                        visibleServers.add(serverId);
-                        const serverNames = document.getElementById('serverHolder').getElementsByClassName('server-name');
-                        Array.from(serverNames).forEach(elem => {
-                            console.log("check if: " + elem.value + " === " + serverData.name)
-                            if (elem.value === serverData.name) {
-                                const parent = elem.closest('.discord-obj-add');
-                                if (parent) {
-                                    parent.style.display = 'flex'; 
-                                }
-                            }
-                        });
-                    }
-
                     const updateServerData = {};
                     updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                     update(ref(db), updateServerData).then(() => {
@@ -1087,7 +1043,7 @@ function confirmDiscordInvite() {
         if (snapshot.exists()) {
             const userData = snapshot.val();
             console.log("User data fetched:", userData);
-            
+
             if (userData.servers && typeof userData.servers === 'object') {
                 Object.values(userData.servers).forEach(serverId => {  // Use Object.values to get the values
                     const serverRef = ref(db, '/discordServers/' + serverId);
@@ -1198,7 +1154,7 @@ function renderConnectedShops() {
                                             console.error("Error updating total revenue:", error);
                                             shopClone.style.borderColor = "red";
                                         });
-                                        
+
                                     } else {
                                         console.log("User not found.");
                                         shopClone.style.borderColor = "red";
@@ -1449,5 +1405,3 @@ function findUserRank(usersEmail, callback) {
         }
     });
 }
-
-
