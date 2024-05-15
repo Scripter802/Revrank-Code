@@ -47,7 +47,7 @@ async function getShopifyApiKey() {
         }
 
         const data = await response.json();
-        return data.apiKey;
+        return data;
     } catch (error) {
         console.error('Error fetching Shopify API key:', error);
         return null;
@@ -59,9 +59,7 @@ async function getShopifyApiKey() {
     firebaseConfig = await getConfig();
     SHOPIFY_API_KEY = await getShopifyApiKey();
 
-    console("config", firebaseConfig)
-    console("shop key", SHOPIFY_API_KEY)
-    
+ 
     if (firebaseConfig && SHOPIFY_API_KEY) {
         mainCode();
     } else {
