@@ -4,21 +4,71 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth
 import { getDatabase, ref, set, get, remove, update, orderByChild, query, equalTo, onValue, push } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyC_vyGHFYT3QjkUULZwHqL2p4PYjqVoLnE",
-    authDomain: "revrank-d889f.firebaseapp.com",
-    databaseURL: "https://revrank-d889f-default-rtdb.europe-west1.firebasedatabase.app/",
-    projectId: "revrank-d889f",
-    storageBucket: "revrank-d889f.appspot.com",
-    messagingSenderId: "715615705364",
-    appId: "1:715615705364:web:523f3f60f1e83b2cb90a01",
-    measurementId: "G-TW6MMTZTD2"
-};
 
-
-const SHOPIFY_API_KEY = '719a1498fa70ec83dbaeb14f152d5751';
+var SHOPIFY_API_KEY;
 const SHOPIFY_REDIRECT_URI = 'https://revrank-api.onrender.com/shopify/callback';
 const SHOPIFY_SCOPES = 'read_orders';
+
+//------------------------------------------------
+var firebaseConfig;
+
+async function getConfig() {
+    try {
+        const response = await fetch('https://revrank-api.onrender.com/fire-config', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const firebaseConfig = await response.json();
+        return firebaseConfig;
+    } catch (error) {
+        console.error('Error fetching Fire config:', error);
+        return null;
+    }
+}
+
+async function getShopifyApiKey() {
+    try {
+        const response = await fetch('https://revrank-api.onrender.com/shop-key', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.apiKey;
+    } catch (error) {
+        console.error('Error fetching Shopify API key:', error);
+        return null;
+    }
+}
+
+// Usage
+(async () => {
+    firebaseConfig = await getConfig();
+    SHOPIFY_API_KEY = await getShopifyApiKey();
+    
+    if (firebaseConfig && SHOPIFY_API_KEY) {
+        mainCode();
+    } else {
+        console.log("Failed to fetch config.");
+    }
+})();
+
+
+function mainCode(){
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
@@ -737,7 +787,7 @@ $(document).ready(function() {
         });
         
 
-             
+            
         $('#open-settings').click(function() {
             $('#profile-settings').css('display', 'flex');
             $('#editTitle').show();
@@ -1451,3 +1501,5 @@ function findUserRank(usersEmail, callback) {
 }
 
 
+        
+}
