@@ -58,6 +58,9 @@ async function getShopifyApiKey() {
 (async () => {
     firebaseConfig = await getConfig();
     SHOPIFY_API_KEY = await getShopifyApiKey();
+
+    console("config", firebaseConfig)
+    console("shop key", SHOPIFY_API_KEY)
     
     if (firebaseConfig && SHOPIFY_API_KEY) {
         mainCode();
