@@ -48,7 +48,7 @@ async function getShopifyApiKey() {
         }
 
         const data = await response.json();
-        return JSON.parse(decrypt(data));
+        return decrypt(data);
     } catch (error) {
         console.error('Error fetching Shopify API key:', error);
         return null;
