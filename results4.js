@@ -11,6 +11,7 @@ const SHOPIFY_SCOPES = 'read_orders';
 
 //------------------------------------------------
 var firebaseConfig;
+var emailSupport = 'support@revrank.io';
 
 async function getConfig() {
     try {
@@ -26,7 +27,7 @@ async function getConfig() {
         }
 
         const firebaseConfig = await response.json();
-        return firebaseConfig;
+        return JSON.parse(decrypt(firebaseConfig));
     } catch (error) {
         console.error('Error fetching Fire config:', error);
         return null;
@@ -47,7 +48,7 @@ async function getShopifyApiKey() {
         }
 
         const data = await response.json();
-        return data;
+        return JSON.parse(decrypt(data));
     } catch (error) {
         console.error('Error fetching Shopify API key:', error);
         return null;
@@ -1503,4 +1504,9 @@ function findUserRank(usersEmail, callback) {
 
 
         
+}
+
+function decrypt(ciphertext) {
+    const bytes = crypto.AES.decrypt(ciphertext, SECRET_KEY);
+    return bytes.toString(crypto.enc.Utf8);
 }

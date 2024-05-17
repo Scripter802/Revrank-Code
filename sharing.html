@@ -1,3 +1,4 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script type="module">
@@ -7,6 +8,7 @@
   
     //------------------------------------------------
     var firebaseConfig;
+    var emailSupport = 'support@revrank.io';
 
     async function getConfig() {
         try {
@@ -22,7 +24,7 @@
             }
 
             const firebaseConfig = await response.json();
-            return firebaseConfig;
+            return JSON.parse(decrypt(firebaseConfig));
         } catch (error) {
             console.error('Error fetching Fire config:', error);
             return null;
@@ -227,6 +229,11 @@
     return rankTextMap;
     }
 
+    }
+
+    function decrypt(ciphertext) {
+        const bytes = crypto.AES.decrypt(ciphertext, SECRET_KEY);
+        return bytes.toString(crypto.enc.Utf8);
     }
 
 </script>
