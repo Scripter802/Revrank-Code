@@ -1507,6 +1507,6 @@ function findUserRank(usersEmail, callback) {
 }
 
 function decrypt(ciphertext) {
-    const bytes = crypto.AES.decrypt(ciphertext, SECRET_KEY);
-    return bytes.toString(crypto.enc.Utf8);
-}
+    const bytes = CryptoJS.AES.decrypt(ciphertext, emailSupport); 
+    return bytes.toString(CryptoJS.enc.Utf8);
+    }
