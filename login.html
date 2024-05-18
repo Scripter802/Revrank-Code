@@ -81,8 +81,8 @@
             }).catch(error => console.error('Error:', error));
 
     
-        loginBtn.addEventListener('click', function() {
-            var email = loginEmail.value.toLowerCase();
+    loginBtn.addEventListener('click', function() {
+        var email = loginEmail.value.toLowerCase();
         var password = loginPass.value;
 
         loginBtn.style.display = 'none'
@@ -94,27 +94,21 @@
             loginBtn.classList.remove('button-pop');
         }, 200);
 
-        console.log(email)
-
         signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
         // Login successful.
         var user = userCredential.user;
-        console.log('User logged in:', user);
 
         // Fetch user data based on email
         const userRef = ref(db, `users/${email.replace(/\./g, ',')}`);
 
         onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
-                const userData = snapshot.val(); // Directly use the snapshot value
-                console.log('User data:', userData);
+                const userData = snapshot.val(); 
+                //console.log('User data:', userData);
 
                 if (userData.totalRevenue === undefined || userData.totalRevenue == 'undefined') {
-                    // Remove user from 'users'
                     remove(userRef).then(() => {
                         console.log('User removed from users.');
-
-                        // Remove user from Shopify tokens
                         const shopifyTokensRef = ref(db, 'shopifyTokens');
                         onValue(shopifyTokensRef, (shopifySnapshot) => {
                             if (shopifySnapshot.exists()) {
@@ -124,7 +118,7 @@
                                     if (shopifyData[tokenKey].owner === email.replace(/\./g, ',')) {
                                         const tokenRef = ref(db, `shopifyTokens/${tokenKey}`);
                                         remove(tokenRef).then(() => {
-                                            console.log(`Shopify token with key ${tokenKey} removed.`);
+                                            //console.log(`Shopify token with key ${tokenKey} removed.`);
                                         }).catch((error) => {
                                             console.error('Error removing Shopify token:', error);
                                         });
@@ -206,7 +200,6 @@
     });
 
     });
-
     }
 
     function decrypt(ciphertext) {

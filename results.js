@@ -96,7 +96,6 @@ $(document).ready(function() {
 
     userID = urlParams.get('u');
 
-    console.log("userID: " + userID)
     if (userID) {
         //Normal login
         console.log('Normal login');
@@ -113,7 +112,6 @@ $(document).ready(function() {
 
         shopRevenue = parseFloat(urlParams.get('shopRevenue'));
         if (!userID && !shopRevenue) {
-            console.log("redirect: userID: " + userID + " && " + shopRevenue )
             window.location.href = 'https://www.revrank.io/login';
         }
         shopNameUsed = urlParams.get('shopName').replace(',myshopify,com', '');
@@ -138,7 +136,6 @@ $(document).ready(function() {
         renderConnectedServers();
         renderAllServers();
 
-        console.log("isfirsttime: " + isFirstTime)
         if(isFirstTime){
             //First time -> add to discord server IF he has invite
             confirmDiscordInvite();
@@ -319,10 +316,6 @@ $(document).ready(function() {
         }
         firstNameParam = userData.firstName;
         igHandleParam = userData.instagram;
-
-        console.log("sending IG: " + igHandleParam)
-        console.log("totalRevenueParam: " + totalRevenueParam)
-        console.log("rank: " + rankParam)
 
         if(totalRevenueParam == null)
         return
@@ -554,24 +547,14 @@ $(document).ready(function() {
 
                     // Get the download URL
                     getDownloadURL(snapshot.ref).then((downloadURL) => {
-                        console.log('File available at', downloadURL);
 
                         $('#profile-pic').css('background-image', 'url(' + downloadURL + ')');
                         $('#profile-pic-nav').children().first().css('background-image', 'url(' + downloadURL + ')');
 
-
-                        console.log("auth.currentUser: " + auth.currentUser);
-
-                        // Assuming you have the user's email
-                        const emailValue = auth.currentUser.email; // Modify as needed to match how you get the user email
-
-                        // Safe path to use in Firebase keys
-                        const safeEmail = emailValue.replace(/\./g, ','); // Firebase keys can't contain '.'
-
-                        // Reference to the user's data in the database
+                        const emailValue = auth.currentUser.email; 
+                        const safeEmail = emailValue.replace(/\./g, ',');
                         const userRef = ref(db, 'users/' + safeEmail);
 
-                        // Update the user's profile picture URL in the database
                         update(userRef, {
                             profilePic: downloadURL
                         }).then(() => {
@@ -712,8 +695,6 @@ $(document).ready(function() {
         
                 shopName = shopName.replace(/\.myshopify\.com$/, '');
                 const shopNameR = shopName + ',myshopify,com';
-
-                console.log("does: " + 'shopifyTokens/' + shopNameR)
         
                 const userShopifyTokenRef = ref(db, 'shopifyTokens/' + shopNameR);
         
@@ -946,17 +927,13 @@ function renderAllServers() {
                                 $serverHolderM.append($template);
                         
                                 $template.find('.confirm-delete-button-d').click(function() {
-                                    console.log("Initiating Removal for Server ID:", server.id); 
                                 
                                     $template.css('display', 'none');
-
-                                    console.log("visible servers ", visibleServers);
 
                                     if (!visibleServers.has(server.id)) {
                                         visibleServers.add(server.id);
                                         const serverNames = document.getElementById('serverHolder').getElementsByClassName('server-name');
                                         Array.from(serverNames).forEach(elem => {
-                                            console.log("check if: " + elem.value + " === " + server.name)
                                             if (elem.value === server.name) {
                                                 const parent = elem.closest('.discord-obj-add');
                                                 if (parent) {
@@ -973,7 +950,7 @@ function renderAllServers() {
                                         if (snapshot.exists()) {
                                             const freshServerData = snapshot.val(); // Refetching the updated server data
                                             const serverDetails = freshServerData[server.id];
-                                            console.log("Updated ServerDetails: ", serverDetails)
+                                            console.log("Updated ServerDetails")
                                 
                                             const updateServerData = {};
                                             const userServersRef = ref(db, `/users/${userData.email}/servers`);
@@ -989,7 +966,7 @@ function renderAllServers() {
                                 
                                                 // Update the data
                                                 update(ref(db), updateServerData).then(() => {
-                                                    console.log("Server removed from user's list:", server.id); 
+                                                    console.log("Server removed from user's list"); 
                                                 }).catch(error => {
                                                     console.error("Error removing server from user's list:", error); 
                                                 });
@@ -1004,14 +981,14 @@ function renderAllServers() {
                                                     const serverUsersRef = ref(db, `/discordServers/${server.id}/users`);
                                                     set(serverUsersRef, serverDetails.users)
                                                         .then(() => {
-                                                            console.log("User removed from server's user list:", userData.id); // Debug log
+                                                            console.log("User removed from server's user list"); // Debug log
                                                         })
                                                         .catch(error => {
                                                             console.error("Error removing user from server's user list:", error); // Error log
                                                         });
                                                 }
                                             } else {
-                                                console.log("No user list found for the server:", server.id);
+                                                console.log("No user list found for the server");
                                             }
                                         }
                                     }).catch((error) => {
@@ -1064,12 +1041,10 @@ function renderConnectedServers() {
     var $template = $serverHolderM.find('.discord-obj').first();
 
     $.each(userData.servers, function(serverKey, serverId) {
-        console.log("Server Key:", serverKey, "Server ID:", serverId); // Debug log
 
         var serverRef = ref(db, `/discordServers/${serverId}`);
         onValue(serverRef, function(snapshot) {
             var serverData = snapshot.val();
-            console.log("Server Data Fetched for Server ID:", serverId, serverData); // Debug log
 
             if (serverData) {
                 var $serverElem = $template.clone().css('display', 'flex');
@@ -1082,17 +1057,13 @@ function renderConnectedServers() {
                 $serverUrlElem.attr('href', serverData.url);
 
                 $serverElem.find('.confirm-delete-button-d').click(function() {
-                    console.log("Initiating Removal for Server Key:", serverKey); // Debug log
 
                     $serverElem.remove();
-
-                    console.log("visible servers ", visibleServers);
 
                     if (!visibleServers.has(serverId)) {
                         visibleServers.add(serverId);
                         const serverNames = document.getElementById('serverHolder').getElementsByClassName('server-name');
                         Array.from(serverNames).forEach(elem => {
-                            console.log("check if: " + elem.value + " === " + serverData.name)
                             if (elem.value === serverData.name) {
                                 const parent = elem.closest('.discord-obj-add');
                                 if (parent) {
@@ -1105,9 +1076,9 @@ function renderConnectedServers() {
                     const updateServerData = {};
                     updateServerData[`/users/${userData.email}/servers/${serverKey}`] = null;
                     update(ref(db), updateServerData).then(() => {
-                        console.log("(already connected) Server removed from user's list:", serverKey); // Debug log
+                        console.log("(already connected) Server removed from user's list");
                     }).catch(error => {
-                        console.error("Error removing server from user's list:", error); // Error log
+                        console.error("Error removing server from user's list:", error); 
                     });
 
                     const usersIndex = serverData.users.indexOf(userData.id);
@@ -1115,9 +1086,9 @@ function renderConnectedServers() {
                         serverData.users.splice(usersIndex, 1);
                         const serverUsersRef = ref(db, `/discordServers/${serverId}/users`);
                         set(serverUsersRef, serverData.users).then(() => {
-                            console.log("(already connected) User removed from server's user list:", userData.id); // Debug log
+                            console.log("(already connected) User removed from server's user list"); 
                         }).catch(error => {
-                            console.error("Error removing user from server's user list:", error); // Error log
+                            console.error("Error removing user from server's user list:", error); 
                         });
                     }
                 });
@@ -1138,7 +1109,7 @@ function confirmDiscordInvite() {
     get(userRef).then((snapshot) => {
         if (snapshot.exists()) {
             const userData = snapshot.val();
-            console.log("User data fetched:", userData);
+            console.log("User data fetched");
             
             if (userData.servers && typeof userData.servers === 'object') {
                 Object.values(userData.servers).forEach(serverId => {  // Use Object.values to get the values
@@ -1154,12 +1125,12 @@ function confirmDiscordInvite() {
                                 const updates = {};
                                 updates['/discordServers/' + serverId + '/users'] = users;
                                 update(ref(db), updates);
-                                console.log("User added to server:", serverId);
+                                console.log("User added to server");
                             } else {
-                                console.log("User already exists in server:", serverId);
+                                console.log("User already exists in server");
                             }
                         } else {
-                            console.log("No server data found for:", serverId);
+                            console.log("No server data found for");
                         }
                     }).catch(error => {
                         console.error("Error reading server data:", error);
@@ -1316,12 +1287,12 @@ function fetchUserDataByEmail(usersID, db) {
             if (snapshot.exists()) {
                 const firstUserKey = Object.keys(snapshot.val())[0]; // Get the first key
                 const firstUserData = snapshot.val()[firstUserKey]; // Get the data of the first user
-                console.log('User data fetched for usersID:', usersID);
+                console.log('User data fetched for usersID');
                 handleUserData(firstUserData)
                     .then(resolve)
                     .catch(reject);
             } else {
-                console.log('No user found for this usersID:', usersID);
+                console.log('No user found for this usersID');
                 resolve();
             }
         }).catch((error) => {
@@ -1348,7 +1319,6 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                             if (userSnapshot.exists()) {
                                 let currentRevenue = Number(userSnapshot.val().totalRevenue) || 0;
                                 let newTotalRevenue = currentRevenue + Number(shopRevenue);
-                                console.log("current: " + currentRevenue + " + " + shopRevenue);
                                 update(userSnapshot.ref, { totalRevenue: newTotalRevenue })                                
                                 .then(() => {
                                     // Re-fetch the updated user data
@@ -1358,11 +1328,11 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                                     if (updatedUserSnapshot.exists()) {
                                         // Handle user data after update and resolve
                                         return handleUserData(updatedUserSnapshot.val()).then(() => {
-                                            console.log('Revenue update and user data handling completed for owner ID:', ownerId);
+                                            console.log('Revenue update and user data handling completed for owner ID');
                                             resolve();
                                         });
                                     } else {
-                                        console.log('Failed to refetch updated user data for owner ID:', ownerId);
+                                        console.log('Failed to refetch updated user data for owner ID');
                                         resolve();
                                     }
                                 })
@@ -1371,7 +1341,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                                     reject(error);
                                 });
                             } else {
-                                console.log('User not found for owner ID:', ownerId);
+                                console.log('User not found for owner ID');
                                 resolve();
                             }
                         })
@@ -1380,7 +1350,7 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
                             reject(error);
                         });
                     } else {
-                        console.log('Owner ID not found in shop token data:', shopChildSnapshot.key);
+                        console.log('Owner ID not found in shop token data');
                         resolve();
                     }
                 });
@@ -1399,7 +1369,6 @@ function fetchUserDataByShopNameAndUpdateRevenue(shopName, shopRevenue, db) {
 function handleUserData(userDataP) {
     return new Promise((resolve, reject) => {
         userData = userDataP
-        console.log('Fetched User Data:', userData);
         resolve(); // Resolve when handling is complete
     });
 }

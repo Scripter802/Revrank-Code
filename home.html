@@ -92,8 +92,6 @@ import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onVal
     });
 
     const leaderboard = users.sort((a, b) => parseFloat(b.totalRevenue) - parseFloat(a.totalRevenue));
-
-    console.log('Leaderboard:', leaderboard);
 };
 
     }   

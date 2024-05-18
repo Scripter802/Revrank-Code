@@ -128,14 +128,8 @@
 
         makeCircleActive("step2c");
 
-        console.log("step 1 click")
-        console.log(document.querySelector('#nameInput').value )
-
         if(document.querySelector('#nameInput').value == false || document.querySelector('#lastNameInput').value == false)
         return;
-
-        console.log("step 1 ENTER")
-
 
         document.querySelector('#firstDiv').style.display = 'none'
         document.querySelector('#secondStep').style.display = 'flex'
@@ -165,7 +159,7 @@
     createUserWithEmailAndPassword(auth, email, pass)
     .then((userCredential) => {
         var user = userCredential.user;
-        console.log('User registered:', user);
+        console.log('User registered');
 
         var urlParams = new URLSearchParams(window.location.search);
         serverInvite = urlParams.get('d');
@@ -227,7 +221,7 @@
                                 createUserWithEmailAndPassword(auth, email, pass)
                                     .then((userCredential) => {
                                         var user = userCredential.user;
-                                        console.log('New user registered:', user);
+                                        console.log('New user registered');
 
                                         var urlParams = new URLSearchParams(window.location.search);
                                         serverInvite = urlParams.get('d');
