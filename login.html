@@ -1,9 +1,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-<script type="module">
+<script type="module">  
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
     import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
-  
+    
     var loginEmail = document.querySelector('#loginEmail');
     var loginPass = document.querySelector('#loginPass');
     var loginBtn = document.querySelector('#loginBtn');
@@ -51,34 +51,18 @@
 
 
     function mainCode(){
+       
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase();
 
-              
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth();
-        const db = getDatabase();
+    emailForm.addEventListener('submit', handlerCallback, true);
+    function handlerCallback(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    }
 
-        emailForm.addEventListener('submit', handlerCallback, true);
-        function handlerCallback(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        }
-    
-        var realLoginPassword = "";
-
-        fetch('https://revrank-image-gen.onrender.com/generate-image', {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ rank: 'Pawn', firstName: 'dummy' }),
-            })
-            .then(response => response.blob())
-            .then(blob => {
-                
-                console.log("Dummy image arrived");
-
-            }).catch(error => console.error('Error:', error));
+    var realLoginPassword = "";
 
     
     loginBtn.addEventListener('click', function() {

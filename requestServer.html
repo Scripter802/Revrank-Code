@@ -1,105 +1,41 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
-    import { getDatabase, ref, set, update, orderByChild, query, equalTo, onValue, remove } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-database.js";
-  
-    //------------------------------------------------
-    var firebaseConfig;
-    var emailSupport = 'support@revrank.io';
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
 
-    async function getConfig() {
-        try {
-            const response = await fetch('https://revrank-api.onrender.com/fire-config', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+  var serverURL = 'http://localhost:3000';
+
+  $(document).ready(function() {
+    $('#sendForReview').on('click', function() {
+      const emailInput = $('#email_Input').val();
+      const serverName = $('#serverName').val().trim();
+      const serverLink = $('#serverLink').val();
+
+      if (emailInput && serverName && serverLink) {
+        $.ajax({
+          url: serverURL + '/request-server',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ emailInput, serverName, serverLink }),
+          success: function(data) {
+            if (data.success) {
+              $('#succTxt').show();
+              $('#sendForReview').hide();
+              $('#email_Input').val('');
+              $('#serverName').val('');
+              $('#serverLink').val('');
+            } else {
+              alert(data.message);
             }
-
-            const firebaseConfig = await response.json();
-            return JSON.parse(decrypt(firebaseConfig));
-        } catch (error) {
-            console.error('Error fetching Fire config:', error);
-            return null;
-        }
-    }
-
-    // Usage
-    (async () => {
-        firebaseConfig = await getConfig();
-        
-        if (firebaseConfig) {
-            mainCode();
-        } else {
-            console.log("Failed to fetch config.");
-        }
-    })();
-
-
-    function mainCode(){
-  
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getDatabase();
-
-    const sendForReviewBtn = document.getElementById('sendForReview');
-    sendForReviewBtn.addEventListener('click', () => {
-        const emailInput = document.getElementById('email_Input').value;
-        const serverName = document.getElementById('serverName').value.trim();
-        const serverLink = document.getElementById('serverLink').value;
-
-        if (emailInput && serverName && serverLink) {
-            const newServerId = generateHash(8); // Ensure you have a function to generate a hash
-            const newServer = {
-                ownerEmail: emailInput,
-                name: serverName,
-                url: serverLink,
-                leaderboard: '',
-                users: '',
-                approved: 'N',
-                id: newServerId
-            };
-
-            const serverRef = ref(db, 'discordServers/' + newServerId);
-            set(serverRef, newServer)
-                .then(() => {
-                    document.getElementById('succTxt').style.display = "block"
-                    document.getElementById('sendForReview').style.display = "none"
-                    
-                    document.getElementById('email_Input').value = '';
-                    document.getElementById('serverName').value = '';
-                    document.getElementById('serverLink').value = '';
-                })
-                .catch((error) => {
-                    console.error('Error submitting server:', error);
-                    alert('Failed to submit server for review.');
-                });
-        } else {
-            alert('Please fill all fields.');
-        }
+          },
+          error: function(error) {
+            console.error('Error:', error);
+            alert('Failed to submit server for review.');
+          }
+        });
+      } else {
+        alert('Please fill all fields.');
+      }
     });
-
-    function generateHash(length) {
-        const result = [];
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const charactersLength = characters.length;
-        for (let i = 0; i < length; i++) {
-            result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
-        }
-        return result.join('');
-    }
-
-    }
-
-
-    function decrypt(ciphertext) {
-    const bytes = CryptoJS.AES.decrypt(ciphertext, emailSupport); 
-    return bytes.toString(CryptoJS.enc.Utf8);
-    }
-
+  });
 </script>

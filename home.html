@@ -9,6 +9,11 @@ import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onVal
     var firebaseConfig;
     var emailSupport = 'support@revrank.io';
 
+    document.addEventListener('DOMContentLoaded', function() {
+        Sliding();
+    });
+
+
     async function getConfig() {
         try {
             const response = await fetch('https://revrank-api.onrender.com/fire-config', {
@@ -45,22 +50,40 @@ import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onVal
 
     function mainCode(){
 
+    console.log('main code')
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getDatabase();
 
+    const createLeaderboard = async () => {
+        const usersRef = ref(db, '/users');
+        const snapshot = await get(usersRef);
+        const users = [];
 
-    document.addEventListener('DOMContentLoaded', function() {
+        snapshot.forEach(childSnapshot => {
+            const user = childSnapshot.val();
+            if (user.totalRevenue !== undefined) {
+                users.push(user);
+            }
+        });
+
+        const leaderboard = users.sort((a, b) => parseFloat(b.totalRevenue) - parseFloat(a.totalRevenue));
+    };
+
+    createLeaderboard();
+    }
+
+
+
+    function Sliding(){
         const fadeBtn = document.getElementById('fadeBtn');
         const fadeImg = document.getElementById('fadeImg');
-    
-        // Store the original margin top value of the fadeImg
         const originalMarginTop = fadeImg.style.marginTop;
-    
-        // Flag to track the sliding state
         let isSlidOut = false;
-    
+
         fadeBtn.addEventListener('click', function() {
+
             if (!isSlidOut) {
                 // Slide out
                 fadeBtn.style.marginTop = '10vh';
@@ -69,32 +92,11 @@ import { getDatabase, ref, set, update, get, query, orderByChild, equalTo, onVal
             } else {
                 // Slide back in
                 fadeBtn.style.marginTop = '-5vh';
-                fadeImg.style.marginTop = originalMarginTop; // Use the stored original margin top value
+                fadeImg.style.marginTop = originalMarginTop;
                 isSlidOut = false;
             }
         });
-
-        createLeaderboard();
-
-    });
-
-
-    const createLeaderboard = async () => {
-    const usersRef = ref(db, '/users');
-    const snapshot = await get(usersRef);
-    const users = [];
-
-    snapshot.forEach(childSnapshot => {
-        const user = childSnapshot.val();
-        if (user.totalRevenue !== undefined) {
-            users.push(user);
-        }
-    });
-
-    const leaderboard = users.sort((a, b) => parseFloat(b.totalRevenue) - parseFloat(a.totalRevenue));
-};
-
-    }   
+    }
 
     function decrypt(ciphertext) {
     const bytes = CryptoJS.AES.decrypt(ciphertext, emailSupport); 
