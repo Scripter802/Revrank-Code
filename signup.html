@@ -184,6 +184,20 @@
                 DisSkipBtn.style.display = "none";
             }
 
+            
+            //Add them to Abandon Sign Up
+            fetch('https://revrank-api.onrender.com/add-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch((error) => console.error('Error:', error));
+
+
         }).catch(error => {
             console.error('Error registering user:', error);
             // Handle error

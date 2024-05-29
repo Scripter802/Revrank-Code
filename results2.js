@@ -138,6 +138,19 @@ $(document).ready(function() {
 
         if(isFirstTime){
             //First time -> add to discord server IF he has invite
+
+            fetch('https://revrank-api.onrender.com/remove-email', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: userData.email })
+            })
+            .then(response => response.json())
+            .then(data => console.log('Email removed successfully:', data))
+            .catch((error) => console.error('Error:', error));
+            
+            
             confirmDiscordInvite();
         }
 
