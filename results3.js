@@ -128,6 +128,8 @@ $(document).ready(function() {
     //All good!!!!
     console.log("all good!")
 
+    var orignialEmail = userData.email.replace(/,/g, '.');
+
         //Remove invalid stores
         cleanupFirebaseUserData(userData.email, db);
 
@@ -144,7 +146,7 @@ $(document).ready(function() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email: userData.email })
+                body: JSON.stringify({ email: orignialEmail })
             })
             .then(response => response.json())
             .then(data => console.log('Email removed successfully:', data))
