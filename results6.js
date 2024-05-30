@@ -851,6 +851,43 @@ $(document).ready(function() {
             if (rankTextMap[rank]) {
                 $('#smallTxt, #smallTxt-profile').html(rankTextMap[rank]);
             }
+
+            if(isFirstTime){
+                if(rank == "King"){
+                    fetch('https://revrank-api.onrender.com/add-email-king', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error));
+                }else if(rank == "Queen"){
+                    fetch('https://revrank-api.onrender.com/add-email-queen', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error));
+                }else{
+                    fetch('https://revrank-api.onrender.com/add-email-rook', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error));
+                }
+            }
         }
 
         //rank stuff--------------------------------
