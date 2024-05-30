@@ -859,7 +859,7 @@ $(document).ready(function() {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ email: email })
+                        body: JSON.stringify({ email: originalEmail })
                     })
                     .then(response => response.json())
                     .then(data => console.log('Success:', data))
@@ -870,7 +870,7 @@ $(document).ready(function() {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ email: email })
+                        body: JSON.stringify({ email: originalEmail })
                     })
                     .then(response => response.json())
                     .then(data => console.log('Success:', data))
@@ -881,7 +881,7 @@ $(document).ready(function() {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ email: email })
+                        body: JSON.stringify({ email: originalEmail })
                     })
                     .then(response => response.json())
                     .then(data => console.log('Success:', data))
